@@ -19,7 +19,7 @@ const NavBar = () => {
         height: "100vh",
         maxHeight: "100vh",
         display: "flex",
-        gap: "5vh",
+        gap: "2vh",
         flexDirection: "column",
         maxWidth: "44px",
       }}

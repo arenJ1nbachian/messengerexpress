@@ -3,7 +3,7 @@ import "./Category.css";
 const Category = ({ img }) => {
   return (
     <>
-      <img src={img} width="40px" height="40px" alt="icons" />
+      <img src={img} width="30px" height="30px" alt="icons" />
     </>
   );
 };
