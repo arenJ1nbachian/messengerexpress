@@ -1,0 +1,25 @@
+.chat-container::-webkit-scrollbar {
+  width: 0.5vw;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+  background-color: rgba(236, 231, 231, 0.616);
+  border-radius: 10px;
+  transition: opacity 5s ease-in-out;
+}
+
+.chat-container::-webkit-scrollbar-track {
+  background: "rgb(45,45,45)";
+}
+
+.chat-container.hovered::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+.chat-container:not(.hovered)::-webkit-scrollbar-thumb {
+  opacity: 0;
+}
+
+.chat-container {
+  overflow-y: auto;
+}
