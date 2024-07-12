@@ -1,15 +1,14 @@
 import { useState } from "react";
-import settings from "../images/settings.svg";
-import restricted from "../images/restriced.svg";
-import security from "../images/security.svg";
-import supervision from "../images/supervision.svg";
-import help from "../images/help.svg";
-import report from "../images/report.svg";
-import policy from "../images/policy.svg";
-import messenger from "../images/messenger.svg";
-import logout from "../images/logout.svg";
-import edge from "../images/icon.svg";
-
+import settings from "../../images/settings.svg";
+import restricted from "../../images/restriced.svg";
+import security from "../../images/security.svg";
+import supervision from "../../images/supervision.svg";
+import help from "../../images/help.svg";
+import report from "../../images/report.svg";
+import policy from "../../images/policy.svg";
+import messenger from "../../images/messenger.svg";
+import logout from "../../images/logout.svg";
+import edge from "../../images/icon.svg";
 import "./AccountAndSettings.css";
 
 const AccountAndSettings = () => {

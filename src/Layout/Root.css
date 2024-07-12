@@ -1,0 +1,9 @@
+#root {
+  display: flex;
+  flex-direction: row;
+}
+
+.main {
+  margin-top: auto;
+  margin-bottom: auto;
+}
