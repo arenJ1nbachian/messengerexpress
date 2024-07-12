@@ -50,7 +50,7 @@ const AccountAndSettings = () => {
           onMouseLeave={() => setHovered(false)}
           style={{
             backgroundColor: "rgb(45,45,45)",
-            marginTop: "1vh",
+
             borderRadius: "15px",
             width: "19vw",
             height: "50vh",

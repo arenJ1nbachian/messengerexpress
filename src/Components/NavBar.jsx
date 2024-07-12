@@ -7,11 +7,14 @@ import request from "../images/requestIcon.svg";
 import archive from "../images/archiveIcon.svg";
 import account from "../images/accountIcon.svg";
 import AccountAndSettings from "./AccountAndSettings";
+import chevronLeft from "../images/chevronL.svg";
+import chevronRight from "../images/chevronR.svg";
 
 const NavBar = () => {
   const [selected, setSelected] = useState(-1);
   const [hovered, setHovered] = useState(-1);
   const [showSettings, setShowSettings] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const settingsRef = useRef(null);
 
   const handleClickOutside = (event) => {
@@ -50,7 +53,7 @@ const NavBar = () => {
           display: "flex",
           gap: "2vh",
           flexDirection: "column",
-          maxWidth: "44px",
+          width: "3vw",
         }}
       >
         {Array.from([message, people, request, archive], (value, index) => (
@@ -84,7 +87,7 @@ const NavBar = () => {
           style={{
             cursor: "pointer",
             marginTop: "auto",
-            marginBottom: "8vh",
+            marginBottom: "2vh",
             backgroundColor: "transparent",
             width: "50px",
             height: "50px",
@@ -98,10 +101,33 @@ const NavBar = () => {
           <Category img={account} />
         </button>
         {showSettings && (
-          <div style={{ position: "absolute", top: "35vh" }} ref={settingsRef}>
+          <div
+            style={{ position: "absolute", top: "33vh", right: "auto" }}
+            ref={settingsRef}
+          >
             <AccountAndSettings />
           </div>
         )}
+        <div
+          onMouseEnter={() => setHovered(4)}
+          onMouseLeave={() => setHovered(-1)}
+          onClick={() => setExpanded(!expanded)}
+          style={{
+            backgroundColor:
+              hovered === 4 ? "rgba(255, 255, 255, 0.1)" : "transparent",
+
+            width: "50px",
+            height: "50px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            border: "2px solid transparent",
+            borderRadius: "10px",
+            marginBottom: "1vh",
+          }}
+        >
+          <Category img={expanded === true ? chevronLeft : chevronRight} />
+        </div>
       </Box>
     </>
   );
