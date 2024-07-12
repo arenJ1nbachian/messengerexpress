@@ -3,7 +3,7 @@ import NavBar from "./Components/NavBar.jsx";
 import Contacts from "./Layout/Contacts.jsx";
 import Chat from "./Layout/Chat.jsx";
 
-function App() {
+const App = () => {
   return (
     <>
       <NavBar />
@@ -11,6 +11,6 @@ function App() {
       <Chat />
     </>
   );
-}
+};
 
 export default App;
