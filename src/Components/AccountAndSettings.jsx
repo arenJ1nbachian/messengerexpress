@@ -78,10 +78,11 @@ const AccountAndSettings = () => {
                   onMouseEnter={() => setButtonHovered(index)}
                   onMouseLeave={() => setButtonHovered(-1)}
                   style={{
-                    marginTop: index === 0 ? "1vh" : "0vh",
+                    marginTop: index === 0 ? "2vh" : "0vh",
                     width: "85%",
                     minHeight: "7vh",
-
+                    marginBottom:
+                      index === accountSettings.length - 1 ? "2vh" : "0vh",
                     backgroundColor:
                       buttonHovered === index
                         ? "rgba(255, 255, 255, 0.1)"
