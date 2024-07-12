@@ -8,6 +8,7 @@ import report from "../images/report.svg";
 import policy from "../images/policy.svg";
 import messenger from "../images/messenger.svg";
 import logout from "../images/logout.svg";
+import edge from "../images/icon.svg";
 
 import "./AccountAndSettings.css";
 
@@ -49,6 +50,7 @@ const AccountAndSettings = () => {
           onMouseLeave={() => setHovered(false)}
           style={{
             backgroundColor: "rgb(45,45,45)",
+            marginTop: "1vh",
             borderRadius: "15px",
             width: "19vw",
             height: "50vh",
@@ -112,21 +114,7 @@ const AccountAndSettings = () => {
             );
           })}
         </div>
-        <svg
-          height="12"
-          viewBox="0 0 25 12"
-          width="25"
-          style={{
-            color: "rgb(45,45,45)",
-            transform: "scale(1.5, 1.5) translate(12px, -2px) rotate(0deg)",
-          }}
-        >
-          <path
-            clipRule="evenodd"
-            d="M9.67157 9.17157C11.2337 10.7337 13.7663 10.7337 15.3284 9.17157L24.5 0L0.5 0L9.67157 9.17157Z"
-            fill="rgb(45, 45, 45)"
-          ></path>
-        </svg>
+        <img src={edge} alt="." />
       </div>
     </>
   );

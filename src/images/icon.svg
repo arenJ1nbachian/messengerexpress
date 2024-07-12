@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 50 26" width="37.5">
+  <style>
+    .transformed {
+      transform: scale(1.5) translate(12px, -2px);
+      fill: rgb(45, 45, 45);
+    }
+  </style>
+  <path class="transformed" clip-rule="evenodd" d="M9.67157 9.17157C11.2337 10.7337 13.7663 10.7337 15.3284 9.17157L24.5 0L0.5 0L9.67157 9.17157Z"></path>
+</svg>
