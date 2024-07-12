@@ -17,6 +17,8 @@ const NavBar = () => {
   const [expanded, setExpanded] = useState(false);
   const settingsRef = useRef(null);
 
+  const buttonText = ["Chats", "People", "Requests", "Archive"];
+
   const handleClickOutside = (event) => {
     if (
       settingsRef.current &&
@@ -26,6 +28,11 @@ const NavBar = () => {
       console.log("Closing settings");
       setShowSettings(false);
     }
+  };
+
+  const handleExpanded = () => {
+    setHovered(-1);
+    setExpanded(!expanded);
   };
 
   useEffect(() => {
@@ -49,24 +56,175 @@ const NavBar = () => {
           marginTop: "5vh",
           paddingLeft: "16px",
           height: "95vh",
-          maxHeight: "100%",
           display: "flex",
           gap: "2vh",
           flexDirection: "column",
-          width: "3vw",
+          width: "50vw",
         }}
       >
         {Array.from([message, people, request, archive], (value, index) => (
           <div
-            key={index}
-            onMouseEnter={() => setHovered(index)}
-            onMouseLeave={() => setHovered(-1)}
-            onClick={() => setSelected(index)}
+            onMouseEnter={() => (expanded ? setHovered(index) : false)}
+            onMouseLeave={() => (expanded ? setHovered(-1) : false)}
+            onClick={() => (expanded ? setSelected(index) : false)}
             style={{
               backgroundColor:
-                selected === index || hovered === index
+                expanded && (selected === index || hovered === index)
                   ? "rgba(255, 255, 255, 0.1)"
                   : "transparent",
+
+              width: expanded ? "16vw" : "3vw",
+              display: "flex",
+              flexDirection: "row",
+              border: "2px solid transparent",
+              borderRadius: "10px",
+            }}
+          >
+            <div
+              key={index}
+              onMouseEnter={() => (expanded ? false : setHovered(index))}
+              onMouseLeave={() => (expanded ? false : setHovered(-1))}
+              onClick={() => (expanded ? false : setSelected(index))}
+              style={{
+                backgroundColor:
+                  !expanded && (selected === index || hovered === index)
+                    ? "rgba(255, 255, 255, 0.1)"
+                    : "transparent",
+
+                width: "50px",
+                height: "50px",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                border: "2px solid transparent",
+                borderRadius: "10px",
+              }}
+            >
+              <Category img={value} />
+            </div>
+            {expanded && (
+              <div
+                style={{
+                  marginLeft: "1vw",
+                  textAlign: "center",
+                  alignContent: "center",
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                  color: "White",
+                  fontFamily:
+                    "Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif",
+                }}
+              >
+                {buttonText[index]}
+              </div>
+            )}
+          </div>
+        ))}
+        <div
+          style={{ display: "flex", flexDirection: "row", marginTop: "auto" }}
+        >
+          <div
+            className="accButton"
+            onMouseEnter={() => (expanded ? setHovered(4) : false)}
+            onMouseLeave={() => (expanded ? setHovered(-1) : false)}
+            onClick={() => setShowSettings(!showSettings)}
+            style={{
+              marginTop: "auto",
+              backgroundColor:
+                expanded && hovered === 4
+                  ? "rgba(255, 255, 255, 0.1)"
+                  : "transparent",
+
+              width: expanded ? "13vw" : "3vw",
+              display: "flex",
+              flexDirection: "row",
+              border: "2px solid transparent",
+              borderRadius: "10px",
+              marginBottom: "2vh",
+            }}
+          >
+            <div
+              className="accButton"
+              onMouseEnter={() => (expanded ? false : setHovered(4))}
+              onMouseLeave={() => (expanded ? false : setHovered(-1))}
+              onClick={() => setShowSettings(!showSettings)}
+              style={{
+                backgroundColor:
+                  !expanded && hovered === 4
+                    ? "rgba(255, 255, 255, 0.1)"
+                    : "transparent",
+                marginTop: "auto",
+                width: "50px",
+                height: "50px",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                border: "2px solid transparent",
+                borderRadius: "10px",
+              }}
+            >
+              <Category img={account} />
+            </div>
+            {expanded && (
+              <div
+                style={{
+                  textAlign: "center",
+                  alignContent: "center",
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                  color: "White",
+                  fontFamily:
+                    "Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif",
+                }}
+              >
+                {"Aren"}
+              </div>
+            )}
+          </div>
+          {expanded && (
+            <div
+              onMouseEnter={() => setHovered(5)}
+              onMouseLeave={() => setHovered(-1)}
+              onClick={handleExpanded}
+              style={{
+                display: "flex",
+                backgroundColor:
+                  hovered === 5 ? "rgba(255, 255, 255, 0.1)" : "transparent",
+                width: "3vw",
+                alignContent: "center",
+                justifyContent: "center",
+                alignItems: "center",
+                border: "2px solid transparent",
+                borderRadius: "10px",
+                marginBottom: "2vh",
+              }}
+            >
+              <Category img={expanded === true ? chevronLeft : chevronRight} />
+            </div>
+          )}
+        </div>
+        {showSettings && (
+          <div
+            style={{
+              position: "absolute",
+              top: expanded ? "40vh" : "31vh",
+              right: expanded ? "75vw" : "auto",
+            }}
+            ref={settingsRef}
+          >
+            <AccountAndSettings />
+          </div>
+        )}
+        {!expanded && (
+          <div
+            onMouseEnter={() => setHovered(5)}
+            onMouseLeave={() => setHovered(-1)}
+            onClick={handleExpanded}
+            style={{
+              backgroundColor:
+                hovered === 5 ? "rgba(255, 255, 255, 0.1)" : "transparent",
 
               width: "50px",
               height: "50px",
@@ -75,59 +233,12 @@ const NavBar = () => {
               alignItems: "center",
               border: "2px solid transparent",
               borderRadius: "10px",
+              marginBottom: "2vh",
             }}
           >
-            <Category img={value} />
-          </div>
-        ))}
-        <button
-          className="accButton"
-          onClick={() => setShowSettings(!showSettings)}
-          type="button"
-          style={{
-            cursor: "pointer",
-            marginTop: "auto",
-            marginBottom: "2vh",
-            backgroundColor: "transparent",
-            width: "50px",
-            height: "50px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            border: "2px solid transparent",
-            borderRadius: "10px",
-          }}
-        >
-          <Category img={account} />
-        </button>
-        {showSettings && (
-          <div
-            style={{ position: "absolute", top: "33vh", right: "auto" }}
-            ref={settingsRef}
-          >
-            <AccountAndSettings />
+            <Category img={expanded === true ? chevronLeft : chevronRight} />
           </div>
         )}
-        <div
-          onMouseEnter={() => setHovered(4)}
-          onMouseLeave={() => setHovered(-1)}
-          onClick={() => setExpanded(!expanded)}
-          style={{
-            backgroundColor:
-              hovered === 4 ? "rgba(255, 255, 255, 0.1)" : "transparent",
-
-            width: "50px",
-            height: "50px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            border: "2px solid transparent",
-            borderRadius: "10px",
-            marginBottom: "1vh",
-          }}
-        >
-          <Category img={expanded === true ? chevronLeft : chevronRight} />
-        </div>
       </Box>
     </>
   );
