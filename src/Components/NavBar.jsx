@@ -81,7 +81,7 @@ const NavBar = () => {
           display: "flex",
           gap: "2vh",
           flexDirection: "column",
-          width: "50vw",
+          width: expanded ? "16.5vw" : "3vw",
         }}
       >
         {Array.from([message, people, request, archive], (value, index) => (
@@ -95,7 +95,7 @@ const NavBar = () => {
                   ? "rgba(255, 255, 255, 0.1)"
                   : "transparent",
 
-              width: expanded ? "16vw" : "3vw",
+              width: "16vw",
               display: "flex",
               flexDirection: "row",
               border: "2px solid transparent",
