@@ -1,16 +1,22 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { NavContext } from "../Contexts/NavContext";
 import compose from "../images/compose.svg";
 import search from "../images/search.svg";
 import Category from "../Components/NavBarButtons/Category";
 import "./Chat.css";
+import "../Components/NavBarButtons/AccountAndSettings.css";
+import ConvoBox from "../Components/ConvoBox/ConvoBox";
 
 const Chat = () => {
+  const [hovered, setHovered] = useState(false);
+
   const navBar = useContext(NavContext);
 
   return (
     <div
       style={{
+        display: "flex",
+        flexDirection: "column",
         marginLeft: "1vw",
         width: !navBar.navExpanded ? "34vw" : "30vw",
         height: "94vh",
@@ -75,6 +81,8 @@ const Chat = () => {
       >
         <div
           style={{
+            width: "30px",
+            height: "30px",
             marginLeft: "1vw",
           }}
         >
@@ -97,6 +105,28 @@ const Chat = () => {
           id="userName"
           placeholder="Search Messenger"
         />
+      </div>
+      <ConvoBox />
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          width: "90%",
+          margin: "auto",
+          height: "8vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontWeight: "bold",
+          fontSize: "25px",
+          fontFamily:
+            "Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif",
+          color: "White",
+          backgroundColor: hovered ? "rgb(51,51,51)" : "transparent",
+          borderRadius: "10px",
+        }}
+      >
+        Try Messenger for Windows
       </div>
     </div>
   );

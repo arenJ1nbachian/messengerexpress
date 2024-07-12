@@ -28,22 +28,34 @@ const App = () => {
   const [showSettings, setShowSettings] = useState(false);
   const settingsRef = useRef(null);
 
-  const setNavExpand = useCallback((value) => {
+  const handleNavExpand = useCallback((value) => {
     setNavExpanded(value);
+  }, []);
+
+  const handleSelected = useCallback((value) => {
+    setSelected(value);
+  }, []);
+
+  const handleHovered = useCallback((value) => {
+    setHovered(value);
+  }, []);
+
+  const handleShowSettings = useCallback((value) => {
+    setShowSettings(value);
   }, []);
 
   return (
     <NavContext.Provider
       value={{
         navExpanded: navExpanded,
-        setNavExpanded: setNavExpand,
-        selected: selected,
-        setSelected: setSelected,
-        hovered: hovered,
-        setHovered: setHovered,
-        showSettings: showSettings,
-        setShowSettings: setShowSettings,
-        settingsRef: settingsRef,
+        setNavExpanded: handleNavExpand,
+        selected,
+        setSelected: handleSelected,
+        hovered,
+        setHovered: handleHovered,
+        showSettings,
+        setShowSettings: handleShowSettings,
+        settingsRef,
       }}
     >
       <RouterProvider router={router} />

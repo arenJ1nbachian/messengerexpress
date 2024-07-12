@@ -1,7 +1,7 @@
 const Category = ({ img }) => {
   return (
     <>
-      <img src={img} width="30px" height="30px" alt="icons" />
+      <img src={img} width="90%" height="100%" alt="icons" />
     </>
   );
 };

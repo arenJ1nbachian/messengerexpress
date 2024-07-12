@@ -5,7 +5,6 @@
 .chat-container::-webkit-scrollbar-thumb {
   background-color: rgba(236, 231, 231, 0.616);
   border-radius: 10px;
-  transition: opacity 5s ease-in-out;
 }
 
 .chat-container::-webkit-scrollbar-track {
