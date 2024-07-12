@@ -1,5 +1,3 @@
-import "./Category.css";
-
 const Category = ({ img }) => {
   return (
     <>
