@@ -9,6 +9,7 @@ import account from "../images/accountIcon.svg";
 import AccountAndSettings from "./AccountAndSettings";
 import chevronLeft from "../images/chevronL.svg";
 import chevronRight from "../images/chevronR.svg";
+import { useNavigate } from "react-router";
 
 const NavBar = () => {
   const [selected, setSelected] = useState(-1);
@@ -16,8 +17,29 @@ const NavBar = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const settingsRef = useRef(null);
+  const navigate = useNavigate();
 
   const buttonText = ["Chats", "People", "Requests", "Archive"];
+
+  const handleNavButtonClick = (index) => {
+    setSelected(index);
+    switch (index) {
+      case 0:
+        navigate("chats");
+        break;
+      case 1:
+        navigate("people");
+        break;
+      case 2:
+        navigate("requests");
+        break;
+      case 3:
+        navigate("archived");
+        break;
+      default:
+        break;
+    }
+  };
 
   const handleClickOutside = (event) => {
     if (
@@ -66,7 +88,7 @@ const NavBar = () => {
           <div
             onMouseEnter={() => (expanded ? setHovered(index) : false)}
             onMouseLeave={() => (expanded ? setHovered(-1) : false)}
-            onClick={() => (expanded ? setSelected(index) : false)}
+            onClick={() => handleNavButtonClick(index)}
             style={{
               backgroundColor:
                 expanded && (selected === index || hovered === index)
@@ -84,7 +106,7 @@ const NavBar = () => {
               key={index}
               onMouseEnter={() => (expanded ? false : setHovered(index))}
               onMouseLeave={() => (expanded ? false : setHovered(-1))}
-              onClick={() => (expanded ? false : setSelected(index))}
+              onClick={() => handleNavButtonClick(index)}
               style={{
                 backgroundColor:
                   !expanded && (selected === index || hovered === index)
