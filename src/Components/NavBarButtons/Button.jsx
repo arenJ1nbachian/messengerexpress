@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { NavContext } from "../../Contexts/NavContext";
 import { useNavigate } from "react-router";
 import Category from "./Category";
+import "./Button.css";
 
 const Button = ({ value, index, buttonText }) => {
   const navBar = useContext(NavContext);
@@ -29,26 +30,25 @@ const Button = ({ value, index, buttonText }) => {
 
   return (
     <div
+      className={`btnBox ${
+        navBar.navExpanded &&
+        (navBar.selected === index || navBar.hovered === index)
+          ? " hovClick"
+          : "default"
+      }`}
       onMouseEnter={() =>
         navBar.navExpanded ? navBar.setHovered(index) : false
       }
       onMouseLeave={() => (navBar.navExpanded ? navBar.setHovered(-1) : false)}
       onClick={() => handleNavButtonClick(index)}
-      style={{
-        backgroundColor:
-          navBar.navExpanded &&
-          (navBar.selected === index || navBar.hovered === index)
-            ? "rgba(255, 255, 255, 0.1)"
-            : "transparent",
-
-        width: "16vw",
-        display: "flex",
-        flexDirection: "row",
-        border: "2px solid transparent",
-        borderRadius: "10px",
-      }}
     >
       <div
+        className={`btnIconBox ${
+          !navBar.navExpanded &&
+          (navBar.selected === index || navBar.hovered === index)
+            ? " hovClick"
+            : "default"
+        }`}
         key={index}
         onMouseEnter={() =>
           navBar.navExpanded ? false : navBar.setHovered(index)
@@ -57,41 +57,10 @@ const Button = ({ value, index, buttonText }) => {
           navBar.navExpanded ? false : navBar.setHovered(-1)
         }
         onClick={() => handleNavButtonClick(index)}
-        style={{
-          backgroundColor:
-            !navBar.navExpanded &&
-            (navBar.selected === index || navBar.hovered === index)
-              ? "rgba(255, 255, 255, 0.1)"
-              : "transparent",
-
-          width: "50px",
-          height: "50px",
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-          border: "2px solid transparent",
-          borderRadius: "10px",
-        }}
       >
         <Category img={value} />
       </div>
-      {navBar.navExpanded && (
-        <div
-          style={{
-            marginLeft: "1vw",
-            textAlign: "center",
-            alignContent: "center",
-            fontWeight: "bold",
-            fontSize: "18px",
-            color: "White",
-            fontFamily:
-              "Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif",
-          }}
-        >
-          {buttonText[index]}
-        </div>
-      )}
+      {navBar.navExpanded && <div className="btnText">{buttonText[index]}</div>}
     </div>
   );
 };
