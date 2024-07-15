@@ -9,6 +9,7 @@ import ConvoBox from "../Components/ConvoBox/ConvoBox";
 
 const Chat = () => {
   const [hovered, setHovered] = useState(false);
+  const [composeHover, setComposeHover] = useState(false);
 
   const navBar = useContext(NavContext);
 
@@ -49,20 +50,29 @@ const Chat = () => {
           Chats
         </div>
         <div
+          onMouseEnter={() => {
+            setComposeHover(true);
+          }}
+          onMouseLeave={() => {
+            setComposeHover(false);
+          }}
           style={{
+            cursor: composeHover === true ? "pointer" : "none",
             display: "flex",
             alignItems: "center",
             marginLeft: "auto",
             marginRight: "2vw",
             width: "60px",
             height: "60px",
-            border: "2px solid rgb(76,76,76)",
-            backgroundColor: "rgb(76,76,76)",
+
             borderRadius: "50%",
             justifyContent: "center",
           }}
         >
-          <Category img={compose} />
+          <Category
+            img={compose}
+            width={composeHover === true ? "75%" : "60%"}
+          />
         </div>
       </div>
       <div
