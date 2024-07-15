@@ -4,7 +4,7 @@ import compose from "../images/compose.svg";
 import search from "../images/search.svg";
 import Category from "../Components/NavBarButtons/Category";
 import "./Chat.css";
-import "../Components/NavBarButtons/AccountAndSettings.css";
+import "../CSS/ScrollBar.css";
 import ConvoBox from "../Components/ConvoBox/ConvoBox";
 
 const Chat = () => {

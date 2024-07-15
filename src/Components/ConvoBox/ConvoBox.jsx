@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Category from "../NavBarButtons/Category";
 import defaultPicture from "../../images/default.svg";
+import "./ConvoBox.css";
 
 const ConvoBox = () => {
   const [hovered, setHovered] = useState(-1);
@@ -14,83 +15,28 @@ const ConvoBox = () => {
         onMouseLeave={() => {
           setHovered(false);
         }}
-        className="chat-container"
-        style={{
-          marginTop: "2vh",
-          marginLeft: "auto",
-          marginRight: "auto",
-          borderBottom: "3px solid rgb(45,45,45)",
-          height: "70%",
-          width: "95%",
-          overflowY: hovered === true ? "scroll" : "hidden",
-        }}
+        className={`scrollBar convoBox ${hovered ? "hovered" : "default"}`}
       >
         {conversations.map((index) => {
           return (
             <div
+              className={`userConvo ${
+                convoClicked === index
+                  ? "clicked"
+                  : convoHovered === index
+                  ? "hovered"
+                  : "default"
+              }`}
               onMouseEnter={() => setConvoHovered(index)}
               onMouseLeave={() => setConvoHovered(-1)}
               onClick={() => setConvoClicked(index)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                width: "99%",
-                height: "12vh",
-                backgroundColor:
-                  convoClicked === index
-                    ? "rgb(65,65,65)"
-                    : convoHovered === index
-                    ? "rgb(51,51,51)"
-                    : "transparent",
-                borderRadius: "15px",
-              }}
             >
-              <div
-                id="pfPicture"
-                style={{
-                  marginLeft: "5%",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  width: "70px",
-                  height: "70px",
-                }}
-              >
+              <div id="pfPicture">
                 <Category img={defaultPicture} width="75%" height="75%" />
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1vh",
-                  marginLeft: "1vw",
-                }}
-              >
-                <div
-                  id="flName"
-                  style={{
-                    fontWeight: "bold",
-                    height: "50%",
-                    fontSize: "20px",
-                    fontFamily:
-                      "Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif",
-                    color: "White",
-                  }}
-                >
-                  FirstName_LastName
-                </div>
-                <div
-                  id="latest-message"
-                  style={{
-                    height: "50%",
-                    fontSize: "17px",
-                    fontFamily:
-                      "Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif",
-                    color: "rgb(176,179,184)",
-                  }}
-                >
-                  Recent_Message_Of_This_Convo
-                </div>
+              <div className="convoInfo">
+                <div id="flName">FirstName_LastName</div>
+                <div id="latest-message">Recent_Message_Of_This_Convo</div>
               </div>
             </div>
           );

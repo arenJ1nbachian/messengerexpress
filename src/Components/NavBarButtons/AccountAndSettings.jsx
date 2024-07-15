@@ -9,7 +9,7 @@ import policy from "../../images/policy.svg";
 import messenger from "../../images/messenger.svg";
 import logout from "../../images/logout.svg";
 import edge from "../../images/icon.svg";
-import "./AccountAndSettings.css";
+import "../../CSS/ScrollBar.css";
 
 const AccountAndSettings = () => {
   const [hovered, setHovered] = useState(false);
@@ -44,7 +44,7 @@ const AccountAndSettings = () => {
     <>
       <div>
         <div
-          className="chat-container"
+          className="scrollBar"
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           style={{

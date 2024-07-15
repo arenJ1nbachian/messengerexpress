@@ -1,0 +1,61 @@
+.convoBox {
+  margin-top: 2vh;
+  margin-left: auto;
+  margin-right: auto;
+  border-bottom: 3px solid rgb(45, 45, 45);
+  height: 70%;
+  width: 95%;
+  overflow-y: hidden;
+}
+
+.convoBox.hovered {
+  overflow-y: scroll;
+}
+
+.userConvo {
+  display: flex;
+  align-items: center;
+  width: 99%;
+  height: 12vh;
+  border-radius: 15px;
+  background-color: transparent;
+}
+
+.userConvo.hovered {
+  background-color: rgb(51, 51, 51);
+}
+
+.userConvo.clicked {
+  background-color: rgb(65, 65, 65);
+}
+
+#pfPicture {
+  margin-left: 5%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 70px;
+  height: 70px;
+}
+
+.convoInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  margin-left: 1vw;
+}
+
+#flName {
+  font-weight: bold;
+  height: 50%;
+  font-size: 20px;
+  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+  color: white;
+}
+
+#latest-message {
+  height: 50%;
+  font-size: 17px;
+  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+  color: rgb(176, 179, 184);
+}
