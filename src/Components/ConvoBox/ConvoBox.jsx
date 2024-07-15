@@ -46,6 +46,7 @@ const ConvoBox = () => {
               }}
             >
               <div
+                id="pfPicture"
                 style={{
                   marginLeft: "5%",
                   display: "flex",
@@ -66,6 +67,7 @@ const ConvoBox = () => {
                 }}
               >
                 <div
+                  id="flName"
                   style={{
                     fontWeight: "bold",
                     height: "50%",
@@ -78,6 +80,7 @@ const ConvoBox = () => {
                   FirstName_LastName
                 </div>
                 <div
+                  id="latest-message"
                   style={{
                     height: "50%",
                     fontSize: "17px",
