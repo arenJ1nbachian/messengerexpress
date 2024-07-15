@@ -10,6 +10,7 @@ import messenger from "../../images/messenger.svg";
 import logout from "../../images/logout.svg";
 import edge from "../../images/icon.svg";
 import "../../CSS/ScrollBar.css";
+import "./AccountAndSettings.css";
 
 const AccountAndSettings = () => {
   const [hovered, setHovered] = useState(false);
@@ -44,20 +45,9 @@ const AccountAndSettings = () => {
     <>
       <div>
         <div
-          className="scrollBar"
+          className={`scrollBar settingsBox ${hovered ? "hovered" : ""}`}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          style={{
-            backgroundColor: "rgb(45,45,45)",
-
-            borderRadius: "15px",
-            width: "19vw",
-            height: "50vh",
-            display: "flex",
-            flexDirection: "column",
-            color: "white",
-            overflowY: hovered === true ? "scroll" : "hidden",
-          }}
         >
           {accountSettings.map((setting, index) => {
             let src;
@@ -73,26 +63,12 @@ const AccountAndSettings = () => {
             return (
               <>
                 <div
+                  className={`optionBox ${index === 0 ? "firstOption" : ""} ${
+                    index === accountSettings.length - 1 ? "lastOption" : ""
+                  } ${buttonHovered === index ? "optionHovered" : ""}`}
                   key={index}
                   onMouseEnter={() => setButtonHovered(index)}
                   onMouseLeave={() => setButtonHovered(-1)}
-                  style={{
-                    marginTop: index === 0 ? "2vh" : "0vh",
-                    width: "85%",
-                    minHeight: "7vh",
-                    marginBottom:
-                      index === accountSettings.length - 1 ? "2vh" : "0vh",
-                    backgroundColor:
-                      buttonHovered === index
-                        ? "rgba(255, 255, 255, 0.1)"
-                        : "transparent",
-                    borderRadius: "10px",
-                    marginLeft: "1vw",
-                    paddingLeft: "1vw",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "1vw",
-                  }}
                 >
                   <img width="25px" height="25px" src={src} alt="settings" />
                   <strong style={{ fontSize: "14px" }}>{setting}</strong>
@@ -101,15 +77,7 @@ const AccountAndSettings = () => {
                   index !== 6 &&
                   index !== 7 &&
                   index !== 9 &&
-                  index !== 10 && (
-                    <hr
-                      style={{
-                        width: "80%",
-                        color: "white",
-                        border: "1px solid rgb(62,64,66)",
-                      }}
-                    />
-                  )}
+                  index !== 10 && <hr />}
               </>
             );
           })}

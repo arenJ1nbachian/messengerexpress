@@ -1,0 +1,44 @@
+.settingsBox {
+  background-color: rgb(45, 45, 45);
+  border-radius: 15px;
+  width: 19vw;
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  color: white;
+  overflow-y: hidden;
+}
+
+.settingsBox.hovered {
+  overflow-y: scroll;
+}
+
+.optionBox {
+  width: 85%;
+  min-height: 7vh;
+  border-radius: 10px;
+  margin-left: 1vw;
+  padding-left: 1vw;
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  background-color: transparent;
+}
+
+.optionBox.firstOption {
+  margin-top: 2vh;
+}
+
+.optionBox.lastOption {
+  margin-bottom: 2vh;
+}
+
+.optionBox.optionHovered {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+hr {
+  width: 80%;
+  color: white;
+  border: 1px solid rgb(62, 64, 66);
+}
