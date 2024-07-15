@@ -1,0 +1,10 @@
+.position {
+  position: absolute;
+  top: 31vh;
+  right: auto;
+}
+
+.position.expanded {
+  top: 40vh;
+  right: 75vw;
+}

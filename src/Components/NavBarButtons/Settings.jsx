@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { NavContext } from "../../Contexts/NavContext";
 import AccountAndSettings from "./AccountAndSettings";
+import "./Settings.css";
 
 const Settings = () => {
   const navBar = useContext(NavContext);
@@ -8,11 +9,7 @@ const Settings = () => {
     <>
       {navBar.showSettings && (
         <div
-          style={{
-            position: "absolute",
-            top: navBar.navExpanded ? "40vh" : "31vh",
-            right: navBar.navExpanded ? "75vw" : "auto",
-          }}
+          className={`position ${navBar.navExpanded ? "expanded" : ""}`}
           ref={navBar.settingsRef}
         >
           <AccountAndSettings />
