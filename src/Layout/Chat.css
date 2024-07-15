@@ -1,3 +1,99 @@
-.input:focus {
+.chatBox {
+  width: 34vw;
+  display: flex;
+  flex-direction: column;
+  margin-left: 1vw;
+  height: 94vh;
+  background-color: rgb(34, 34, 34);
+  border: 2px solid rgb(34, 34, 34);
+  border-radius: 15px;
+}
+
+.chatBox.expanded {
+  width: 30vw;
+}
+
+.chatBoxHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-left: 2vw;
+  margin-top: 3vh;
+}
+
+.chatBoxTitle {
+  width: 60px;
+  height: 60px;
+  font-weight: 800;
+  font-size: 35px;
+  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+  color: white;
+}
+
+.chatBoxCompose {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-right: 2vw;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  justify-content: center;
+  cursor: none;
+}
+
+.chatBoxCompose.composeBtnHover {
+  cursor: pointer;
+}
+
+.chatBoxSearch {
+  width: 28vw;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 2vh;
+  height: 5vh;
+  border: 2px solid rgb(58, 59, 60);
+  background-color: rgb(58, 59, 60);
+  border-radius: 75px;
+}
+
+.chatBoxSearch.expanded {
+  width: 25vw;
+}
+
+.chatBoxSearch div {
+  width: 30px;
+  height: 30px;
+  margin-left: 1vw;
+}
+.chatBoxSearch input {
   outline: none;
+  border: none;
+  background-color: transparent;
+  margin-left: 1%;
+  font-size: 20px;
+  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+  color: rgb(167, 170, 174);
+}
+
+.tryMessengerBox {
+  width: 90%;
+  margin: auto;
+  height: 8vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 25px;
+  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+  color: white;
+  border-radius: 10px;
+  background-color: transparent;
+}
+
+.tryMessengerBox.hovered {
+  background-color: rgb(51, 51, 51);
 }
