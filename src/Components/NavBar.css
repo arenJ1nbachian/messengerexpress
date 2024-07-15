@@ -1,0 +1,19 @@
+.navBox {
+  margin-top: 5vh;
+  padding-left: 16px;
+  height: 95vh;
+  display: flex;
+  gap: 2vh;
+  flex-direction: column;
+  width: 3vw;
+}
+
+.navBox.expanded {
+  width: 16.5vw;
+}
+
+.accBtn {
+  display: flex;
+  flex-direction: row;
+  margin-top: auto;
+}
