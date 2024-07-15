@@ -71,7 +71,8 @@ const Chat = () => {
         >
           <Category
             img={compose}
-            width={composeHover === true ? "75%" : "60%"}
+            width={composeHover === true ? "55%" : ""}
+            height={composeHover === true ? "55%" : ""}
           />
         </div>
       </div>
@@ -96,7 +97,7 @@ const Chat = () => {
             marginLeft: "1vw",
           }}
         >
-          <Category img={search} />
+          <Category img={search} width="100%" height="100%" />
         </div>
 
         <input

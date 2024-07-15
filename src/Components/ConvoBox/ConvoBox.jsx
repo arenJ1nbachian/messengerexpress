@@ -56,7 +56,7 @@ const ConvoBox = () => {
                   height: "70px",
                 }}
               >
-                <Category img={defaultPicture} />
+                <Category img={defaultPicture} width="75%" height="75%" />
               </div>
               <div
                 style={{

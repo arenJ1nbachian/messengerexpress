@@ -1,4 +1,4 @@
-const Category = ({ img, width = "90%", height = "90%" }) => {
+const Category = ({ img, width = "50%", height = "50%" }) => {
   return (
     <>
       <img src={img} width={width} height={height} alt="icons" />
