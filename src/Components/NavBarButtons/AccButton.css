@@ -1,0 +1,39 @@
+.accBtnBox {
+  margin-top: auto;
+  background-color: transparent;
+  width: 3vw;
+  display: flex;
+  flex-direction: row;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  margin-bottom: 2vh;
+}
+
+.accBtnBox.Expanded {
+  width: 13vw;
+}
+
+.accBtnBox.Hovered {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.accIconBox {
+  margin-top: auto;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid transparent;
+  border-radius: 10px;
+}
+
+.accName {
+  text-align: center;
+  align-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  color: white;
+  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+}

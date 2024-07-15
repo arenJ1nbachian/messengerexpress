@@ -20,13 +20,10 @@ const ConvoBox = () => {
         {conversations.map((index) => {
           return (
             <div
+              key={index}
               className={`userConvo ${
-                convoClicked === index
-                  ? "clicked"
-                  : convoHovered === index
-                  ? "hovered"
-                  : "default"
-              }`}
+                convoClicked === index ? "clicked" : "default"
+              } ${convoHovered === index ? "hovered" : "default"}`}
               onMouseEnter={() => setConvoHovered(index)}
               onMouseLeave={() => setConvoHovered(-1)}
               onClick={() => setConvoClicked(index)}

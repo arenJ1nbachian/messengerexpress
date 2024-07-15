@@ -19,7 +19,12 @@ const NavBar = () => {
     <>
       <div className={`navBox ${navBar.navExpanded ? "expanded" : "default"}`}>
         {Array.from([message, people, request, archive], (value, index) => (
-          <Button value={value} index={index} buttonText={buttonText} />
+          <Button
+            key={index}
+            value={value}
+            index={index}
+            buttonText={buttonText}
+          />
         ))}
         <div className="accBtn">
           <AccButton account={account} />
