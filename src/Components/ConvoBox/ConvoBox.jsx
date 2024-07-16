@@ -32,8 +32,10 @@ const ConvoBox = () => {
                 <Category img={defaultPicture} width="75%" height="75%" />
               </div>
               <div className="convoInfo">
-                <div id="flName">FirstName_LastName</div>
-                <div id="latest-message">Recent_Message_Of_This_Convo</div>
+                <div id="flName">Aren Jinbachian</div>
+                <div id="latest-message">
+                  This is a message preview for this conversation · 5m
+                </div>
               </div>
             </div>
           );
