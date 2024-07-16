@@ -3,7 +3,7 @@
   padding-left: 16px;
   height: 95vh;
   display: flex;
-  gap: 2vh;
+  gap: 1vh;
   flex-direction: column;
   width: 3vw;
 }

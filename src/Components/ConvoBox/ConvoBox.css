@@ -48,15 +48,14 @@
 
 #flName {
   font-weight: bold;
-  height: 50%;
-  font-size: 17px;
+
+  font-size: 1rem;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
   color: white;
 }
 
 #latest-message {
-  height: 50%;
-  font-size: 15px;
+  font-size: 1rem;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
   color: rgb(176, 179, 184);
 }
