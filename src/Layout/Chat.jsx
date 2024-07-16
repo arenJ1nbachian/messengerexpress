@@ -57,7 +57,7 @@ const Chat = () => {
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        Try Messenger for Windows
+        <div>Try Messenger for Windows</div>
       </div>
     </div>
   );

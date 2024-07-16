@@ -3,9 +3,10 @@
   margin-left: auto;
   margin-right: auto;
   border-bottom: 3px solid rgb(45, 45, 45);
-  height: 70%;
+  height: 80%;
   width: 95%;
-  overflow-y: hidden;
+  overflow-y: scroll;
+  margin-bottom: 1vh;
 }
 
 .convoBox.hovered {
@@ -16,7 +17,7 @@
   display: flex;
   align-items: center;
   width: 99%;
-  height: 12vh;
+  height: 8vh;
   border-radius: 15px;
   background-color: transparent;
 }
@@ -34,28 +35,28 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 70px;
-  height: 70px;
+  width: 65px;
+  height: 65px;
 }
 
 .convoInfo {
   display: flex;
   flex-direction: column;
-  gap: 1vh;
+  gap: 0.5vh;
   margin-left: 1vw;
 }
 
 #flName {
   font-weight: bold;
   height: 50%;
-  font-size: 20px;
+  font-size: 17px;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
   color: white;
 }
 
 #latest-message {
   height: 50%;
-  font-size: 17px;
+  font-size: 15px;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
   color: rgb(176, 179, 184);
 }
