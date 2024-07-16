@@ -14,51 +14,58 @@ const Chat = () => {
   const navBar = useContext(NavContext);
 
   return (
-    <div className={`chatBox ${navBar.navExpanded ? "expanded" : "default"}`}>
-      <div className="chatBoxHeader">
-        <div className="chatBoxTitle">Chats</div>
+    <div style={{ display: "flex" }}>
+      <div className={`chatBox ${navBar.navExpanded ? "expanded" : "default"}`}>
+        <div className="chatBoxHeader">
+          <div className="chatBoxTitle">Chats</div>
+          <div
+            className={`chatBoxCompose ${
+              composeHover ? "composeBtnHover" : "default"
+            }`}
+            onMouseEnter={() => {
+              setComposeHover(true);
+            }}
+            onMouseLeave={() => {
+              setComposeHover(false);
+            }}
+          >
+            <Category
+              img={compose}
+              width={composeHover === true ? "55%" : ""}
+              height={composeHover === true ? "55%" : ""}
+            />
+          </div>
+        </div>
         <div
-          className={`chatBoxCompose ${
-            composeHover ? "composeBtnHover" : "default"
+          className={`chatBoxSearch ${
+            navBar.navExpanded ? "expanded" : "default"
           }`}
-          onMouseEnter={() => {
-            setComposeHover(true);
-          }}
-          onMouseLeave={() => {
-            setComposeHover(false);
-          }}
         >
-          <Category
-            img={compose}
-            width={composeHover === true ? "55%" : ""}
-            height={composeHover === true ? "55%" : ""}
+          <div>
+            <Category img={search} width="100%" height="100%" />
+          </div>
+
+          <input
+            type="text"
+            autoComplete="off"
+            id="userName"
+            placeholder="Search Messenger"
           />
         </div>
+        <ConvoBox />
+        <div
+          className={`tryMessengerBox ${hovered ? "hovered" : "default"}`}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
+          <div>Try Messenger for Windows</div>
+        </div>
       </div>
       <div
-        className={`chatBoxSearch ${
+        className={`chatConvoBox ${
           navBar.navExpanded ? "expanded" : "default"
         }`}
-      >
-        <div>
-          <Category img={search} width="100%" height="100%" />
-        </div>
-
-        <input
-          type="text"
-          autoComplete="off"
-          id="userName"
-          placeholder="Search Messenger"
-        />
-      </div>
-      <ConvoBox />
-      <div
-        className={`tryMessengerBox ${hovered ? "hovered" : "default"}`}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
-        <div>Try Messenger for Windows</div>
-      </div>
+      ></div>
     </div>
   );
 };
