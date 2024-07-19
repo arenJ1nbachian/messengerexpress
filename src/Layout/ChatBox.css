@@ -1,0 +1,63 @@
+.recipient {
+  padding-top: 1%;
+  padding-bottom: 1%;
+  padding-left: 1vw;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  width: auto;
+  height: 7%;
+  background-color: transparent;
+}
+
+.uPicture {
+  width: 2.5vw;
+  height: 80%;
+}
+
+.uInfo {
+  display: flex;
+  flex-direction: column;
+  margin-left: 0.75vw;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+}
+
+.uName {
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.uActive {
+  color: rgb(176, 179, 184);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.chat {
+  height: 84%;
+}
+
+.chatInput {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1vw;
+  width: 95%;
+  display: flex;
+  align-items: center;
+  border: 2px solid rgb(58, 59, 60);
+  background-color: rgb(58, 59, 60);
+  border-radius: 75px;
+  height: 4vh;
+}
+
+.chatInput input {
+  width: 100%;
+  outline: none;
+  border: none;
+  background-color: transparent;
+  color: white;
+  font-size: 1.2rem;
+}
