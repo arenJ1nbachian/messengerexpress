@@ -6,8 +6,6 @@ import Category from "../Components/NavBarButtons/Category";
 import "./Chat.css";
 import "../CSS/ScrollBar.css";
 import ConvoBox from "../Components/ConvoBox/ConvoBox";
-import defaultPicture from "../images/default.svg";
-import send from "../images/send.svg";
 import Chatbox from "./ChatBox";
 
 const Chat = () => {
