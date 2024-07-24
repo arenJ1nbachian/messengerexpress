@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { NavContext } from "../Contexts/NavContext";
 import "./Contacts.css";
 import Chatbox from "./ChatBox";
