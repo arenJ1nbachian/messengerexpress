@@ -27,18 +27,24 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
-  const [navExpanded, setNavExpanded] = useState(false);
-  const [selected, setSelected] = useState(-1);
+  const [navExpanded, setNavExpanded] = useState(
+    JSON.parse(sessionStorage.getItem("navExpanded")) || false
+  );
   const [hovered, setHovered] = useState(-1);
   const [showSettings, setShowSettings] = useState(false);
   const settingsRef = useRef(null);
+  const [selected, setSelected] = useState(
+    JSON.parse(sessionStorage.getItem("selected")) || 0
+  );
 
   const handleNavExpand = useCallback((value) => {
     setNavExpanded(value);
+    sessionStorage.setItem("navExpanded", value);
   }, []);
 
   const handleSelected = useCallback((value) => {
     setSelected(value);
+    sessionStorage.setItem("selected", value);
   }, []);
 
   const handleHovered = useCallback((value) => {
