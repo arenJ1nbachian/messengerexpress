@@ -12,6 +12,7 @@ import Archived from "./Layout/Archived.jsx";
 import { NavContext } from "./Contexts/NavContext.js";
 import { useCallback, useRef, useState } from "react";
 import Login from "./Layout/Login.jsx";
+import Register from "./Layout/Register.jsx";
 /*
 const router = createBrowserRouter([
   {
@@ -30,7 +31,7 @@ const router = createBrowserRouter([
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Login />,
+    element: <Register />,
   },
 ]);
 

@@ -1,11 +1,11 @@
 import "./Login.css";
 
-const Login = () => {
+const Register = () => {
   return (
     <>
       <div style={{ display: "flex" }}>
         <div className="login">
-          <div className="title">Login to Your Account</div>
+          <div className="title">Create your new account</div>
           <div className="email">
             <input
               type="text"
@@ -23,21 +23,23 @@ const Login = () => {
             />
           </div>
 
-          <button className="loginBtn">Login</button>
+          <button className="loginBtn">Sign up</button>
         </div>
         <div className="side">
-          <div className="title"> Already with us?</div>
+          <div className="title"> New Here?</div>
           <div className="desc">
-            Welcome back! Sign in to reconnect with your community.
+            Sign up now to discover and connect with like-minded individuals
+            through our messaging app.
           </div>
           <div className="desc">
-            Continue the conversations you care about by signing in now.
+            Expand your network and engage in meaningful conversations
+            effortlessly.
           </div>
-          <button className="rgstrBtn">Sign In</button>
+          <button className="rgstrBtn">Sign up</button>
         </div>
       </div>
     </>
   );
 };
 
-export default Login;
+export default Register;
