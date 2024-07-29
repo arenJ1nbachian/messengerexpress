@@ -1,0 +1,90 @@
+.login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 70vw;
+  background-color: rgb(34, 34, 34);
+  height: 100vh;
+  justify-content: center;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30vw;
+  background-color: grey;
+  height: 100vh;
+  justify-content: center;
+}
+
+.desc {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+  color: rgb(34, 34, 34);
+  margin-bottom: 4vh;
+  text-align: center;
+}
+
+.title {
+  font-weight: 800;
+  font-size: 5rem;
+  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+  color: white;
+  margin-bottom: 4vh;
+}
+
+.email input {
+  width: 25vw;
+  height: 6vh;
+  padding-left: 1vw;
+  outline: none;
+  border: none;
+  border-radius: 45px;
+  background-color: white;
+  color: grey;
+  font-size: 1.2rem;
+  margin-bottom: 2vh;
+}
+
+.password input {
+  width: 25vw;
+  height: 6vh;
+  padding-left: 1vw;
+  outline: none;
+  border: none;
+  border-radius: 45px;
+  background-color: white;
+  color: grey;
+  font-size: 1.2rem;
+  margin-bottom: 3vh;
+}
+
+.loginBtn {
+  width: 20vw;
+  height: 8vh;
+  padding-left: 1vw;
+  outline: none;
+  border: none;
+  border-radius: 45px;
+  background-color: grey;
+  cursor: pointer;
+  color: white;
+  font-size: 1.2rem;
+  margin-top: 1vh;
+}
+
+.rgstrBtn {
+  width: 20vw;
+  height: 8vh;
+  padding-left: 1vw;
+  outline: none;
+  border: none;
+  border-radius: 45px;
+  background-color: rgb(34, 34, 34);
+  cursor: pointer;
+  color: white;
+  font-size: 1.2rem;
+  margin-top: 1vh;
+}

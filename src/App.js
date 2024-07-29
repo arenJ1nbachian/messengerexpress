@@ -11,7 +11,8 @@ import Requests from "./Layout/Requests.jsx";
 import Archived from "./Layout/Archived.jsx";
 import { NavContext } from "./Contexts/NavContext.js";
 import { useCallback, useRef, useState } from "react";
-
+import Login from "./Layout/Login.jsx";
+/*
 const router = createBrowserRouter([
   {
     path: "/",
@@ -23,6 +24,13 @@ const router = createBrowserRouter([
       { path: "requests", element: <Requests /> },
       { path: "archived", element: <Archived /> },
     ],
+  },
+]);*/
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Login />,
   },
 ]);
 

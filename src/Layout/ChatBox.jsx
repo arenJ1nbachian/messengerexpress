@@ -6,7 +6,6 @@ import "./ChatBox.css";
 const Chatbox = () => {
   return (
     <>
-      {" "}
       <div className="recipient">
         <div className="uPicture">
           <Category img={defaultPicture} width="100%" height="100%" />
