@@ -26,16 +26,14 @@ const Register = () => {
           <button className="loginBtn">Sign up</button>
         </div>
         <div className="side">
-          <div className="title"> New Here?</div>
+          <div className="sideTitle"> Already with us?</div>
           <div className="desc">
-            Sign up now to discover and connect with like-minded individuals
-            through our messaging app.
+            Welcome back! Sign in to reconnect with your community.
           </div>
           <div className="desc">
-            Expand your network and engage in meaningful conversations
-            effortlessly.
+            Continue the conversations you care about by signing in now.
           </div>
-          <button className="rgstrBtn">Sign up</button>
+          <button className="rgstrBtn">Sign in</button>
         </div>
       </div>
     </>

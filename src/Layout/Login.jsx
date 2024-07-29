@@ -26,14 +26,17 @@ const Login = () => {
           <button className="loginBtn">Login</button>
         </div>
         <div className="side">
-          <div className="title"> Already with us?</div>
+          <div className="title"> New Here?</div>
           <div className="desc">
-            Welcome back! Sign in to reconnect with your community.
+            Sign up now to discover and connect with like-minded individuals
+            through our messaging app.
           </div>
           <div className="desc">
-            Continue the conversations you care about by signing in now.
+            Expand your network and engage in meaningful conversations
+            effortlessly.
           </div>
-          <button className="rgstrBtn">Sign In</button>
+
+          <button className="rgstrBtn">Sign Up</button>
         </div>
       </div>
     </>

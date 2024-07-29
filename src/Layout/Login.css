@@ -24,6 +24,7 @@
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
   color: rgb(34, 34, 34);
   margin-bottom: 4vh;
+  width: 80%;
   text-align: center;
 }
 
@@ -33,6 +34,16 @@
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
   color: white;
   margin-bottom: 4vh;
+  text-align: center;
+}
+
+.sideTitle {
+  font-weight: 800;
+  font-size: 4rem;
+  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+  color: white;
+  margin-bottom: 4vh;
+  text-align: center;
 }
 
 .email input {
