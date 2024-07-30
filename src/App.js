@@ -13,7 +13,7 @@ import { NavContext } from "./Contexts/NavContext.js";
 import { useCallback, useRef, useState } from "react";
 import Login from "./Layout/Login.jsx";
 import Register from "./Layout/Register.jsx";
-/*
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -24,14 +24,9 @@ const router = createBrowserRouter([
       { path: "people", element: <Contacts /> },
       { path: "requests", element: <Requests /> },
       { path: "archived", element: <Archived /> },
+      { path: "login", element: <Login /> },
+      { path: "register", element: <Register /> },
     ],
-  },
-]);*/
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Login />,
   },
 ]);
 

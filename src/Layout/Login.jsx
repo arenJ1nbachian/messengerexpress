@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router";
 import "./Login.css";
 
 const Login = () => {
+  const navigate = useNavigate();
   return (
     <>
       <div style={{ display: "flex" }}>
@@ -36,7 +38,9 @@ const Login = () => {
             effortlessly.
           </div>
 
-          <button className="rgstrBtn">Sign Up</button>
+          <button onClick={() => navigate("/register")} className="rgstrBtn">
+            Sign Up
+          </button>
         </div>
       </div>
     </>

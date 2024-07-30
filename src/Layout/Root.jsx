@@ -5,7 +5,7 @@ import NavBar from "../Components/NavBar";
 const Root = () => {
   return (
     <>
-      <NavBar />
+      {/* <NavBar />*/}
       <main className="main">
         <Outlet />
       </main>

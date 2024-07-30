@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router";
 import "./Login.css";
 
 const Register = () => {
+  const navigate = useNavigate();
   return (
     <>
       <div style={{ display: "flex" }}>
@@ -33,7 +35,9 @@ const Register = () => {
           <div className="desc">
             Continue the conversations you care about by signing in now.
           </div>
-          <button className="rgstrBtn">Sign in</button>
+          <button onClick={() => navigate("/login")} className="rgstrBtn">
+            Sign in
+          </button>
         </div>
       </div>
     </>
