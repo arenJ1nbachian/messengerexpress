@@ -5,12 +5,15 @@ import pfp from "../images/imgUpload.svg";
 
 const Register = () => {
   const navigate = useNavigate();
+
+  const [pfpPreview, setPfpPreview] = useState(pfp);
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
     email: "",
     password: "",
     confirmPassword: "",
+    file: null,
   });
 
   const formIsValid = () => {
@@ -27,23 +30,24 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formIsValid()) {
+      const data = new FormData();
+      data.append("firstname", formData.firstname);
+      data.append("lastname", formData.lastname);
+      data.append("email", formData.email);
+      data.append("password", formData.password);
+      if (formData.file) {
+        data.append("file", formData.file);
+      }
+
       try {
         const res = await fetch("http://localhost:5000/api/users/register", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            firstname: formData.firstname,
-            lastname: formData.lastname,
-            email: formData.email,
-            password: formData.password,
-          }),
+          body: data,
         });
 
         if (res.ok) {
-          const data = await res.json();
-          console.log(data);
+          const result = await res.json();
+          console.log(result);
           navigate("/login");
         }
       } catch (error) {
@@ -61,7 +65,27 @@ const Register = () => {
           <div className="title">Create your new account</div>
           <form onSubmit={handleSubmit}>
             <div className="pfp">
-              <input type="image" src={pfp} alt="pfp" />
+              <input
+                onClick={() => document.getElementById("pfpInput").click()}
+                type="image"
+                src={pfpPreview}
+                alt="pfp"
+              />
+              <input
+                onChange={(e) => {
+                  if (e.target.files[0]) {
+                    setPfpPreview(URL.createObjectURL(e.target.files[0]));
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      file: e.target.files[0],
+                    }));
+                  }
+                }}
+                id="pfpInput"
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+              />
             </div>
             <div className="nameInputs">
               <div className="firstname">

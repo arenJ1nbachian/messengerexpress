@@ -3,6 +3,7 @@ import { NavContext } from "../../Contexts/NavContext";
 import Category from "./Category";
 import Settings from "./Settings";
 import Chevron from "./Chevron";
+import accountIcon from "../../images/accountIcon.svg";
 import "./AccButton.css";
 
 const AccButton = ({ account }) => {
@@ -54,7 +55,18 @@ const AccButton = ({ account }) => {
           }
           onClick={() => navBar.setShowSettings(!navBar.showSettings)}
         >
-          <Category img={account} />
+          {" "}
+          {account !== null ? (
+            <img
+              src={account}
+              width="95%"
+              height="95%"
+              alt="icons"
+              style={{ borderRadius: "50%" }}
+            />
+          ) : (
+            <Category img={accountIcon} />
+          )}
         </div>
         {navBar.navExpanded && <div className="accName">{"Aren"}</div>}
       </div>

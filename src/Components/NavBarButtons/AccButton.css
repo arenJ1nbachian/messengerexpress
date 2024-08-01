@@ -19,6 +19,7 @@
 
 .accIconBox {
   margin-top: auto;
+
   width: 50px;
   height: 50px;
   display: flex;
@@ -30,6 +31,7 @@
 }
 
 .accName {
+  margin-left: 0.5vw;
   text-align: center;
   align-content: center;
   font-weight: bold;
