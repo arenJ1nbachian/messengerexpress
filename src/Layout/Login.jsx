@@ -82,7 +82,7 @@ const Login = () => {
               />
             </div>
             <div>
-              <input type="submit" placeholder="Login" className="loginBtn" />
+              <input type="submit" value="Login" className="loginBtn" />
             </div>
           </form>
         </div>

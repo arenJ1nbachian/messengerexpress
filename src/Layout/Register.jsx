@@ -138,7 +138,7 @@ const Register = () => {
               />
             </div>
             <div>
-              <input type="submit" placeholder="Login" className="loginBtn" />
+              <input type="submit" value="Register" className="loginBtn" />
             </div>
           </form>
         </div>
