@@ -34,7 +34,7 @@ const Login = () => {
           const data = await res.json();
           console.log(data);
           userContext.login(data.userId, data.token);
-          navigate("/chats");
+          navigate("/");
         }
       } catch (error) {
         console.log(error);

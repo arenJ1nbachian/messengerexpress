@@ -20,13 +20,23 @@ const router = createBrowserRouter([
     path: "/",
     element: <Root />,
     children: [
+      { path: "/", element: <Navigate to="/register" replace /> },
+      { path: "login", element: <Login /> },
+      { path: "register", element: <Register /> },
+    ],
+  },
+]);
+
+const loggedInRouter = createBrowserRouter([
+  {
+    path: "/",
+    element: <Root />,
+    children: [
       { path: "/", element: <Navigate to="/chats" replace /> },
       { path: "chats", element: <Chat /> },
       { path: "people", element: <Contacts /> },
       { path: "requests", element: <Requests /> },
       { path: "archived", element: <Archived /> },
-      { path: "login", element: <Login /> },
-      { path: "register", element: <Register /> },
     ],
   },
 ]);
@@ -89,7 +99,9 @@ const App = () => {
           settingsRef,
         }}
       >
-        <RouterProvider router={router} />
+        <RouterProvider
+          router={!!token && !!userId ? loggedInRouter : router}
+        />
       </NavContext.Provider>
     </UserContext.Provider>
   );

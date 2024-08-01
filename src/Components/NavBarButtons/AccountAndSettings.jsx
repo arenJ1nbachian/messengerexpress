@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import settings from "../../images/settings.svg";
 import restricted from "../../images/restriced.svg";
 import security from "../../images/security.svg";
@@ -11,10 +11,14 @@ import logout from "../../images/logout.svg";
 import edge from "../../images/icon.svg";
 import "../../CSS/ScrollBar.css";
 import "./AccountAndSettings.css";
+import { UserContext } from "../../Contexts/UserContext";
+import { useNavigate } from "react-router";
 
 const AccountAndSettings = () => {
+  const userContext = useContext(UserContext);
   const [hovered, setHovered] = useState(false);
   const [buttonHovered, setButtonHovered] = useState(-1);
+  const navigate = useNavigate();
   const accountSettings = [
     "Preferences",
     "Restricted accounts",
@@ -63,6 +67,14 @@ const AccountAndSettings = () => {
             return (
               <>
                 <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (index === 10) {
+                      console.log("test");
+                      userContext.logout();
+                      navigate("/");
+                    }
+                  }}
                   className={`optionBox ${index === 0 ? "firstOption" : ""} ${
                     index === accountSettings.length - 1 ? "lastOption" : ""
                   } ${buttonHovered === index ? "optionHovered" : ""}`}
