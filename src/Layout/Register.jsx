@@ -115,7 +115,7 @@ const Register = () => {
                     [e.target.name]: e.target.value,
                   }))
                 }
-                type="text"
+                type="password"
                 name="password"
                 autoComplete="off"
                 id="password"
@@ -130,7 +130,7 @@ const Register = () => {
                     [e.target.name]: e.target.value,
                   }))
                 }
-                type="text"
+                type="password"
                 name="confirmPassword"
                 autoComplete="off"
                 id="confirmPassword"
