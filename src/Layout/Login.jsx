@@ -39,6 +39,8 @@ const Login = () => {
       } catch (error) {
         console.log(error);
       }
+    } else {
+      console.log("Form is not valid");
     }
   };
   return (
@@ -50,9 +52,13 @@ const Login = () => {
             <div className="email">
               <input
                 onChange={(e) =>
-                  setFormData(...formData, { [e.target.name]: e.target.value })
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    [e.target.name]: e.target.value,
+                  }))
                 }
                 type="text"
+                name="email"
                 autoComplete="off"
                 id="email"
                 placeholder="Email"
@@ -61,9 +67,13 @@ const Login = () => {
             <div className="password">
               <input
                 onChange={(e) =>
-                  setFormData(...formData, { [e.target.name]: e.target.value })
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    [e.target.name]: e.target.value,
+                  }))
                 }
                 type="text"
+                name="password"
                 autoComplete="off"
                 id="password"
                 placeholder="Password"
