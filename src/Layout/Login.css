@@ -71,6 +71,38 @@
   margin-bottom: 3vh;
 }
 
+.firstname input {
+  width: 12.5vw;
+  height: 6vh;
+  padding-left: 1vw;
+  outline: none;
+  border: none;
+  border-radius: 45px;
+  background-color: white;
+  color: grey;
+  font-size: 1.2rem;
+  margin-bottom: 3vh;
+}
+
+.nameInputs {
+  display: flex;
+  gap: 0.5vw;
+  justify-content: center;
+}
+
+.lastname input {
+  width: 12.5vw;
+  height: 6vh;
+  padding-left: 1vw;
+  outline: none;
+  border: none;
+  border-radius: 45px;
+  background-color: white;
+  color: grey;
+  font-size: 1.2rem;
+  margin-bottom: 3vh;
+}
+
 .loginBtn {
   width: 20vw;
   height: 8vh;

@@ -5,9 +5,9 @@ const { check } = require("express-validator");
 const router = express.Router();
 
 router.post(
-  "/",
-  check("firstName").not().isEmpty(),
-  check("lastName").not().isEmpty(),
+  "/register",
+  check("firstname").not().isEmpty(),
+  check("lastname").not().isEmpty(),
   check("email").not().isEmpty(),
   check("password").not().isEmpty(),
   usersController.createUser

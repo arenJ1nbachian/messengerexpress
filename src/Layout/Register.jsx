@@ -1,31 +1,146 @@
 import { useNavigate } from "react-router";
 import "./Login.css";
+import { useState } from "react";
 
 const Register = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    firstname: "",
+    lastname: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const formIsValid = () => {
+    return (
+      formData.firstname.length !== 0 &&
+      formData.lastname.length !== 0 &&
+      formData.email.length !== 0 &&
+      formData.password.length !== 0 &&
+      formData.confirmPassword.length !== 0 &&
+      formData.password === formData.confirmPassword
+    );
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (formIsValid()) {
+      try {
+        const res = await fetch("http://localhost:5000/api/users/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firstname: formData.firstname,
+            lastname: formData.lastname,
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          console.log(data);
+          navigate("/login");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("Form is not valid");
+    }
+  };
+
   return (
     <>
       <div style={{ display: "flex" }}>
         <div className="login">
           <div className="title">Create your new account</div>
-          <div className="email">
-            <input
-              type="text"
-              autoComplete="off"
-              id="email"
-              placeholder="Email"
-            />
-          </div>
-          <div className="password">
-            <input
-              type="text"
-              autoComplete="off"
-              id="password"
-              placeholder="Password"
-            />
-          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="nameInputs">
+              <div className="firstname">
+                <input
+                  onChange={(e) =>
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      [e.target.name]: e.target.value,
+                    }))
+                  }
+                  type="text"
+                  name="firstname"
+                  autoComplete="off"
+                  id="firstname"
+                  placeholder="First Name"
+                />
+              </div>
+              <div className="lastname">
+                <input
+                  onChange={(e) =>
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      [e.target.name]: e.target.value,
+                    }))
+                  }
+                  type="text"
+                  name="lastname"
+                  autoComplete="off"
+                  id="lastname"
+                  placeholder="Last Name"
+                />
+              </div>
+            </div>
 
-          <button className="loginBtn">Sign up</button>
+            <div className="email">
+              <input
+                onChange={(e) =>
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    [e.target.name]: e.target.value,
+                  }))
+                }
+                type="text"
+                name="email"
+                autoComplete="off"
+                id="email"
+                placeholder="Email"
+              />
+            </div>
+            <div className="password">
+              <input
+                onChange={(e) =>
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    [e.target.name]: e.target.value,
+                  }))
+                }
+                type="text"
+                name="password"
+                autoComplete="off"
+                id="password"
+                placeholder="Password"
+              />
+            </div>
+            <div className="password">
+              <input
+                onChange={(e) =>
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    [e.target.name]: e.target.value,
+                  }))
+                }
+                type="text"
+                name="confirmPassword"
+                autoComplete="off"
+                id="confirmPassword"
+                placeholder="Confirm Password"
+              />
+            </div>
+            <div>
+              <input type="submit" placeholder="Login" className="loginBtn" />
+            </div>
+          </form>
         </div>
         <div className="side">
           <div className="sideTitle"> Already with us?</div>
