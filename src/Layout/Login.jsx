@@ -33,6 +33,8 @@ const Login = () => {
         if (res.ok) {
           const data = await res.json();
           console.log(data);
+          sessionStorage.setItem("token", data.token);
+          sessionStorage.setItem("userId", data.userId);
           userContext.login(data.userId, data.token);
           navigate("/");
         }

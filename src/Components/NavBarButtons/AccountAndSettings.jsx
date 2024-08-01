@@ -13,9 +13,11 @@ import "../../CSS/ScrollBar.css";
 import "./AccountAndSettings.css";
 import { UserContext } from "../../Contexts/UserContext";
 import { useNavigate } from "react-router";
+import { NavContext } from "../../Contexts/NavContext";
 
 const AccountAndSettings = () => {
   const userContext = useContext(UserContext);
+  const navBarContext = useContext(NavContext);
   const [hovered, setHovered] = useState(false);
   const [buttonHovered, setButtonHovered] = useState(-1);
   const navigate = useNavigate();
@@ -72,6 +74,9 @@ const AccountAndSettings = () => {
                     if (index === 10) {
                       console.log("test");
                       userContext.logout();
+                      sessionStorage.removeItem("token");
+                      sessionStorage.removeItem("userId");
+                      navBarContext.setShowSettings(false);
                       navigate("/");
                     }
                   }}

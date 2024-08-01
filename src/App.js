@@ -15,6 +15,23 @@ import Login from "./Layout/Login.jsx";
 import Register from "./Layout/Register.jsx";
 import { UserContext } from "./Contexts/UserContext.js";
 
+const handleDefaultNavigation = () => {
+  const selected = sessionStorage.getItem("selected");
+
+  switch (selected) {
+    case "0":
+      return <Navigate to="/chats" replace />;
+    case "1":
+      return <Navigate to="/people" replace />;
+    case "2":
+      return <Navigate to="/requests" replace />;
+    case "3":
+      return <Navigate to="/archived" replace />;
+    default:
+      return <Navigate to="/chats" replace />;
+  }
+};
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -32,7 +49,7 @@ const loggedInRouter = createBrowserRouter([
     path: "/",
     element: <Root />,
     children: [
-      { path: "/", element: <Navigate to="/chats" replace /> },
+      { path: "/", element: handleDefaultNavigation() },
       { path: "chats", element: <Chat /> },
       { path: "people", element: <Contacts /> },
       { path: "requests", element: <Requests /> },
@@ -52,8 +69,10 @@ const App = () => {
     JSON.parse(sessionStorage.getItem("selected")) || 0
   );
 
-  const [token, setToken] = useState(false);
-  const [userId, setUserId] = useState(false);
+  const [token, setToken] = useState(sessionStorage.getItem("token") || false);
+  const [userId, setUserId] = useState(
+    sessionStorage.getItem("userId") || false
+  );
 
   const login = useCallback((uid, token) => {
     setToken(token);

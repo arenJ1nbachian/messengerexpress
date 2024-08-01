@@ -1,5 +1,5 @@
 .chatBox {
-  width: 31vw;
+  width: 30vw;
   display: flex;
   flex-direction: column;
   margin-left: 1vw;
@@ -11,7 +11,7 @@
 }
 
 .chatConvoBox {
-  width: 61vw;
+  width: 63vw;
   display: flex;
   flex-direction: column;
   margin-left: 1vw;
@@ -23,11 +23,11 @@
 }
 
 .chatConvoBox.expanded {
-  width: 49vw;
+  width: 54vw;
 }
 
 .chatBox.expanded {
-  width: 30vw;
+  width: 25vw;
 }
 
 .chatBoxHeader {
