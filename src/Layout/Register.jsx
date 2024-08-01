@@ -5,6 +5,7 @@ import pfp from "../images/imgUpload.svg";
 
 const Register = () => {
   const navigate = useNavigate();
+  const [hovered, setHovered] = useState(false);
 
   const [pfpPreview, setPfpPreview] = useState(pfp);
   const [formData, setFormData] = useState({
@@ -64,12 +65,20 @@ const Register = () => {
         <div className="login">
           <div className="title">Create your new account</div>
           <form onSubmit={handleSubmit}>
-            <div className="pfp">
+            <div
+              onMouseEnter={() => setHovered(true)}
+              onMouseLeave={() => setHovered(false)}
+              className={`pfp ${hovered ? "hovered" : ""}`}
+            >
               <input
                 onClick={() => document.getElementById("pfpInput").click()}
                 type="image"
                 src={pfpPreview}
                 alt="pfp"
+                style={{
+                  width: pfpPreview === pfp ? "60%" : "100%",
+                  height: pfpPreview === pfp ? "60%" : "100%",
+                }}
               />
               <input
                 onChange={(e) => {

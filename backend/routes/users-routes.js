@@ -19,7 +19,9 @@ router.post(
   usersController.createUser
 );
 
-router.get("/:uid", usersController.getUser);
+router.get("/:uid/picture", usersController.getUserPicture);
+
+router.get("/:uid/info", usersController.getUserInfo);
 
 router.post("/login", usersController.loginUser);
 

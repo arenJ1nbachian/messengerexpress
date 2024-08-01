@@ -15,15 +15,19 @@ const NavBar = () => {
 
   const buttonText = ["Chats", "People", "Requests", "Archive"];
   const [profilePictureUrl, setProfilePictureUrl] = useState(null);
+  const [name, setName] = useState(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const uid = sessionStorage.getItem("userId");
+    const uid = sessionStorage.getItem("userId");
+    const fetchProfilePicture = async (uid) => {
       console.log(uid);
       try {
-        const res = await fetch("http://localhost:5000/api/users/" + uid, {
-          method: "GET",
-        });
+        const res = await fetch(
+          "http://localhost:5000/api/users/" + uid + "/picture",
+          {
+            method: "GET",
+          }
+        );
         if (res.ok) {
           const blob = await res.blob();
           const imageUrl = URL.createObjectURL(blob);
@@ -33,7 +37,28 @@ const NavBar = () => {
         console.log(error);
       }
     };
-    fetchUser();
+
+    const fetchName = async (uid) => {
+      try {
+        const res = await fetch(
+          "http://localhost:5000/api/users/" + uid + "/info",
+          {
+            method: "GET",
+          }
+        );
+        if (res.ok) {
+          const result = await res.json();
+          setName(
+            result.userDetails.firstname + " " + result.userDetails.lastname
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchProfilePicture(uid);
+    fetchName(uid);
   }, []);
 
   return (
@@ -48,7 +73,7 @@ const NavBar = () => {
           />
         ))}
         <div className="accBtn">
-          <AccButton account={profilePictureUrl} />
+          <AccButton account={profilePictureUrl} loggedName={name} />
         </div>
         {!navBar.navExpanded && <Chevron />}
       </div>

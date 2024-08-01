@@ -95,6 +95,11 @@
   margin-bottom: 2.5vh;
 }
 
+.pfp.hovered {
+  border: 4px solid white;
+  cursor: pointer;
+}
+
 .pfp input {
   width: 100%;
   height: 100%;

@@ -33,12 +33,23 @@ const createUser = async (req, res) => {
   }
 };
 
-const getUser = async (req, res) => {
+const getUserPicture = async (req, res) => {
   console.log(req.params.uid);
   try {
     const user = await Users.findById(req.params.uid);
-    console.log(user);
-    res.sendFile(path.join(__dirname, "..", user.profilePicture));
+    res.sendFile(path.join(__dirname, "..\\", user.profilePicture));
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+};
+
+const getUserInfo = async (req, res) => {
+  try {
+    const userDetails = await Users.findById(req.params.uid).select(
+      "firstname lastname"
+    );
+    res.status(200).json({ userDetails });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });
@@ -67,4 +78,5 @@ const loginUser = async (req, res) => {
 
 exports.createUser = createUser;
 exports.loginUser = loginUser;
-exports.getUser = getUser;
+exports.getUserPicture = getUserPicture;
+exports.getUserInfo = getUserInfo;

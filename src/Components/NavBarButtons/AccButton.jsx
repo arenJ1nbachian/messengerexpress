@@ -6,10 +6,11 @@ import Chevron from "./Chevron";
 import accountIcon from "../../images/accountIcon.svg";
 import "./AccButton.css";
 
-const AccButton = ({ account }) => {
+const AccButton = ({ account, loggedName }) => {
   const navBar = useContext(NavContext);
 
   useEffect(() => {
+    console.log("logged name: " + loggedName);
     const handleClickOutside = (event) => {
       if (
         navBar.settingsRef.current &&
@@ -31,7 +32,7 @@ const AccButton = ({ account }) => {
       console.log("Cleaning up");
       document.removeEventListener("click", handleClickOutside);
     };
-  }, [navBar.showSettings]);
+  }, [navBar.showSettings, navBar, loggedName]);
 
   return (
     <>
@@ -68,7 +69,7 @@ const AccButton = ({ account }) => {
             <Category img={accountIcon} />
           )}
         </div>
-        {navBar.navExpanded && <div className="accName">{"Aren"}</div>}
+        {navBar.navExpanded && <div className="accName">{loggedName}</div>}
       </div>
       <Settings />
       {navBar.navExpanded && <Chevron />}
