@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router";
 import "./Login.css";
 import { useState } from "react";
+import pfp from "../images/imgUpload.svg";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -59,6 +60,9 @@ const Register = () => {
         <div className="login">
           <div className="title">Create your new account</div>
           <form onSubmit={handleSubmit}>
+            <div className="pfp">
+              <input type="image" src={pfp} alt="pfp" />
+            </div>
             <div className="nameInputs">
               <div className="firstname">
                 <input

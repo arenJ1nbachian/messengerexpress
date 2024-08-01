@@ -84,6 +84,21 @@
   margin-bottom: 3vh;
 }
 
+.pfp {
+  border: 1px solid white;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2.5vh;
+}
+
+.pfp input {
+  width: 65%;
+}
+
 .nameInputs {
   display: flex;
   gap: 0.5vw;
