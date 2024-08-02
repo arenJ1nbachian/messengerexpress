@@ -4,6 +4,7 @@ const Users = require("../models/user");
 
 const getConversations = async (req, res) => {
   const uid = req.params.uid;
+  const result = [];
   try {
     const conversations = await Convo.find({ participants: { $in: [uid] } });
 
@@ -13,7 +14,22 @@ const getConversations = async (req, res) => {
         .json({ message: "No conversations found for this user." });
     }
 
-    res.status(200).json({ conversations });
+    for (let i = 0; i < conversations.length; i++) {
+      const convo = conversations[i];
+      const lastMessage = await Message.findById(convo.lastMessage);
+      const nameID =
+        lastMessage.sender.toString() === uid
+          ? lastMessage.receiver
+          : lastMessage.sender;
+      const name = await Users.findById(nameID).select("firstname lastname");
+
+      result.push({
+        name: name.firstname + " " + name.lastname,
+        lastMessage: lastMessage.content,
+      });
+    }
+
+    res.status(200).json({ result });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });

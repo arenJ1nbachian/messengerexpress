@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 
 app.use("/api/users", usersRoutes);
 
-app.use("api/conversations", convoRoutes);
+app.use("/api/conversations", convoRoutes);
 
 mongoose
   .connect("mongodb://localhost:27017/")
