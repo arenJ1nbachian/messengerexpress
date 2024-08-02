@@ -24,18 +24,42 @@ const ConvoBox = () => {
         }}
         className={`scrollBar convoBox ${hovered ? "hovered" : "default"}`}
       >
+        <div
+          id="newConvo"
+          key={0}
+          className={`userConvo ${navContext.compose ? "show" : "hidden"} ${
+            navContext.selectedChat === 0 ? "clicked" : "default"
+          } ${convoHovered === 0 ? "hovered" : "default"}`}
+          onChange={() => navContext.setSelectedChat(0)}
+        >
+          <div id="pfPicture">
+            <img
+              className="convoPicture"
+              src={defaultPicture}
+              alt="profilePic"
+            />
+          </div>
+          <div className="convoInfo">
+            <div id="flName">{`New message`}</div>
+          </div>
+        </div>
         {navContext.displayedConversations.result?.length > 0 &&
           navContext.displayedConversations.result.map(
             (conversation, index) => {
               return (
                 <div
-                  key={index}
+                  key={index + 1}
                   className={`userConvo ${
-                    navContext.selectedChat === index ? "clicked" : "default"
-                  } ${convoHovered === index ? "hovered" : "default"}`}
-                  onMouseEnter={() => setConvoHovered(index)}
+                    navContext.selectedChat === index + 1
+                      ? "clicked"
+                      : "default"
+                  } ${convoHovered === index + 1 ? "hovered" : "default"}`}
+                  onMouseEnter={() => setConvoHovered(index + 1)}
                   onMouseLeave={() => setConvoHovered(-1)}
-                  onClick={() => navContext.setSelectedChat(index)}
+                  onClick={() => {
+                    navContext.setSelectedChat(index + 1);
+                    navContext.setCompose(false);
+                  }}
                 >
                   <div id="pfPicture">
                     <img

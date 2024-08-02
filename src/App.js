@@ -67,15 +67,15 @@ const App = () => {
   const [selected, setSelected] = useState(
     JSON.parse(sessionStorage.getItem("selected")) || 0
   );
-  const [selectedChat, setSelectedChat] = useState(-1);
+  const [selectedChat, setSelectedChat] = useState(1);
   const [selectChatDetails, setSelectChatDetails] = useState({});
   const [displayedConversations, setDisplayedConversations] = useState([]);
   const [displayedPictures, setDisplayedPictures] = useState([]);
-
   const [token, setToken] = useState(sessionStorage.getItem("token") || false);
   const [userId, setUserId] = useState(
     sessionStorage.getItem("userId") || false
   );
+  const [compose, setCompose] = useState(false);
 
   const login = useCallback((uid, token) => {
     setToken(token);
@@ -88,6 +88,8 @@ const App = () => {
     setSelectedChat(-1);
     setNavExpanded(false);
     sessionStorage.clear();
+
+    setCompose(false);
   }, []);
 
   const handleNavExpand = useCallback((value) => {
@@ -181,6 +183,8 @@ const App = () => {
           displayedConversations,
           setDisplayedConversations: handleDisplayedConversations,
           displayedPictures,
+          compose,
+          setCompose,
         }}
       >
         <RouterProvider

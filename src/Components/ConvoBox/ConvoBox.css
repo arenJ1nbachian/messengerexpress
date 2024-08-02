@@ -74,3 +74,11 @@
   height: 75%;
   border-radius: 50%;
 }
+
+.hidden {
+  display: none;
+}
+
+.show {
+  display: flex;
+}

@@ -10,7 +10,7 @@ export const NavContext = createContext({
   showSettings: false,
   setShowSettings: () => {},
   settingsRef: null,
-  selectedChat: -1,
+  selectedChat: 1,
   setSelectedChat: () => {},
   selectChatDetails: {},
   setSelectChatDetails: () => {},
@@ -18,4 +18,6 @@ export const NavContext = createContext({
   setDisplayedConversations: () => {},
   displayedPictures: [],
   setDisplayedPictures: () => {},
+  compose: false,
+  setCompose: () => {},
 });
