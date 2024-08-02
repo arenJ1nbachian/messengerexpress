@@ -7,3 +7,5 @@ router.get("/getConvos/:uid", convoController.getConversations);
 router.post("/createConvo", convoController.createConvo);
 
 router.get("/getConvo", convoController.getConvo);
+
+module.exports = router;

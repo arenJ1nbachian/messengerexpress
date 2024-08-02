@@ -14,12 +14,15 @@ const Chat = () => {
 
   const navBar = useContext(NavContext);
 
+  const handleClick = () => {};
+
   return (
     <div style={{ display: "flex" }}>
       <div className={`chatBox ${navBar.navExpanded ? "expanded" : "default"}`}>
         <div className="chatBoxHeader">
           <div className="chatBoxTitle">Chats</div>
           <div
+            onClick={handleClick}
             className={`chatBoxCompose ${
               composeHover ? "composeBtnHover" : "default"
             }`}

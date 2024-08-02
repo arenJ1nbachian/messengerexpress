@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Category from "../NavBarButtons/Category";
 import defaultPicture from "../../images/default.svg";
 import "./ConvoBox.css";
+import { NavContext } from "../../Contexts/NavContext";
 
 const ConvoBox = () => {
   const [hovered, setHovered] = useState(-1);
   const [convoHovered, setConvoHovered] = useState(-1);
-  const [convoClicked, setConvoClicked] = useState(1);
-  const conversations = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+  const navContext = useContext(NavContext);
   return (
     <>
       <div
@@ -17,25 +18,23 @@ const ConvoBox = () => {
         }}
         className={`scrollBar convoBox ${hovered ? "hovered" : "default"}`}
       >
-        {conversations.map((index) => {
+        {navContext.displayedConversations.map((conversation, index) => {
           return (
             <div
               key={index}
               className={`userConvo ${
-                convoClicked === index ? "clicked" : "default"
+                navContext.selectedChat === index ? "clicked" : "default"
               } ${convoHovered === index ? "hovered" : "default"}`}
               onMouseEnter={() => setConvoHovered(index)}
               onMouseLeave={() => setConvoHovered(-1)}
-              onClick={() => setConvoClicked(index)}
+              onClick={() => navContext.setSelectedChat(index)}
             >
               <div id="pfPicture">
                 <Category img={defaultPicture} width="75%" height="75%" />
               </div>
               <div className="convoInfo">
-                <div id="flName">Aren Jinbachian</div>
-                <div id="latest-message">
-                  This is a message preview for this conversation · 5m
-                </div>
+                <div id="flName">{`${conversation.name}`}</div>
+                <div id="latest-message">{`${conversation.lastMessage}`}</div>
               </div>
             </div>
           );

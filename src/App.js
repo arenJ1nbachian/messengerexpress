@@ -68,6 +68,9 @@ const App = () => {
   const [selected, setSelected] = useState(
     JSON.parse(sessionStorage.getItem("selected")) || 0
   );
+  const [selectedChat, setSelectedChat] = useState(-1);
+  const [selectChatDetails, setSelectChatDetails] = useState({});
+  const [displayedConversations, setDisplayedConversations] = useState([]);
 
   const [token, setToken] = useState(sessionStorage.getItem("token") || false);
   const [userId, setUserId] = useState(
@@ -101,6 +104,37 @@ const App = () => {
     setShowSettings(value);
   }, []);
 
+  const handleSelectedChatDetails = useCallback(async (value) => {
+    try {
+      const res = await fetch("", {
+        method: "GET",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    setSelectChatDetails(value);
+  }, []);
+
+  const handleDisplayedConversations = useCallback(async (value) => {
+    try {
+      const res = await fetch(
+        "http://localhost:5000/api/conversations/getConvos/" +
+          sessionStorage.getItem("userId"),
+        {
+          method: "GET",
+        }
+      );
+
+      if (res.ok) {
+        const result = await res.json();
+        setDisplayedConversations(result);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
   return (
     <UserContext.Provider
       value={{ isLoggedIn: !!token, token, userId, login, logout }}
@@ -116,6 +150,12 @@ const App = () => {
           showSettings,
           setShowSettings: handleShowSettings,
           settingsRef,
+          selectedChat,
+          setSelectedChat,
+          selectChatDetails,
+          setSelectChatDetails: handleSelectedChatDetails,
+          displayedConversations,
+          setDisplayedConversations: handleDisplayedConversations,
         }}
       >
         <RouterProvider

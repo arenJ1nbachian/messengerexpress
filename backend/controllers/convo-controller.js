@@ -72,6 +72,6 @@ const getConvo = async (req, res) => {
   }
 };
 
-module.exports = getConversations;
-module.exports = createConvo;
-module.exports = getConvo;
+exports.getConversations = getConversations;
+exports.createConvo = createConvo;
+exports.getConvo = getConvo;

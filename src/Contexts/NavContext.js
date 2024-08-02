@@ -10,4 +10,10 @@ export const NavContext = createContext({
   showSettings: false,
   setShowSettings: () => {},
   settingsRef: null,
+  selectedChat: -1,
+  setSelectedChat: () => {},
+  selectChatDetails: {},
+  setSelectChatDetails: () => {},
+  displayedConversations: null,
+  setDisplayedConversations: () => {},
 });
