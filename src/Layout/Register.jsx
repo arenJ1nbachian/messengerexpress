@@ -70,16 +70,30 @@ const Register = () => {
               onMouseLeave={() => setHovered(false)}
               className={`pfp ${hovered ? "hovered" : ""}`}
             >
-              <input
-                onClick={() => document.getElementById("pfpInput").click()}
-                type="image"
-                src={pfpPreview}
-                alt="pfp"
+              <button
+                type="button"
+                onClick={(e) => document.getElementById("pfpInput").click()}
                 style={{
-                  width: pfpPreview === pfp ? "60%" : "100%",
-                  height: pfpPreview === pfp ? "60%" : "100%",
+                  border: "none",
+                  background: "none",
+                  padding: 0,
+                  width: "100%",
+                  height: "100%",
                 }}
-              />
+              >
+                <img
+                  src={pfpPreview}
+                  alt="pfp"
+                  style={{
+                    width: pfpPreview === pfp ? "60%" : "100%",
+                    height: pfpPreview === pfp ? "60%" : "100%",
+                    display: "block",
+                    margin: "auto",
+                    borderRadius: "50%",
+                  }}
+                />
+              </button>
+
               <input
                 onChange={(e) => {
                   if (e.target.files[0]) {
