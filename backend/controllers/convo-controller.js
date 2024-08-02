@@ -24,9 +24,11 @@ const getConversations = async (req, res) => {
       const name = await Users.findById(nameID).select("firstname lastname");
 
       result.push({
+        userId: nameID,
         name: name.firstname + " " + name.lastname,
         lastMessage: lastMessage.content,
         who: lastMessage.sender.toString() === uid ? "You:" : "",
+        read: lastMessage.read,
       });
     }
 

@@ -16,4 +16,6 @@ export const NavContext = createContext({
   setSelectChatDetails: () => {},
   displayedConversations: null,
   setDisplayedConversations: () => {},
+  displayedPictures: [],
+  setDisplayedPictures: () => {},
 });

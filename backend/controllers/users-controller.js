@@ -37,7 +37,11 @@ const getUserPicture = async (req, res) => {
   console.log(req.params.uid);
   try {
     const user = await Users.findById(req.params.uid);
-    res.sendFile(path.join(__dirname, "..\\", user.profilePicture));
+    if (user.profilePicture === null) {
+      res.status(404).json({ error: "Profile picture not found" });
+    } else {
+      res.sendFile(path.join(__dirname, "..\\", user.profilePicture));
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });
@@ -76,7 +80,28 @@ const loginUser = async (req, res) => {
   }
 };
 
+const getProfilePictures = async (req, res) => {
+  const { userIDs } = req.body;
+
+  try {
+    const users = await Users.find({ _id: { $in: userIDs } });
+
+    const profilePicturesUrl = users.map((user) => {
+      if (user.profilePicture) {
+        return "http://localhost:5000/" + user.profilePicture;
+      } else {
+        return null;
+      }
+    });
+    res.status(200).json({ profilePicturesUrl });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+};
+
 exports.createUser = createUser;
 exports.loginUser = loginUser;
 exports.getUserPicture = getUserPicture;
 exports.getUserInfo = getUserInfo;
+exports.getProfilePictures = getProfilePictures;

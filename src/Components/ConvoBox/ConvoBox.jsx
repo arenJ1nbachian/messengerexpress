@@ -3,6 +3,7 @@ import Category from "../NavBarButtons/Category";
 import defaultPicture from "../../images/default.svg";
 import "./ConvoBox.css";
 import { NavContext } from "../../Contexts/NavContext";
+import unread from "../../images/unread.svg";
 
 const ConvoBox = () => {
   const [hovered, setHovered] = useState(-1);
@@ -37,12 +38,38 @@ const ConvoBox = () => {
                   onClick={() => navContext.setSelectedChat(index)}
                 >
                   <div id="pfPicture">
-                    <Category img={defaultPicture} width="75%" height="75%" />
+                    <img
+                      className="convoPicture"
+                      src={
+                        navContext.displayedPictures.profilePicturesUrl[
+                          index
+                        ] === null
+                          ? defaultPicture
+                          : navContext.displayedPictures.profilePicturesUrl[
+                              index
+                            ]
+                      }
+                      alt="profilePic"
+                    />
                   </div>
                   <div className="convoInfo">
                     <div id="flName">{`${conversation.name}`}</div>
-                    <div id="latest-message">{`${conversation.who} ${conversation.lastMessage}`}</div>
+                    <div
+                      id="latest-message"
+                      className={`${
+                        conversation.read === false &&
+                        conversation.who.length === 0
+                          ? "unread"
+                          : ""
+                      }`}
+                    >{`${conversation.who} ${conversation.lastMessage}`}</div>
                   </div>
+                  {conversation.read === false &&
+                    conversation.who.length === 0 && (
+                      <div className="unreadIcon">
+                        <Category img={unread} width="100%" height="100%" />
+                      </div>
+                    )}
                 </div>
               );
             }

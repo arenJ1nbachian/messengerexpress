@@ -70,6 +70,7 @@ const App = () => {
   const [selectedChat, setSelectedChat] = useState(-1);
   const [selectChatDetails, setSelectChatDetails] = useState({});
   const [displayedConversations, setDisplayedConversations] = useState([]);
+  const [displayedPictures, setDisplayedPictures] = useState([]);
 
   const [token, setToken] = useState(sessionStorage.getItem("token") || false);
   const [userId, setUserId] = useState(
@@ -108,7 +109,7 @@ const App = () => {
   }, []);
 
   const handleSelectedChatDetails = useCallback(async (value) => {
-    try {
+    /*  try {
       const res = await fetch("", {
         method: "GET",
       });
@@ -116,12 +117,12 @@ const App = () => {
       console.log(error);
     }
 
-    setSelectChatDetails(value);
+    setSelectChatDetails(value);*/
   }, []);
 
   const handleDisplayedConversations = useCallback(async (value) => {
     try {
-      const res = await fetch(
+      const conversations = await fetch(
         "http://localhost:5000/api/conversations/getConvos/" +
           sessionStorage.getItem("userId"),
         {
@@ -129,8 +130,26 @@ const App = () => {
         }
       );
 
-      if (res.ok) {
-        const result = await res.json();
+      if (conversations.ok) {
+        const result = await conversations.json();
+        const userIds = result.result.map(
+          (conversation) => conversation.userId
+        );
+        const profilePictures = await fetch(
+          "http://localhost:5000/api/users/getProfilePictures",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userIDs: userIds }),
+          }
+        );
+
+        if (profilePictures.ok) {
+          setDisplayedPictures(await profilePictures.json());
+        }
+
         setDisplayedConversations(result);
       } else {
         setDisplayedConversations([]);
@@ -161,6 +180,7 @@ const App = () => {
           setSelectChatDetails: handleSelectedChatDetails,
           displayedConversations,
           setDisplayedConversations: handleDisplayedConversations,
+          displayedPictures,
         }}
       >
         <RouterProvider

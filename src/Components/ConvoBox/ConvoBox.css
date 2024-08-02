@@ -46,15 +46,31 @@
   margin-left: 0.5vw;
 }
 
+.unreadIcon {
+  margin-left: auto;
+  margin-right: 2vw;
+}
+
+#latest-message.unread {
+  font-weight: bolder;
+  color: white;
+}
+
 #flName {
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
   color: white;
 }
 
 #latest-message {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
   color: rgb(176, 179, 184);
+}
+
+.convoPicture {
+  width: 75%;
+  height: 75%;
+  border-radius: 50%;
 }
