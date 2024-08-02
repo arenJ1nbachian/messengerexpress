@@ -1,5 +1,6 @@
 const express = require("express");
 const usersRoutes = require("./routes/users-routes");
+const convoRoutes = require("./routes/convo-routes");
 const mongoose = require("mongoose");
 const path = require("path");
 const app = express();
@@ -19,6 +20,8 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/users", usersRoutes);
+
+app.use("api/conversations", convoRoutes);
 
 mongoose
   .connect("mongodb://localhost:27017/")
