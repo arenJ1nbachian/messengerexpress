@@ -74,6 +74,7 @@ const Register = () => {
                 type="button"
                 onClick={(e) => document.getElementById("pfpInput").click()}
                 style={{
+                  cursor: "pointer",
                   border: "none",
                   background: "none",
                   padding: 0,
