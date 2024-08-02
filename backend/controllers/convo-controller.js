@@ -26,6 +26,7 @@ const getConversations = async (req, res) => {
       result.push({
         name: name.firstname + " " + name.lastname,
         lastMessage: lastMessage.content,
+        who: lastMessage.sender.toString() === uid ? "You:" : "",
       });
     }
 

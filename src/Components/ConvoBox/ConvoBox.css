@@ -42,13 +42,12 @@
 .convoInfo {
   display: flex;
   flex-direction: column;
-  gap: 0.5vh;
+  gap: 0.2vh;
   margin-left: 0.5vw;
 }
 
 #flName {
   font-weight: bold;
-
   font-size: 1rem;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
   color: white;

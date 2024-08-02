@@ -17,7 +17,6 @@ import { UserContext } from "./Contexts/UserContext.js";
 
 const handleDefaultNavigation = () => {
   const selected = sessionStorage.getItem("selected");
-
   switch (selected) {
     case "0":
       return <Navigate to="/chats" replace />;
@@ -84,6 +83,10 @@ const App = () => {
   const logout = useCallback(() => {
     setToken(null);
     setUserId(null);
+    setSelected(0);
+    setSelectedChat(-1);
+    setNavExpanded(false);
+    sessionStorage.clear();
   }, []);
 
   const handleNavExpand = useCallback((value) => {
@@ -129,6 +132,8 @@ const App = () => {
       if (res.ok) {
         const result = await res.json();
         setDisplayedConversations(result);
+      } else {
+        setDisplayedConversations([]);
       }
     } catch (error) {
       console.log(error);
