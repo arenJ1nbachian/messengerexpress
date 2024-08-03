@@ -70,7 +70,9 @@ const ComposeMessage = () => {
             <div
               onClick={(e) =>
                 navContext.setSelectedElement({
-                  picture: user.profilePicture || defaultPicture,
+                  picture: !user.profilePicture.includes("null")
+                    ? user.profilePicture
+                    : defaultPicture,
                   name: user.firstname + " " + user.lastname,
                 })
               }
@@ -84,7 +86,11 @@ const ComposeMessage = () => {
                 <img
                   id="searchUser"
                   className="convoPicture"
-                  src={user.profilePicture || defaultPicture}
+                  src={
+                    !user.profilePicture.includes("null")
+                      ? user.profilePicture
+                      : defaultPicture
+                  }
                   alt="profilePic"
                 />
               </div>
