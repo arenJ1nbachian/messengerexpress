@@ -77,6 +77,8 @@ const App = () => {
   );
   const [compose, setCompose] = useState(false);
   const [selectedElement, setSelectedElement] = useState(null);
+  const [showsearchField, setShowsearchField] = useState(true);
+  const searchFieldRef = useRef(null);
 
   const login = useCallback((uid, token) => {
     setToken(token);
@@ -188,6 +190,9 @@ const App = () => {
           setCompose,
           selectedElement: selectedElement,
           setSelectedElement: setSelectedElement,
+          showsearchField,
+          setShowsearchField,
+          searchFieldRef,
         }}
       >
         <RouterProvider

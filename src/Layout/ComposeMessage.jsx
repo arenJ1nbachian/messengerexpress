@@ -11,9 +11,35 @@ const ComposeMessage = () => {
   const [searchUserHovered, setSearchUserHovered] = useState(-1);
 
   useEffect(() => {
-    console.log(usersFound);
-    console.log(navContext.selectedComposeHtmlTag);
-  }, [usersFound, navContext.selectedComposeHtmlTag]);
+    const handleClickOutside = (event) => {
+      console.log("Clicked");
+      if (
+        (navContext.searchFieldRef.current &&
+          !navContext.searchFieldRef.current.contains(event.target) &&
+          !event.target.closest("#userSearch") &&
+          !event.target.closest(".to")) ||
+        event.target.closest("#icons")
+      ) {
+        console.log(
+          "Is the search field open? ",
+          navContext.searchFieldRef.current
+        );
+
+        navContext.setShowsearchField(false);
+      }
+    };
+
+    if (navContext.showsearchField) {
+      document.addEventListener("click", handleClickOutside);
+    } else {
+      document.removeEventListener("click", handleClickOutside);
+    }
+
+    return () => {
+      console.log("Cleaning up");
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [navContext.showsearchField]);
 
   const debounce = (func, delay) => {
     let timeout;
@@ -58,48 +84,62 @@ const ComposeMessage = () => {
     <>
       <div className="composeHeader">
         <div className="to">To:</div>
+        <div
+          className={`selectedUser ${
+            navContext?.selectedElement ? "" : "hide"
+          }`}
+        >
+          {navContext?.selectedElement && navContext.selectedElement.name}
+        </div>
         <input
+          onClick={() => navContext.setShowsearchField(true)}
           onChange={debouncedHandleChange}
           type="text"
+          autoFocus
           autoComplete="off"
-          id="userName"
+          id="userSearch"
           placeholder=""
         />
-        <div className="searchBox">
-          {usersFound.map((user, index) => (
-            <div
-              onClick={(e) =>
-                navContext.setSelectedElement({
-                  picture: !user.profilePicture.includes("null")
-                    ? user.profilePicture
-                    : defaultPicture,
-                  name: user.firstname + " " + user.lastname,
-                })
-              }
-              onMouseEnter={() => setSearchUserHovered(index)}
-              onMouseLeave={() => setSearchUserHovered(-1)}
-              key={index}
-              className={`userSearch 
-              } ${searchUserHovered === index ? "hovered" : "default"}`}
-            >
-              <div id="pfPicture">
-                <img
-                  id="searchUser"
-                  className="convoPicture"
-                  src={
-                    !user.profilePicture.includes("null")
+        {navContext.showsearchField && (
+          <div ref={navContext.searchFieldRef} className="searchBox">
+            {usersFound.map((user, index) => (
+              <div
+                onClick={(e) => {
+                  navContext.setSelectedElement({
+                    picture: !user.profilePicture.includes("null")
                       ? user.profilePicture
-                      : defaultPicture
-                  }
-                  alt="profilePic"
-                />
+                      : defaultPicture,
+                    name: user.firstname + " " + user.lastname,
+                  });
+                  document.getElementById("userSearch").value = "";
+                  navContext.setShowsearchField(false);
+                  document.getElementById("userSearch").style.display = "none";
+                }}
+                onMouseEnter={() => setSearchUserHovered(index)}
+                onMouseLeave={() => setSearchUserHovered(-1)}
+                key={index}
+                className={`userSearch 
+              } ${searchUserHovered === index ? "hovered" : "default"}`}
+              >
+                <div id="pfPicture">
+                  <img
+                    id="searchUser"
+                    className="convoPicture"
+                    src={
+                      !user.profilePicture.includes("null")
+                        ? user.profilePicture
+                        : defaultPicture
+                    }
+                    alt="profilePic"
+                  />
+                </div>
+                <div className="convoInfo">
+                  <div id="flName">{`${user.firstname} ${user.lastname}`}</div>
+                </div>
               </div>
-              <div className="convoInfo">
-                <div id="flName">{`${user.firstname} ${user.lastname}`}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
       <div className="chat"></div>
       <div className="chatInput">

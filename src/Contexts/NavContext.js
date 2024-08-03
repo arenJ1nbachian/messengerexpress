@@ -22,4 +22,7 @@ export const NavContext = createContext({
   setCompose: () => {},
   selectedElemenet: null,
   setSelectedElement: () => {},
+  showsearchField: true,
+  setShowsearchField: () => {},
+  searchFieldRef: null,
 });

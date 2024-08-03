@@ -67,6 +67,8 @@ const ConvoBox = () => {
                   onClick={() => {
                     navContext.setSelectedChat(index + 1);
                     navContext.setCompose(false);
+                    navContext.setShowsearchField(true);
+                    navContext.setSelectedElement(null);
                   }}
                 >
                   <div id="pfPicture">

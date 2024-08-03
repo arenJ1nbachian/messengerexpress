@@ -21,9 +21,11 @@ const Chat = () => {
         <div className="chatBoxHeader">
           <div className="chatBoxTitle">Chats</div>
           <div
-            onClick={() => {
+            onClick={(e) => {
               navBar.setCompose(true);
               navBar.setSelectedChat(0);
+
+              e.stopPropagation();
             }}
             className={`chatBoxCompose ${
               composeHover ? "composeBtnHover" : "default"

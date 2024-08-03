@@ -10,7 +10,6 @@ const AccButton = ({ account, loggedName }) => {
   const navBar = useContext(NavContext);
 
   useEffect(() => {
-    console.log("logged name: " + loggedName);
     const handleClickOutside = (event) => {
       if (
         navBar.settingsRef.current &&
@@ -32,7 +31,7 @@ const AccButton = ({ account, loggedName }) => {
       console.log("Cleaning up");
       document.removeEventListener("click", handleClickOutside);
     };
-  }, [navBar.showSettings, navBar, loggedName]);
+  }, [navBar.showSettings]);
 
   return (
     <>
