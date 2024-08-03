@@ -55,6 +55,14 @@ const createConvo = async (req, res) => {
     const existingConvo = await Convo.findOne({ participants });
 
     if (existingConvo) {
+      const newMessage = new Message({
+        sender: userID1,
+        receiver: user2._id,
+        content: message,
+      });
+      newMessage.save();
+      existingConvo.lastMessage = newMessage;
+      await existingConvo.save();
       return res.status(200).json({ existingConvo });
     } else {
       if (message) {
