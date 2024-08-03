@@ -100,8 +100,41 @@ const getProfilePictures = async (req, res) => {
   }
 };
 
+const searchUsers = async (req, res) => {
+  const { searchString } = req.params;
+
+  const { userId } = req.body;
+
+  const strings = searchString.split(" ");
+
+  const users = await Users.find({
+    $or: strings
+      .map((str) => ({
+        firstname: { $regex: `^${str}`, $options: "i" },
+      }))
+      .concat(
+        strings.map((str) => ({
+          lastname: { $regex: `^${str}`, $options: "i" },
+        }))
+      ),
+  }).select("_id firstname lastname profilePicture");
+
+  console.log(users);
+
+  const result = users
+    .filter((user) => user._id.toString() !== userId)
+    .map((user) => ({
+      firstname: user.firstname,
+      lastname: user.lastname,
+      profilePicture: "http://localhost:5000/" + user.profilePicture,
+    }));
+
+  res.status(200).json({ result });
+};
+
 exports.createUser = createUser;
 exports.loginUser = loginUser;
 exports.getUserPicture = getUserPicture;
 exports.getUserInfo = getUserInfo;
 exports.getProfilePictures = getProfilePictures;
+exports.searchUsers = searchUsers;

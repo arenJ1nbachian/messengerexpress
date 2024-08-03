@@ -35,12 +35,20 @@ const ConvoBox = () => {
           <div id="pfPicture">
             <img
               className="convoPicture"
-              src={defaultPicture}
+              src={
+                navContext.selectedElement === null
+                  ? defaultPicture
+                  : navContext.selectedElement.picture
+              }
               alt="profilePic"
             />
           </div>
           <div className="convoInfo">
-            <div id="flName">{`New message`}</div>
+            <div id="flName">{`New message ${
+              navContext.selectedElement === null
+                ? ""
+                : "to " + navContext.selectedElement.name
+            }`}</div>
           </div>
         </div>
         {navContext.displayedConversations.result?.length > 0 &&

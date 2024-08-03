@@ -20,4 +20,6 @@ export const NavContext = createContext({
   setDisplayedPictures: () => {},
   compose: false,
   setCompose: () => {},
+  selectedElemenet: null,
+  setSelectedElement: () => {},
 });

@@ -7,6 +7,7 @@ import "./Chat.css";
 import "../CSS/ScrollBar.css";
 import ConvoBox from "../Components/ConvoBox/ConvoBox";
 import Chatbox from "./ChatBox";
+import ComposeMessage from "./ComposeMessage";
 
 const Chat = () => {
   const [hovered, setHovered] = useState(false);
@@ -71,7 +72,7 @@ const Chat = () => {
           navBar.navExpanded ? "expanded" : "default"
         }`}
       >
-        <Chatbox />
+        {navBar.compose ? <ComposeMessage /> : <Chatbox />}
       </div>
     </div>
   );

@@ -76,6 +76,7 @@ const App = () => {
     sessionStorage.getItem("userId") || false
   );
   const [compose, setCompose] = useState(false);
+  const [selectedElement, setSelectedElement] = useState(null);
 
   const login = useCallback((uid, token) => {
     setToken(token);
@@ -185,6 +186,8 @@ const App = () => {
           displayedPictures,
           compose,
           setCompose,
+          selectedElement: selectedElement,
+          setSelectedElement: setSelectedElement,
         }}
       >
         <RouterProvider

@@ -1,0 +1,69 @@
+.composeHeader {
+  padding-top: 1%;
+  padding-bottom: 1%;
+  padding-left: 1vw;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  width: auto;
+  height: 5vh;
+  max-height: 5vh;
+  background-color: transparent;
+}
+
+.searchBox {
+  position: absolute;
+  transform: translate(10%, 55%);
+  background-color: rgb(34, 34, 34);
+  border: 1px solid rgb(62, 64, 66);
+  border-radius: 15px;
+  width: 19vw;
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  color: white;
+  overflow-y: hidden;
+}
+
+.chat {
+  height: 84%;
+}
+
+.to {
+  font-size: 1.25rem;
+  color: white;
+  height: 4vh;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.composeHeader input {
+  margin-left: auto;
+  margin-right: auto;
+  width: 95%;
+  display: flex;
+  align-items: center;
+  border: none;
+  color: white;
+  font-size: 1.25rem;
+  background-color: transparent;
+  height: 4vh;
+  outline: none;
+}
+
+.userSearch {
+  margin-left: auto;
+  margin-top: 1%;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  width: 98%;
+  height: 8vh;
+  border-radius: 15px;
+  background-color: transparent;
+}
+
+.userSearch.hovered {
+  background-color: rgb(51, 51, 51);
+}
