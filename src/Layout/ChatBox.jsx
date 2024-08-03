@@ -2,6 +2,7 @@ import Category from "../Components/NavBarButtons/Category";
 import defaultPicture from "../images/default.svg";
 import send from "../images/send.svg";
 import "./ChatBox.css";
+import ChatContent from "./ChatContent";
 
 const Chatbox = () => {
   return (
@@ -15,7 +16,7 @@ const Chatbox = () => {
           <div className="uActive">Active 10h ago</div>
         </div>
       </div>
-      <div className="chat"></div>
+      <ChatContent />
       <div className="chatInput">
         <input type="text" autoComplete="off" id="userName" placeholder="Aa" />
         <div

@@ -1,14 +1,45 @@
-import { Category } from "@mui/icons-material";
+import Category from "../Components/NavBarButtons/Category";
 import send from "../images/send.svg";
 import "./ComposeMessage.css";
 import { useContext, useEffect, useState } from "react";
 import { NavContext } from "../Contexts/NavContext";
 import defaultPicture from "../images/default.svg";
+import ChatContent from "./ChatContent";
 
 const ComposeMessage = () => {
   const [usersFound, setUsersFound] = useState([]);
   const navContext = useContext(NavContext);
   const [searchUserHovered, setSearchUserHovered] = useState(-1);
+
+  const handleClick = async () => {
+    if (
+      document.getElementById("message").value.length > 0 &&
+      navContext.selectedElement !== null
+    ) {
+      try {
+        const res = await fetch(
+          "http://localhost:5000/api/conversations/createConvo",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userID1: sessionStorage.getItem("userId"),
+              userName2: navContext.selectedElement.name,
+              message: document.getElementById("message").value,
+            }),
+          }
+        );
+        if (res.ok) {
+          console.log("New conversation created");
+          document.getElementById("message").value = "";
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -141,9 +172,10 @@ const ComposeMessage = () => {
           </div>
         )}
       </div>
-      <div className="chat"></div>
+      <ChatContent />
+
       <div className="chatInput">
-        <input type="text" autoComplete="off" id="userName" placeholder="Aa" />
+        <input type="text" autoComplete="off" id="message" placeholder="Aa" />
         <div
           style={{
             marginLeft: "auto",
@@ -151,7 +183,13 @@ const ComposeMessage = () => {
             cursor: "pointer",
           }}
         >
-          <Category img={send} width="100%" height="100%" />
+          <img
+            onClick={handleClick}
+            src={send}
+            width="100%"
+            height="100%"
+            alt="send"
+          />
         </div>
       </div>
     </>
