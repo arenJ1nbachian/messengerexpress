@@ -29,6 +29,7 @@ const getConversations = async (req, res) => {
         lastMessage: lastMessage.content,
         who: lastMessage.sender.toString() === uid ? "You:" : "",
         read: lastMessage.read,
+        _id: convo._id,
       });
     }
 
@@ -62,6 +63,7 @@ const createConvo = async (req, res) => {
       });
       newMessage.save();
       existingConvo.lastMessage = newMessage;
+      existingConvo.updatedAt = Date.now();
       await existingConvo.save();
       return res.status(200).json({ existingConvo });
     } else {

@@ -20,12 +20,13 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/users", usersRoutes);
-
 app.use("/api/conversations", convoRoutes);
 
 mongoose
   .connect("mongodb://localhost:27017/")
   .then(() => {
-    app.listen(5000);
+    app.listen(5000, () => {
+      console.log("Server running on http://localhost:5000");
+    });
   })
   .catch((err) => console.log(err));

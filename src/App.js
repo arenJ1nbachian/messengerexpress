@@ -10,10 +10,13 @@ import Root from "./Layout/Root.jsx";
 import Requests from "./Layout/Requests.jsx";
 import Archived from "./Layout/Archived.jsx";
 import { NavContext } from "./Contexts/NavContext.js";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Login from "./Layout/Login.jsx";
 import Register from "./Layout/Register.jsx";
 import { UserContext } from "./Contexts/UserContext.js";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:5000");
 
 const handleDefaultNavigation = () => {
   const selected = sessionStorage.getItem("selected");

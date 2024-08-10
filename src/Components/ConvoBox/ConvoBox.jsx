@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import Category from "../NavBarButtons/Category";
 import defaultPicture from "../../images/default.svg";
 import "./ConvoBox.css";
 import { NavContext } from "../../Contexts/NavContext";
 import unread from "../../images/unread.svg";
+import Convo from "./Convo";
 
 const ConvoBox = () => {
   const [hovered, setHovered] = useState(-1);
@@ -55,56 +55,16 @@ const ConvoBox = () => {
           navContext.displayedConversations.result.map(
             (conversation, index) => {
               return (
-                <div
-                  key={index + 1}
-                  className={`userConvo ${
-                    navContext.selectedChat === index + 1
-                      ? "clicked"
-                      : "default"
-                  } ${convoHovered === index + 1 ? "hovered" : "default"}`}
-                  onMouseEnter={() => setConvoHovered(index + 1)}
-                  onMouseLeave={() => setConvoHovered(-1)}
-                  onClick={() => {
-                    navContext.setSelectedChat(index + 1);
-                    navContext.setCompose(false);
-                    navContext.setShowsearchField(true);
-                    navContext.setSelectedElement(null);
-                  }}
-                >
-                  <div id="pfPicture">
-                    <img
-                      className="convoPicture"
-                      src={
-                        navContext.displayedPictures.profilePicturesUrl[
-                          index
-                        ] === null
-                          ? defaultPicture
-                          : navContext.displayedPictures.profilePicturesUrl[
-                              index
-                            ]
-                      }
-                      alt="profilePic"
-                    />
-                  </div>
-                  <div className="convoInfo">
-                    <div id="flName">{`${conversation.name}`}</div>
-                    <div
-                      id="latest-message"
-                      className={`${
-                        conversation.read === false &&
-                        conversation.who.length === 0
-                          ? "unread"
-                          : ""
-                      }`}
-                    >{`${conversation.who} ${conversation.lastMessage}`}</div>
-                  </div>
-                  {conversation.read === false &&
-                    conversation.who.length === 0 && (
-                      <div className="unreadIcon">
-                        <Category img={unread} width="100%" height="100%" />
-                      </div>
-                    )}
-                </div>
+                <Convo
+                  key={conversation.userId}
+                  index={index}
+                  navContext={navContext}
+                  defaultPicture={defaultPicture}
+                  conversation={conversation}
+                  setConvoHovered={setConvoHovered}
+                  convoHovered={convoHovered}
+                  unread={unread}
+                />
               );
             }
           )}
