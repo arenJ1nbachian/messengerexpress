@@ -4,6 +4,21 @@ const convoRoutes = require("./routes/convo-routes");
 const mongoose = require("mongoose");
 const path = require("path");
 const app = express();
+const http = require("http");
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("a user connected");
+});
 
 app.use(express.json());
 
@@ -20,12 +35,12 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/users", usersRoutes);
-app.use("/api/conversations", convoRoutes);
+app.use("/api/conversations", convoRoutes(io));
 
 mongoose
   .connect("mongodb://localhost:27017/")
   .then(() => {
-    app.listen(5000, () => {
+    server.listen(5000, () => {
       console.log("Server running on http://localhost:5000");
     });
   })

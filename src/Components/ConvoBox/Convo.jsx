@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Category from "../NavBarButtons/Category";
-import typingGif from "../../images/typing.gif";
+import { SocketContext } from "../../Contexts/SocketContext";
+import { NavContext } from "../../Contexts/NavContext";
 
 const Convo = ({
   index,
@@ -10,23 +11,59 @@ const Convo = ({
   setConvoHovered,
   convoHovered,
   unread,
+  conversationId,
 }) => {
-  const [isTyping, setIsTyping] = useState(false);
+  const socketContext = useContext(SocketContext);
 
-  // Define the function to handle typing events
-  const handleTyping = (data) => {
-    if (
-      data.sender === conversation.userId &&
-      data.room === navContext.currentRoom
-    ) {
-      setIsTyping(data.isTyping);
+  const [lastMessage, setLastMessage] = useState(conversation.lastMessage);
+  const [who, setWho] = useState(conversation.who);
+
+  useEffect(() => {
+    if (!socketContext.socket) {
+      console.log("Socket is not initialized.");
+      return;
     }
-  };
 
-  // Listen for 'isTyping' events specific to this conversation
-  navContext.socket.on("isTyping", handleTyping);
+    console.log("Connected with socket ID:", socketContext.socket.id);
 
-  // Clean up the event listener when the component unmounts
+    socketContext.socket.on("connect", () => {
+      console.log("Connected:", socketContext.socket.id);
+    });
+
+    socketContext.socket.on("disconnect", () => {
+      console.warn("Socket disconnected");
+    });
+
+    const handleUpdateConversationHeader = (data) => {
+      console.log(
+        "Received updateConversationHeader for conversation",
+        data.conversationId
+      );
+      if (data.conversationId === conversationId) {
+        setLastMessage(data.lastMessage);
+      }
+
+      if (data.sender === sessionStorage.getItem("userId")) {
+        setWho("You:");
+      } else {
+        setWho("");
+      }
+    };
+
+    console.log("Listening to emits for", conversationId);
+    socketContext.socket.on(
+      "updateConversationHeader",
+      handleUpdateConversationHeader
+    );
+
+    return () => {
+      console.log("Cleaning up listener for", conversationId);
+      socketContext.socket.off(
+        "updateConversationHeader",
+        handleUpdateConversationHeader
+      );
+    };
+  }, [conversationId, socketContext.socket]);
 
   return (
     <div
@@ -59,18 +96,11 @@ const Convo = ({
         <div
           id="latest-message"
           className={`${
-            conversation.read === false && conversation.who.length === 0
-              ? "unread"
-              : ""
+            conversation.read === false && who.length === 0 ? "unread" : ""
           }`}
-        >{`${conversation.who} ${conversation.lastMessage}`}</div>
+        >{`${who} ${lastMessage}`}</div>
       </div>
-      {isTyping && (
-        <div className="typing-indicator">
-          <img src={typingGif} alt="Typing..." />
-        </div>
-      )}
-      {conversation.read === false && conversation.who.length === 0 && (
+      {conversation.read === false && who.length === 0 && (
         <div className="unreadIcon">
           <Category img={unread} width="100%" height="100%" />
         </div>

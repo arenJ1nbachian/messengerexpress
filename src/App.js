@@ -10,13 +10,12 @@ import Root from "./Layout/Root.jsx";
 import Requests from "./Layout/Requests.jsx";
 import Archived from "./Layout/Archived.jsx";
 import { NavContext } from "./Contexts/NavContext.js";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Login from "./Layout/Login.jsx";
 import Register from "./Layout/Register.jsx";
 import { UserContext } from "./Contexts/UserContext.js";
-import { io } from "socket.io-client";
-
-const socket = io("http://localhost:5000");
+import io from "socket.io-client";
+import { SocketContext } from "./Contexts/SocketContext.js";
 
 const handleDefaultNavigation = () => {
   const selected = sessionStorage.getItem("selected");
@@ -82,6 +81,7 @@ const App = () => {
   const [selectedElement, setSelectedElement] = useState(null);
   const [showsearchField, setShowsearchField] = useState(true);
   const searchFieldRef = useRef(null);
+  const [socket, setSocket] = useState(io("http://localhost:5000"));
 
   const login = useCallback((uid, token) => {
     setToken(token);
@@ -128,81 +128,45 @@ const App = () => {
     setSelectChatDetails(value);*/
   }, []);
 
-  const handleDisplayedConversations = useCallback(async (value) => {
-    try {
-      const conversations = await fetch(
-        "http://localhost:5000/api/conversations/getConvos/" +
-          sessionStorage.getItem("userId"),
-        {
-          method: "GET",
-        }
-      );
-
-      if (conversations.ok) {
-        const result = await conversations.json();
-        const userIds = result.result.map(
-          (conversation) => conversation.userId
-        );
-        const profilePictures = await fetch(
-          "http://localhost:5000/api/users/getProfilePictures",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ userIDs: userIds }),
-          }
-        );
-
-        if (profilePictures.ok) {
-          setDisplayedPictures(await profilePictures.json());
-        }
-
-        setDisplayedConversations(result);
-      } else {
-        setDisplayedConversations([]);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
-
   return (
-    <UserContext.Provider
-      value={{ isLoggedIn: !!token, token, userId, login, logout }}
-    >
-      <NavContext.Provider
-        value={{
-          navExpanded: navExpanded,
-          setNavExpanded: handleNavExpand,
-          selected,
-          setSelected: handleSelected,
-          hovered,
-          setHovered: handleHovered,
-          showSettings,
-          setShowSettings: handleShowSettings,
-          settingsRef,
-          selectedChat,
-          setSelectedChat,
-          selectChatDetails,
-          setSelectChatDetails: handleSelectedChatDetails,
-          displayedConversations,
-          setDisplayedConversations: handleDisplayedConversations,
-          displayedPictures,
-          compose,
-          setCompose,
-          selectedElement: selectedElement,
-          setSelectedElement: setSelectedElement,
-          showsearchField,
-          setShowsearchField,
-          searchFieldRef,
-        }}
+    <SocketContext.Provider value={{ socket }}>
+      <UserContext.Provider
+        value={{ isLoggedIn: !!token, token, userId, login, logout }}
       >
-        <RouterProvider
-          router={!!token && !!userId ? loggedInRouter : router}
-        />
-      </NavContext.Provider>
-    </UserContext.Provider>
+        <NavContext.Provider
+          value={{
+            navExpanded: navExpanded,
+            setNavExpanded: handleNavExpand,
+            selected,
+            setSelected: handleSelected,
+            hovered,
+            setHovered: handleHovered,
+            showSettings,
+            setShowSettings: handleShowSettings,
+            settingsRef,
+            selectedChat,
+            setSelectedChat,
+            selectChatDetails,
+            setSelectChatDetails: handleSelectedChatDetails,
+            displayedConversations,
+            setDisplayedConversations,
+            displayedPictures,
+            setDisplayedPictures,
+            compose,
+            setCompose,
+            selectedElement: selectedElement,
+            setSelectedElement: setSelectedElement,
+            showsearchField,
+            setShowsearchField,
+            searchFieldRef,
+          }}
+        >
+          <RouterProvider
+            router={!!token && !!userId ? loggedInRouter : router}
+          />
+        </NavContext.Provider>
+      </UserContext.Provider>
+    </SocketContext.Provider>
   );
 };
 

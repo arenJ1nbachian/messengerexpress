@@ -12,7 +12,45 @@ const ConvoBox = () => {
   const navContext = useContext(NavContext);
 
   useEffect(() => {
-    navContext.setDisplayedConversations();
+    const displayConvo = async () => {
+      try {
+        const conversations = await fetch(
+          "http://localhost:5000/api/conversations/getConvos/" +
+            sessionStorage.getItem("userId"),
+          {
+            method: "GET",
+          }
+        );
+
+        if (conversations.ok) {
+          const result = await conversations.json();
+          const userIds = result.result.map(
+            (conversation) => conversation.userId
+          );
+          const profilePictures = await fetch(
+            "http://localhost:5000/api/users/getProfilePictures",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ userIDs: userIds }),
+            }
+          );
+
+          if (profilePictures.ok) {
+            navContext.setDisplayedPictures(await profilePictures.json());
+          }
+          console.log("conversations", result);
+          navContext.setDisplayedConversations(result);
+        } else {
+          navContext.setDisplayedConversations([]);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    displayConvo();
   }, []);
 
   return (
@@ -64,6 +102,7 @@ const ConvoBox = () => {
                   setConvoHovered={setConvoHovered}
                   convoHovered={convoHovered}
                   unread={unread}
+                  conversationId={conversation._id}
                 />
               );
             }

@@ -2,10 +2,14 @@ const express = require("express");
 const router = express.Router();
 const convoController = require("../controllers/convo-controller");
 
-router.get("/getConvos/:uid", convoController.getConversations);
+module.exports = (io) => {
+  router.get("/getConvos/:uid", convoController.getConversations);
 
-router.post("/createConvo", convoController.createConvo);
+  router.post("/createConvo", (req, res) =>
+    convoController.createConvo(req, res, io)
+  );
 
-router.get("/getConvo", convoController.getConvo);
+  router.get("/getConvo", convoController.getConvo);
 
-module.exports = router;
+  return router;
+};
