@@ -41,12 +41,11 @@ const Convo = ({
       );
       if (data.conversationId === conversationId) {
         setLastMessage(data.lastMessage);
-      }
-
-      if (data.sender === sessionStorage.getItem("userId")) {
-        setWho("You:");
-      } else {
-        setWho("");
+        if (data.sender === sessionStorage.getItem("userId")) {
+          setWho("You:");
+        } else {
+          setWho("");
+        }
       }
     };
 
