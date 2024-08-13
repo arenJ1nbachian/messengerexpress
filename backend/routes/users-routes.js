@@ -25,8 +25,6 @@ router.get("/:uid/info", usersController.getUserInfo);
 
 router.post("/login", usersController.loginUser);
 
-router.post("/getProfilePictures", usersController.getProfilePictures);
-
 router.post("/search/:searchString", usersController.searchUsers);
 
 module.exports = router;

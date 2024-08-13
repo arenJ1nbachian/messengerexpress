@@ -24,7 +24,7 @@ const ConvoBox = () => {
 
         if (conversations.ok) {
           const result = await conversations.json();
-          const userIds = result.result.map(
+          /*  const userIds = result.result.map(
             (conversation) => conversation.userId
           );
           const profilePictures = await fetch(
@@ -41,7 +41,7 @@ const ConvoBox = () => {
           if (profilePictures.ok) {
             navContext.setDisplayedPictures(await profilePictures.json());
           }
-          console.log("conversations", result);
+          console.log("conversations", result);*/
           navContext.setDisplayedConversations(result);
         } else {
           navContext.setDisplayedConversations([]);
@@ -97,7 +97,7 @@ const ConvoBox = () => {
                   key={conversation.userId}
                   index={index}
                   navContext={navContext}
-                  defaultPicture={defaultPicture}
+                  picture={conversation.profilePicture}
                   conversation={conversation}
                   setConvoHovered={setConvoHovered}
                   convoHovered={convoHovered}

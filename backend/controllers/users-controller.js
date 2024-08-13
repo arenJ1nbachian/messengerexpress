@@ -80,26 +80,6 @@ const loginUser = async (req, res) => {
   }
 };
 
-const getProfilePictures = async (req, res) => {
-  const { userIDs } = req.body;
-
-  try {
-    const users = await Users.find({ _id: { $in: userIDs } });
-
-    const profilePicturesUrl = users.map((user) => {
-      if (user.profilePicture) {
-        return "http://localhost:5000/" + user.profilePicture;
-      } else {
-        return null;
-      }
-    });
-    res.status(200).json({ profilePicturesUrl });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error });
-  }
-};
-
 const searchUsers = async (req, res) => {
   const { searchString } = req.params;
 
@@ -136,5 +116,4 @@ exports.createUser = createUser;
 exports.loginUser = loginUser;
 exports.getUserPicture = getUserPicture;
 exports.getUserInfo = getUserInfo;
-exports.getProfilePictures = getProfilePictures;
 exports.searchUsers = searchUsers;

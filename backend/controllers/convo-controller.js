@@ -21,7 +21,9 @@ const getConversations = async (req, res) => {
         lastMessage.sender.toString() === uid
           ? lastMessage.receiver
           : lastMessage.sender;
-      const name = await Users.findById(nameID).select("firstname lastname");
+      const name = await Users.findById(nameID).select(
+        "firstname lastname profilePicture"
+      );
 
       result.push({
         userId: nameID,
@@ -30,6 +32,10 @@ const getConversations = async (req, res) => {
         who: lastMessage.sender.toString() === uid ? "You:" : "",
         read: lastMessage.read,
         _id: convo._id,
+        profilePicture:
+          name.profilePicture === null
+            ? ""
+            : "http://localhost:5000/" + name.profilePicture,
       });
     }
 

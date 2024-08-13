@@ -1,12 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import Category from "../NavBarButtons/Category";
 import { SocketContext } from "../../Contexts/SocketContext";
-import { NavContext } from "../../Contexts/NavContext";
+import defaultPicture from "../../images/default.svg";
 
 const Convo = ({
   index,
   navContext,
-  defaultPicture,
+  picture,
   conversation,
   setConvoHovered,
   convoHovered,
@@ -82,11 +82,7 @@ const Convo = ({
       <div id="pfPicture">
         <img
           className="convoPicture"
-          src={
-            navContext.displayedPictures.profilePicturesUrl[index] === null
-              ? defaultPicture
-              : navContext.displayedPictures.profilePicturesUrl[index]
-          }
+          src={picture !== "" ? picture : defaultPicture}
           alt="profilePic"
         />
       </div>
