@@ -4,10 +4,12 @@ import "./ConvoBox.css";
 import { NavContext } from "../../Contexts/NavContext";
 import unread from "../../images/unread.svg";
 import Convo from "./Convo";
+import { SocketContext } from "../../Contexts/SocketContext";
 
 const ConvoBox = () => {
   const [hovered, setHovered] = useState(-1);
   const [convoHovered, setConvoHovered] = useState(-1);
+  const { socket } = useContext(SocketContext);
 
   const navContext = useContext(NavContext);
 
@@ -42,6 +44,9 @@ const ConvoBox = () => {
             navContext.setDisplayedPictures(await profilePictures.json());
           }
           console.log("conversations", result);*/
+          result.result.forEach((conversation) => {
+            return socket?.emit("joinConversation", conversation._id);
+          });
           navContext.setDisplayedConversations(result);
         } else {
           navContext.setDisplayedConversations([]);
@@ -51,7 +56,7 @@ const ConvoBox = () => {
       }
     };
     displayConvo();
-  }, []);
+  }, [socket]);
 
   return (
     <>

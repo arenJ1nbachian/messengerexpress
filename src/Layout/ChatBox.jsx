@@ -4,10 +4,8 @@ import defaultPicture from "../images/default.svg";
 import send from "../images/send.svg";
 import "./ChatBox.css";
 import ChatContent from "./ChatContent";
-import { NavContext } from "../Contexts/NavContext";
 
 const Chatbox = () => {
-  const nav = useContext(NavContext);
   const [inputValue, setInputValue] = useState("");
   const isTypingRef = useRef(false);
   const typingTimeoutRef = useRef(null);
@@ -36,11 +34,8 @@ const Chatbox = () => {
     }
 
     if (!isTypingRef.current && !isModifierKey) {
-      nav.socket.emit("isTyping", {
-        isTyping: true,
-        sender: sessionStorage.getItem("userId"),
-        receiver: "66ad38ce05a6fc8c77fb2e22",
-      });
+      console.log("Currently typing");
+
       isTypingRef.current = true;
     }
   };
@@ -55,11 +50,7 @@ const Chatbox = () => {
     typingTimeoutRef.current = setTimeout(() => {
       console.log(isTypingRef.current);
       if (isTypingRef.current) {
-        nav.socket.emit("isTyping", {
-          isTyping: false,
-          sender: sessionStorage.getItem("userId"),
-          receiver: "66ad38ce05a6fc8c77fb2e22",
-        });
+        console.log("Stopped typing");
       }
 
       isTypingRef.current = false;

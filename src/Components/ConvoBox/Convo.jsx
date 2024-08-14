@@ -13,56 +13,8 @@ const Convo = ({
   unread,
   conversationId,
 }) => {
-  const socketContext = useContext(SocketContext);
-
   const [lastMessage, setLastMessage] = useState(conversation.lastMessage);
   const [who, setWho] = useState(conversation.who);
-
-  useEffect(() => {
-    if (!socketContext.socket) {
-      console.log("Socket is not initialized.");
-      return;
-    }
-
-    console.log("Connected with socket ID:", socketContext.socket.id);
-
-    socketContext.socket.on("connect", () => {
-      console.log("Connected:", socketContext.socket.id);
-    });
-
-    socketContext.socket.on("disconnect", () => {
-      console.warn("Socket disconnected");
-    });
-
-    const handleUpdateConversationHeader = (data) => {
-      console.log(
-        "Received updateConversationHeader for conversation",
-        data.conversationId
-      );
-      if (data.conversationId === conversationId) {
-        setLastMessage(data.lastMessage);
-        if (data.sender === sessionStorage.getItem("userId")) {
-          setWho("You:");
-        } else {
-          setWho("");
-        }
-      }
-    };
-
-    console.log("Listening to emits for", conversationId);
-    socketContext.socket.on(
-      "updateConversationHeader",
-      handleUpdateConversationHeader
-    );
-
-    return () => {
-      console.log("Cleaning up listener for", conversationId);
-      socketContext.socket.off(
-        "updateConversationHeader",
-        handleUpdateConversationHeader
-      );
-    };
-  }, [conversationId, socketContext.socket]);
 
   return (
     <div

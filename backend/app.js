@@ -16,11 +16,20 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", (socket) => {
-  console.log("a user connected");
-});
-
 app.use(express.json());
+
+io.on("connection", (socket) => {
+  socket.on("joinConversation", (conversationId) => {
+    socket.join(conversationId);
+    console.log(
+      `Socket ${socket.id} joined conversation room ${conversationId}`
+    );
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`Socket ${socket.id} disconnected`);
+  });
+});
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 

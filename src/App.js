@@ -10,7 +10,7 @@ import Root from "./Layout/Root.jsx";
 import Requests from "./Layout/Requests.jsx";
 import Archived from "./Layout/Archived.jsx";
 import { NavContext } from "./Contexts/NavContext.js";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Login from "./Layout/Login.jsx";
 import Register from "./Layout/Register.jsx";
 import { UserContext } from "./Contexts/UserContext.js";
@@ -81,7 +81,17 @@ const App = () => {
   const [selectedElement, setSelectedElement] = useState(null);
   const [showsearchField, setShowsearchField] = useState(true);
   const searchFieldRef = useRef(null);
-  const [socket, setSocket] = useState(io("http://localhost:5000"));
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    const newSocket = io("http://localhost:5000");
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.close();
+    };
+  }, []);
 
   const login = useCallback((uid, token) => {
     setToken(token);

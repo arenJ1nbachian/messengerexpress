@@ -1,4 +1,3 @@
-import Category from "../Components/NavBarButtons/Category";
 import send from "../images/send.svg";
 import "./ComposeMessage.css";
 import { useContext, useEffect, useState } from "react";
