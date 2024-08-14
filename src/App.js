@@ -14,7 +14,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Login from "./Layout/Login.jsx";
 import Register from "./Layout/Register.jsx";
 import { UserContext } from "./Contexts/UserContext.js";
-import io from "socket.io-client";
+
 import { SocketContext } from "./Contexts/SocketContext.js";
 
 const handleDefaultNavigation = () => {
@@ -83,16 +83,6 @@ const App = () => {
   const searchFieldRef = useRef(null);
   const [socket, setSocket] = useState(null);
 
-  useEffect(() => {
-    const newSocket = io("http://localhost:5000");
-
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.close();
-    };
-  }, []);
-
   const login = useCallback((uid, token) => {
     setToken(token);
     setUserId(uid);
@@ -104,7 +94,6 @@ const App = () => {
     setSelectedChat(-1);
     setNavExpanded(false);
     sessionStorage.clear();
-
     setCompose(false);
   }, []);
 
@@ -139,7 +128,7 @@ const App = () => {
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket }}>
+    <SocketContext.Provider value={{ socket, setSocket }}>
       <UserContext.Provider
         value={{ isLoggedIn: !!token, token, userId, login, logout }}
       >
