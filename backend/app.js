@@ -26,6 +26,11 @@ io.on("connection", (socket) => {
     );
   });
 
+  socket.on("typing", (data) => {
+    console.log(data);
+    socket.to(data.conversationId).emit("typing", data);
+  });
+
   socket.on("disconnect", () => {
     console.log(`Socket ${socket.id} disconnected`);
   });

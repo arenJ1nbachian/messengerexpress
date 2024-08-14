@@ -4,11 +4,13 @@ import defaultPicture from "../images/default.svg";
 import send from "../images/send.svg";
 import "./ChatBox.css";
 import ChatContent from "./ChatContent";
+import { SocketContext } from "../Contexts/SocketContext";
 
 const Chatbox = () => {
   const [inputValue, setInputValue] = useState("");
   const isTypingRef = useRef(false);
   const typingTimeoutRef = useRef(null);
+  const { socket } = useContext(SocketContext);
 
   const handleKeyDown = (event) => {
     const nonCharacterKeys = [
@@ -35,7 +37,11 @@ const Chatbox = () => {
 
     if (!isTypingRef.current && !isModifierKey) {
       console.log("Currently typing");
-
+      socket.emit("typing", {
+        conversationId: "66b84a5dc158a56be91a975f",
+        sender: sessionStorage.getItem("userId"),
+        isTyping: true,
+      });
       isTypingRef.current = true;
     }
   };
@@ -51,6 +57,11 @@ const Chatbox = () => {
       console.log(isTypingRef.current);
       if (isTypingRef.current) {
         console.log("Stopped typing");
+        socket.emit("typing", {
+          conversationId: "66b84a5dc158a56be91a975f",
+          sender: sessionStorage.getItem("userId"),
+          isTyping: false,
+        });
       }
 
       isTypingRef.current = false;

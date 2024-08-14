@@ -1,0 +1,26 @@
+.dot {
+  animation: blink 1.5s infinite;
+  font-weight: bold;
+  font-size: 1.2rem;
+  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+  color: white;
+}
+
+#idHeader {
+  display: flex;
+  width: 8vw;
+  justify-content: space-between;
+  height: max-content;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

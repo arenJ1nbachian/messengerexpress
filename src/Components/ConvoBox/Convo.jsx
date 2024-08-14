@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import Category from "../NavBarButtons/Category";
 import { SocketContext } from "../../Contexts/SocketContext";
 import defaultPicture from "../../images/default.svg";
+import "./Convo.css";
 
 const Convo = ({
   index,
@@ -15,6 +16,7 @@ const Convo = ({
 }) => {
   const [lastMessage, setLastMessage] = useState(conversation.lastMessage);
   const [who, setWho] = useState(conversation.who);
+  const [isTyping, setIsTyping] = useState(false);
 
   const { socket } = useContext(SocketContext);
 
@@ -31,8 +33,22 @@ const Convo = ({
       }
     });
 
+    socket.on("typing", (data) => {
+      console.log("Received typing", data);
+      if (
+        data.conversationId === conversationId &&
+        data.sender !== sessionStorage.getItem("userId") &&
+        data.isTyping
+      ) {
+        setIsTyping(true);
+      } else {
+        setIsTyping(false);
+      }
+    });
+
     return () => {
       socket.off("updateConversationHeader");
+      socket.off("typing");
     };
   }, []);
 
@@ -59,7 +75,16 @@ const Convo = ({
         />
       </div>
       <div className="convoInfo">
-        <div id="flName">{`${conversation.name}`}</div>
+        <div id="idHeader">
+          <div id="flName">{`${conversation.name} `}</div>
+          {isTyping && (
+            <div class="typing-indicator">
+              <span class="dot">•</span>
+              <span class="dot">•</span>
+              <span class="dot">•</span>
+            </div>
+          )}
+        </div>
         <div
           id="latest-message"
           className={`${
