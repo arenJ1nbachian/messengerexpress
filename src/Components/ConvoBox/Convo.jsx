@@ -16,6 +16,26 @@ const Convo = ({
   const [lastMessage, setLastMessage] = useState(conversation.lastMessage);
   const [who, setWho] = useState(conversation.who);
 
+  const { socket } = useContext(SocketContext);
+
+  useEffect(() => {
+    socket.on("updateConversationHeader", (data) => {
+      console.log("Received listening", data);
+      if (data.conversationId === conversationId) {
+        setLastMessage(data.lastMessage);
+        if (data.sender === sessionStorage.getItem("userId")) {
+          setWho("You: ");
+        } else {
+          setWho("");
+        }
+      }
+    });
+
+    return () => {
+      socket.off("updateConversationHeader");
+    };
+  }, []);
+
   return (
     <div
       key={conversation.userId}

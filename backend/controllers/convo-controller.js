@@ -79,7 +79,7 @@ const createConvo = async (req, res, io) => {
       await existingConvo.save();
 
       participants.forEach((participantId) => {
-        io.emit("updateConversationHeader", {
+        io.to(existingConvo._id.toString()).emit("updateConversationHeader", {
           conversationId: existingConvo._id.toString(),
           lastMessage: newMessage.content,
           timestamp: existingConvo.updatedAt,
