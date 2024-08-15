@@ -55,8 +55,8 @@ const ConvoBox = () => {
         console.log(error);
       }
     };
-    navContext.displayedConversations.length === 0 ? displayConvo() : <></>;
-  }, [socket]);
+    displayConvo();
+  }, []);
 
   return (
     <>
