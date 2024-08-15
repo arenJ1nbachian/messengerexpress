@@ -25,7 +25,7 @@ const ComposeMessage = () => {
             body: JSON.stringify({
               userID1: sessionStorage.getItem("userId"),
               userName2: navContext.selectedElement.name,
-              message: document.getElementById("message").value,
+              message: messageInput,
             }),
           }
         );
