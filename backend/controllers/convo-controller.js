@@ -2,21 +2,36 @@ const Convo = require("../models/conversation");
 const Message = require("../models/message");
 const Users = require("../models/user");
 
+/**
+ * Retrieves all conversations of a user.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} - The result containing the conversations.
+ */
 const getConversations = async (req, res) => {
+  // Get the user's ID from the request parameters.
   const uid = req.params.uid;
   const result = [];
+
   try {
+    // Find all conversations where the user is a participant.
     const conversations = await Convo.find({ participants: { $in: [uid] } });
 
+    // If no conversations are found, return a 404 error.
     if (conversations.length === 0) {
       return res
         .status(404)
         .json({ message: "No conversations found for this user." });
     }
 
+    // Iterate over each conversation.
     for (let i = 0; i < conversations.length; i++) {
       const convo = conversations[i];
+
+      // Find the last message in the conversation.
       const lastMessage = await Message.findById(convo.lastMessage);
+
+      // Determine the name and profile picture of the other participant.
       const nameID =
         lastMessage.sender.toString() === uid
           ? lastMessage.receiver
@@ -25,27 +40,37 @@ const getConversations = async (req, res) => {
         "firstname lastname profilePicture"
       );
 
+      // Prepare the result object for the conversation.
       result.push({
-        userId: nameID,
-        name: name.firstname + " " + name.lastname,
-        lastMessage: lastMessage.content,
-        who: lastMessage.sender.toString() === uid ? "You:" : "",
-        read: lastMessage.read,
-        _id: convo._id,
+        userId: nameID, // The ID of the other participant.
+        name: name.firstname + " " + name.lastname, // The full name of the other participant.
+        lastMessage: lastMessage.content, // The content of the last message.
+        who: lastMessage.sender.toString() === uid ? "You:" : "", // Indicates whether the user is the sender of the last message.
+        read: lastMessage.read, // Indicates whether the user has read the last message.
+        _id: convo._id, // The ID of the conversation.
         profilePicture:
           name.profilePicture === null
             ? ""
-            : "http://localhost:5000/" + name.profilePicture,
+            : "http://localhost:5000/" + name.profilePicture, // The URL of the other participant's profile picture.
       });
     }
 
+    // Return the result containing the conversations.
     res.status(200).json({ result });
   } catch (error) {
+    // If an error occurs, log it and return a 500 error.
     console.log(error);
     res.status(500).json({ error });
   }
 };
 
+/**
+ * Creates a new conversation between two users, or updates an existing one.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @param {Object} io - The socket.io object.
+ * @returns {Object} - The result containing the conversation.
+ */
 const createConvo = async (req, res, io) => {
   const { userID1, userName2, message } = req.body;
   const user2Firstname = userName2.split(" ")[0];
@@ -65,7 +90,9 @@ const createConvo = async (req, res, io) => {
     });
 
     if (existingConvo) {
+      // Update existing conversation
       console.log("Updating existing convo");
+
       const newMessage = new Message({
         sender: userID1,
         receiver: user2._id,
@@ -78,6 +105,7 @@ const createConvo = async (req, res, io) => {
       existingConvo.updatedAt = Date.now();
       await existingConvo.save();
 
+      // Emit updateConversationHeader to all participants
       participants.forEach((participantId) => {
         io.to(existingConvo._id.toString()).emit("updateConversationHeader", {
           conversationId: existingConvo._id.toString(),
@@ -90,7 +118,9 @@ const createConvo = async (req, res, io) => {
 
       return res.status(200).json({ existingConvo });
     } else {
+      // Create new conversation
       console.log("Creating new convo");
+
       if (message) {
         const newMessage = new Message({
           sender: userID1,
@@ -104,6 +134,7 @@ const createConvo = async (req, res, io) => {
         });
         await newConvo.save();
 
+        // Emit updateConversationHeader to all participants
         participants.forEach((participantId) => {
           io.emit("updateConversationHeader", {
             conversationId: newConvo._id.toString(),
@@ -123,12 +154,25 @@ const createConvo = async (req, res, io) => {
   }
 };
 
+/**
+ * Retrieves a conversation by its ID from the database and sends it as a response.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - The function does not return anything.
+ */
 const getConvo = async (req, res) => {
+  // Get the conversation ID from the request body
   const { convoID } = req.body;
+
   try {
+    // Find the conversation in the database by its ID
     const convo = await Convo.findById(convoID);
+
+    // Send the conversation as a successful response
     res.status(200).json({ convo });
   } catch (error) {
+    // If there is an error, log it and send an error response
     console.log(error);
     res.status(500).json({ error });
   }
