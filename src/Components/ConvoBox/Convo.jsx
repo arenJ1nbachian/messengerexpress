@@ -3,6 +3,7 @@ import Category from "../NavBarButtons/Category";
 import { SocketContext } from "../../Contexts/SocketContext";
 import defaultPicture from "../../images/default.svg";
 import "./Convo.css";
+import { NavContext } from "../../Contexts/NavContext";
 
 const Convo = ({
   index,
@@ -14,7 +15,8 @@ const Convo = ({
   unread,
   conversationId,
 }) => {
-  const [lastMessage, setLastMessage] = useState(conversation.lastMessage);
+  const nav = useContext(NavContext);
+  const [lastMessage, setLastMessage] = useState(null);
   const [who, setWho] = useState(conversation.who);
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
@@ -25,6 +27,9 @@ const Convo = ({
     socket.on("updateConversationHeader", (data) => {
       console.log("Received listening", data);
       if (data.conversationId === conversationId) {
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+        setIsTyping(false);
         setLastMessage(data.lastMessage);
         if (data.sender === sessionStorage.getItem("userId")) {
           setWho("You: ");
@@ -86,7 +91,7 @@ const Convo = ({
         <div id="idHeader">
           <div id="flName">{`${conversation.name} `}</div>
           {isTyping && (
-            <div class="typing-indicator">
+            <div className="typing-indicator">
               <span class="dot">•</span>
               <span class="dot">•</span>
               <span class="dot">•</span>
@@ -98,7 +103,9 @@ const Convo = ({
           className={`${
             conversation.read === false && who.length === 0 ? "unread" : ""
           }`}
-        >{`${who} ${lastMessage}`}</div>
+        >{`${who} ${
+          lastMessage === null ? conversation.lastMessage : lastMessage
+        }`}</div>
       </div>
       {conversation.read === false && who.length === 0 && (
         <div className="unreadIcon">

@@ -31,7 +31,7 @@ const Chat = () => {
       conversationRef.current !== null
     ) {
       socket.emit("typing", {
-        conversationId: conversationRef.current._id,
+        conversationId: conversationRef.current?._id,
         sender: sessionStorage.getItem("userId"),
         isTyping: false,
       });

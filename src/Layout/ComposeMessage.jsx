@@ -10,7 +10,8 @@ const ComposeMessage = () => {
   const navContext = useContext(NavContext);
   const [searchUserHovered, setSearchUserHovered] = useState(-1);
 
-  const handleClick = async () => {
+  const handleClick = async (e) => {
+    e.preventDefault();
     if (
       document.getElementById("message").value.length > 0 &&
       navContext.selectedElement !== null
@@ -172,25 +173,24 @@ const ComposeMessage = () => {
         )}
       </div>
       <ChatContent />
-
-      <div className="chatInput">
-        <input type="text" autoComplete="off" id="message" placeholder="Aa" />
-        <div
-          style={{
-            marginLeft: "auto",
-            marginRight: "1vw",
-            cursor: "pointer",
-          }}
-        >
-          <img
-            onClick={handleClick}
-            src={send}
-            width="100%"
-            height="100%"
-            alt="send"
-          />
+      <form>
+        <div className="chatInput">
+          <input type="text" autoComplete="off" id="message" placeholder="Aa" />
+          <button
+            onClick={(e) => handleClick(e)}
+            onSubmit={(e) => handleClick(e)}
+            style={{
+              marginLeft: "auto",
+              marginRight: "1vw",
+              cursor: "pointer",
+              backgroundColor: "transparent",
+              border: "none",
+            }}
+          >
+            <img src={send} width="100%" height="100%" alt="send" />
+          </button>
         </div>
-      </div>
+      </form>
     </>
   );
 };

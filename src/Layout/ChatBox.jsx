@@ -14,6 +14,39 @@ const Chatbox = () => {
   const { socket } = useContext(SocketContext);
   const nav = useContext(NavContext);
 
+  const handleClick = async (e) => {
+    e.preventDefault();
+    console.log(nav?.displayedConversations?.result[nav.selectedChat - 1].name);
+    if (
+      document.getElementById("messageInput").value.length > 0 &&
+      nav?.displayedConversations?.result[nav.selectedChat - 1]
+    ) {
+      try {
+        const res = await fetch(
+          "http://localhost:5000/api/conversations/createConvo",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userID1: sessionStorage.getItem("userId"),
+              userName2:
+                nav?.displayedConversations?.result[nav.selectedChat - 1].name,
+              message: document.getElementById("messageInput").value,
+            }),
+          }
+        );
+        if (res.ok) {
+          console.log("New conversation created");
+          document.getElementById("messageInput").value = "";
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   const handleKeyDown = (event) => {
     const nonCharacterKeys = [
       "Backspace",
@@ -96,26 +129,32 @@ const Chatbox = () => {
         </div>
       </div>
       <ChatContent />
-      <div className="chatInput">
-        <input
-          value={inputValue}
-          onKeyDown={handleKeyDown}
-          onChange={handleChange}
-          type="text"
-          autoComplete="off"
-          id="userName"
-          placeholder="Aa"
-        />
-        <div
-          style={{
-            marginLeft: "auto",
-            marginRight: "1vw",
-            cursor: "pointer",
-          }}
-        >
-          <Category img={send} width="100%" height="100%" />
+      <form>
+        <div className="chatInput">
+          <input
+            value={inputValue}
+            onKeyDown={handleKeyDown}
+            onChange={handleChange}
+            type="text"
+            autoComplete="off"
+            id="messageInput"
+            placeholder="Aa"
+          />
+          <button
+            onClick={(e) => handleClick(e)}
+            onSubmit={(e) => handleClick(e)}
+            style={{
+              marginLeft: "auto",
+              marginRight: "1vw",
+              cursor: "pointer",
+              backgroundColor: "transparent",
+              border: "none",
+            }}
+          >
+            <img src={send} width="100%" height="100%" alt="send" />
+          </button>
         </div>
-      </div>
+      </form>
     </>
   );
 };
