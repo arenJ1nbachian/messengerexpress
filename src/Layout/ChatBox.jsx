@@ -69,7 +69,7 @@ const Chatbox = () => {
       }
 
       isTypingRef.current = false;
-    }, 1000);
+    }, 350);
   };
 
   return (
