@@ -18,7 +18,7 @@ const Chatbox = () => {
     e.preventDefault();
     console.log(nav?.displayedConversations?.result[nav.selectedChat - 1].name);
     if (
-      document.getElementById("messageInput").value.length > 0 &&
+      inputValue.length > 0 &&
       nav?.displayedConversations?.result[nav.selectedChat - 1]
     ) {
       try {
@@ -33,13 +33,13 @@ const Chatbox = () => {
               userID1: sessionStorage.getItem("userId"),
               userName2:
                 nav?.displayedConversations?.result[nav.selectedChat - 1].name,
-              message: document.getElementById("messageInput").value,
+              message: inputValue,
             }),
           }
         );
         if (res.ok) {
           console.log("New conversation created");
-          document.getElementById("messageInput").value = "";
+          setInputValue("");
         }
       } catch (error) {
         console.log(error);

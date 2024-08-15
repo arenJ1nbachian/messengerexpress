@@ -16,6 +16,7 @@ import Register from "./Layout/Register.jsx";
 import { UserContext } from "./Contexts/UserContext.js";
 
 import { SocketContext } from "./Contexts/SocketContext.js";
+import io from "socket.io-client";
 
 const handleDefaultNavigation = () => {
   const selected = sessionStorage.getItem("selected");
@@ -82,6 +83,16 @@ const App = () => {
   const [showsearchField, setShowsearchField] = useState(true);
   const searchFieldRef = useRef(null);
   const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    const newSocket = io("http://localhost:5000");
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.close();
+    };
+  }, []);
 
   const login = useCallback((uid, token) => {
     setToken(token);

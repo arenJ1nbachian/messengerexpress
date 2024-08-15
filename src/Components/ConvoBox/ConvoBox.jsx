@@ -44,9 +44,14 @@ const ConvoBox = () => {
             navContext.setDisplayedPictures(await profilePictures.json());
           }
           console.log("conversations", result);*/
-          result.result.forEach((conversation) => {
-            return socket?.emit("joinConversation", conversation._id);
-          });
+          if (socket) {
+            result.result.forEach((conversation) => {
+              console.log("Joined", conversation._id);
+              socket.emit("joinConversation", conversation._id);
+            });
+          } else {
+            console.log("No socket");
+          }
           navContext.setDisplayedConversations(result);
         } else {
           navContext.setDisplayedConversations([]);
@@ -56,7 +61,13 @@ const ConvoBox = () => {
       }
     };
     displayConvo();
-  }, []);
+
+    return () => {
+      if (socket) {
+        socket.off("connect"); // Remove listener on unmount
+      }
+    };
+  }, [socket]);
 
   return (
     <>

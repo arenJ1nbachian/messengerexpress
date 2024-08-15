@@ -3,7 +3,7 @@ import message from "../images/messageIcon.svg";
 import people from "../images/contactsIcon.svg";
 import request from "../images/requestIcon.svg";
 import archive from "../images/archiveIcon.svg";
-import io from "socket.io-client";
+
 import { NavContext } from "../Contexts/NavContext";
 import Button from "./NavBarButtons/Button";
 import AccButton from "./NavBarButtons/AccButton";
@@ -13,21 +13,10 @@ import { SocketContext } from "../Contexts/SocketContext";
 
 const NavBar = () => {
   const navBar = useContext(NavContext);
-  const socketContext = useContext(SocketContext);
 
   const buttonText = ["Chats", "People", "Requests", "Archive"];
   const [profilePictureUrl, setProfilePictureUrl] = useState(null);
   const [name, setName] = useState(null);
-
-  useEffect(() => {
-    const newSocket = io("http://localhost:5000");
-
-    socketContext.setSocket(newSocket);
-
-    return () => {
-      newSocket.close();
-    };
-  }, []);
 
   useEffect(() => {
     const uid = sessionStorage.getItem("userId");

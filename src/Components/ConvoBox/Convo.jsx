@@ -3,7 +3,6 @@ import Category from "../NavBarButtons/Category";
 import { SocketContext } from "../../Contexts/SocketContext";
 import defaultPicture from "../../images/default.svg";
 import "./Convo.css";
-import { NavContext } from "../../Contexts/NavContext";
 
 const Convo = ({
   index,
@@ -15,7 +14,6 @@ const Convo = ({
   unread,
   conversationId,
 }) => {
-  const nav = useContext(NavContext);
   const [lastMessage, setLastMessage] = useState(null);
   const [who, setWho] = useState(conversation.who);
   const [isTyping, setIsTyping] = useState(false);
