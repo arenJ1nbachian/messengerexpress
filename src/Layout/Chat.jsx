@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { NavContext } from "../Contexts/NavContext";
 import compose from "../images/compose.svg";
 import search from "../images/search.svg";
@@ -8,12 +8,36 @@ import "../CSS/ScrollBar.css";
 import ConvoBox from "../Components/ConvoBox/ConvoBox";
 import Chatbox from "./ChatBox";
 import ComposeMessage from "./ComposeMessage";
+import { SocketContext } from "../Contexts/SocketContext";
 
 const Chat = () => {
   const [hovered, setHovered] = useState(false);
   const [composeHover, setComposeHover] = useState(false);
 
   const navBar = useContext(NavContext);
+
+  const { socket } = useContext(SocketContext);
+  const conversationRef = useRef(
+    navBar?.displayedConversations?.result
+      ? navBar?.displayedConversations?.result[navBar.selectedChat - 1]
+      : null
+  );
+
+  useEffect(() => {
+    if (
+      navBar?.displayedConversations?.result &&
+      navBar?.displayedConversations?.result[navBar.selectedChat - 1] !==
+        conversationRef.current
+    ) {
+      socket.emit("typing", {
+        conversationId: conversationRef.current._id,
+        sender: sessionStorage.getItem("userId"),
+        isTyping: false,
+      });
+      conversationRef.current =
+        navBar?.displayedConversations?.result[navBar.selectedChat - 1];
+    }
+  }, [navBar.selectedChat]);
 
   return (
     <div style={{ display: "flex" }}>

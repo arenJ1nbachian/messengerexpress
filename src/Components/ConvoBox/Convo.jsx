@@ -42,7 +42,9 @@ const Convo = ({
       ) {
         setIsTyping(true);
       } else {
-        setIsTyping(false);
+        setTimeout(() => {
+          setIsTyping(false);
+        }, 2000);
       }
     });
 

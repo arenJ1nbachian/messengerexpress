@@ -5,12 +5,14 @@ import send from "../images/send.svg";
 import "./ChatBox.css";
 import ChatContent from "./ChatContent";
 import { SocketContext } from "../Contexts/SocketContext";
+import { NavContext } from "../Contexts/NavContext";
 
 const Chatbox = () => {
   const [inputValue, setInputValue] = useState("");
   const isTypingRef = useRef(false);
   const typingTimeoutRef = useRef(null);
   const { socket } = useContext(SocketContext);
+  const nav = useContext(NavContext);
 
   const handleKeyDown = (event) => {
     const nonCharacterKeys = [
@@ -38,7 +40,8 @@ const Chatbox = () => {
     if (!isTypingRef.current && !isModifierKey) {
       console.log("Currently typing");
       socket.emit("typing", {
-        conversationId: "66b84a5dc158a56be91a975f",
+        conversationId:
+          nav?.displayedConversations.result[nav.selectedChat - 1]?._id,
         sender: sessionStorage.getItem("userId"),
         isTyping: true,
       });
@@ -58,24 +61,37 @@ const Chatbox = () => {
       if (isTypingRef.current) {
         console.log("Stopped typing");
         socket.emit("typing", {
-          conversationId: "66b84a5dc158a56be91a975f",
+          conversationId:
+            nav?.displayedConversations.result[nav.selectedChat - 1]?._id,
           sender: sessionStorage.getItem("userId"),
           isTyping: false,
         });
       }
 
       isTypingRef.current = false;
-    }, 2000);
+    }, 1000);
   };
 
   return (
     <>
       <div className="recipient">
         <div className="uPicture">
-          <Category img={defaultPicture} width="100%" height="100%" />
+          <Category
+            img={
+              (nav.displayedConversations.result &&
+                nav?.displayedConversations?.result[nav.selectedChat - 1]
+                  ?.profilePicture) ||
+              defaultPicture
+            }
+            width="100%"
+            height="100%"
+          />
         </div>
         <div className="uInfo">
-          <div className="uName">Aren Jinbachian</div>
+          <div className="uName">
+            {nav.displayedConversations.result &&
+              nav?.displayedConversations.result[nav.selectedChat - 1]?.name}
+          </div>
           <div className="uActive">Active 10h ago</div>
         </div>
       </div>
