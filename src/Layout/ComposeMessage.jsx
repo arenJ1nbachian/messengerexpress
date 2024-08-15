@@ -9,13 +9,11 @@ const ComposeMessage = () => {
   const [usersFound, setUsersFound] = useState([]);
   const navContext = useContext(NavContext);
   const [searchUserHovered, setSearchUserHovered] = useState(-1);
+  const [messageInput, setMessageInput] = useState("");
 
   const handleClick = async (e) => {
     e.preventDefault();
-    if (
-      document.getElementById("message").value.length > 0 &&
-      navContext.selectedElement !== null
-    ) {
+    if (messageInput.length > 0 && navContext.selectedElement !== null) {
       try {
         const res = await fetch(
           "http://localhost:5000/api/conversations/createConvo",
@@ -33,7 +31,7 @@ const ComposeMessage = () => {
         );
         if (res.ok) {
           console.log("New conversation created");
-          document.getElementById("message").value = "";
+          setMessageInput("");
         }
       } catch (error) {
         console.log(error);
@@ -175,7 +173,13 @@ const ComposeMessage = () => {
       <ChatContent />
       <form>
         <div className="chatInput">
-          <input type="text" autoComplete="off" id="message" placeholder="Aa" />
+          <input
+            onChange={(e) => setMessageInput(e.target.value)}
+            type="text"
+            autoComplete="off"
+            id="message"
+            placeholder="Aa"
+          />
           <button
             onClick={(e) => handleClick(e)}
             onSubmit={(e) => handleClick(e)}
