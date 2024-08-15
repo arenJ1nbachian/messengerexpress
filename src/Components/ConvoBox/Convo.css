@@ -6,9 +6,13 @@
   color: white;
 }
 
+.typing-indicator {
+  margin-left: 1vw;
+}
+
 #idHeader {
   display: flex;
-  width: 8vw;
+  width: 100%;
   justify-content: space-between;
   height: max-content;
 }

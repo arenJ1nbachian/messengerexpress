@@ -27,7 +27,8 @@ const Chat = () => {
     if (
       navBar?.displayedConversations?.result &&
       navBar?.displayedConversations?.result[navBar.selectedChat - 1] !==
-        conversationRef.current
+        conversationRef.current &&
+      conversationRef.current !== null
     ) {
       socket.emit("typing", {
         conversationId: conversationRef.current._id,

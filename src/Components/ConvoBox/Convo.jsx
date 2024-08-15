@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Category from "../NavBarButtons/Category";
 import { SocketContext } from "../../Contexts/SocketContext";
 import defaultPicture from "../../images/default.svg";
@@ -17,6 +17,7 @@ const Convo = ({
   const [lastMessage, setLastMessage] = useState(conversation.lastMessage);
   const [who, setWho] = useState(conversation.who);
   const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef(null);
 
   const { socket } = useContext(SocketContext);
 
@@ -40,11 +41,16 @@ const Convo = ({
         data.sender !== sessionStorage.getItem("userId") &&
         data.isTyping
       ) {
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+          typingTimeoutRef.current = null;
+        }
         setIsTyping(true);
       } else {
-        setTimeout(() => {
+        typingTimeoutRef.current = setTimeout(() => {
           setIsTyping(false);
-        }, 2000);
+          typingTimeoutRef.current = null;
+        }, 3000);
       }
     });
 
