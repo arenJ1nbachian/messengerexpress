@@ -34,6 +34,25 @@ const Convo = ({
         } else {
           setWho("");
         }
+        navContext.setDisplayedConversations((prev) => {
+          return {
+            ...prev,
+            result: prev.result.map((conversation) => {
+              if (conversation._id === data.conversationId) {
+                return {
+                  ...conversation,
+                  lastMessage: data.lastMessage,
+                  who:
+                    data.sender === sessionStorage.getItem("userId")
+                      ? "You: "
+                      : "",
+                };
+              } else {
+                return conversation;
+              }
+            }),
+          };
+        });
       }
     });
 
