@@ -24,6 +24,34 @@ const Chat = () => {
   );
 
   useEffect(() => {
+    if (socket) {
+      socket.on("requestJoinConversation", (data) => {
+        console.log("Recipient received join request", data);
+        if (data.userId === sessionStorage.getItem("userId")) {
+          socket.emit("joinConversation", data.conversationId);
+          navBar.setDisplayedConversations((prev) => {
+            if (prev.length === 0) {
+              return { result: [data.convo] };
+            } else {
+              return {
+                result: [...prev.result, data.convo],
+              };
+            }
+          });
+        }
+      });
+    } else {
+      console.log("Socket not found");
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("requestJoinConversation");
+      }
+    };
+  }, [socket]);
+
+  useEffect(() => {
     if (
       navBar?.displayedConversations?.result &&
       navBar?.displayedConversations?.result[navBar.selectedChat - 1] !==

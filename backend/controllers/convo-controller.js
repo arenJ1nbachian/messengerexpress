@@ -1,3 +1,4 @@
+const { Mongoose, default: mongoose } = require("mongoose");
 const Convo = require("../models/conversation");
 const Message = require("../models/message");
 const Users = require("../models/user");
@@ -15,7 +16,9 @@ const getConversations = async (req, res) => {
 
   try {
     // Find all conversations where the user is a participant.
-    const conversations = await Convo.find({ participants: { $in: [uid] } });
+    const conversations = await Convo.find({
+      participants: { $in: [uid] },
+    }).sort({ updatedAt: -1 });
 
     // If no conversations are found, return a 404 error.
     if (conversations.length === 0) {
@@ -82,6 +85,10 @@ const createConvo = async (req, res, io) => {
       lastname: user2Lastname,
     });
 
+    const user1 = await Users.findOne({
+      _id: new mongoose.Types.ObjectId(userID1),
+    });
+
     const participants = [userID1, user2._id.toString()].sort();
     console.log("Participants: ", participants);
 
@@ -112,11 +119,12 @@ const createConvo = async (req, res, io) => {
           lastMessage: newMessage.content,
           timestamp: existingConvo.updatedAt,
           sender: userID1,
+          new: false,
         });
         console.log("Emitting updateConversationHeader to", participantId);
       });
 
-      return res.status(200).json({ existingConvo });
+      return res.status(200).json({ existingConvo, new: false });
     } else {
       // Create new conversation
       console.log("Creating new convo");
@@ -134,16 +142,33 @@ const createConvo = async (req, res, io) => {
         });
         await newConvo.save();
 
-        // Emit updateConversationHeader to all participants
-        participants.forEach((participantId) => {
-          io.emit("updateConversationHeader", {
-            conversationId: newConvo._id.toString(),
-            lastMessage: newMessage.content,
-            timestamp: newConvo.updatedAt,
-          });
+        res.status(201).json({
+          convoSender: {
+            userId: user2._id.toString(),
+            name: userName2,
+            lastMessage: message,
+            who: "You:",
+            read: newMessage.read,
+            _id: newConvo._id.toString(),
+            profilePicture:
+              user2.profilePicture === null
+                ? ""
+                : "http://localhost:5000/" + user2.profilePicture,
+          },
+          convoRecipient: {
+            userId: userID1,
+            name: user1.firstname + " " + user1.lastname,
+            lastMessage: message,
+            who: "",
+            read: newMessage.read,
+            _id: newConvo._id.toString(),
+            profilePicture:
+              user1.profilePicture === null
+                ? ""
+                : "http://localhost:5000/" + user1.profilePicture,
+          },
+          new: true,
         });
-
-        res.status(201).json({ newConvo });
       } else {
         res.status(204).json({ message: "No message provided." });
       }

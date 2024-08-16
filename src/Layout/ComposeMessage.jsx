@@ -4,12 +4,14 @@ import { useContext, useEffect, useState } from "react";
 import { NavContext } from "../Contexts/NavContext";
 import defaultPicture from "../images/default.svg";
 import ChatContent from "./ChatContent";
+import { SocketContext } from "../Contexts/SocketContext";
 
 const ComposeMessage = () => {
   const [usersFound, setUsersFound] = useState([]);
   const navContext = useContext(NavContext);
   const [searchUserHovered, setSearchUserHovered] = useState(-1);
   const [messageInput, setMessageInput] = useState("");
+  const { socket } = useContext(SocketContext);
 
   const handleClick = async (e) => {
     e.preventDefault();
@@ -30,8 +32,26 @@ const ComposeMessage = () => {
           }
         );
         if (res.ok) {
+          const conversation = await res.json();
           console.log("New conversation created");
           setMessageInput("");
+          if (conversation.new) {
+            console.log("New conversation created", conversation);
+            navContext.setDisplayedConversations((prev) => {
+              if (prev.length === 0) {
+                return { result: [conversation.convoSender] };
+              } else {
+                return [...prev.result, conversation.convoSender];
+              }
+            });
+          }
+          socket.emit("joinConversation", conversation.convoSender._id);
+          socket.emit(
+            "requestJoinConversation",
+            conversation.convoSender.userId,
+            conversation.convoSender._id,
+            conversation.convoRecipient
+          );
         }
       } catch (error) {
         console.log(error);

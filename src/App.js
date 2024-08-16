@@ -103,6 +103,7 @@ const App = () => {
     setUserId(null);
     setSelected(0);
     setSelectedChat(-1);
+    setSelectedElement(null);
     setNavExpanded(false);
     sessionStorage.clear();
     setCompose(false);

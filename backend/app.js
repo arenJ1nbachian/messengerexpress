@@ -19,11 +19,17 @@ const io = new Server(server, {
 app.use(express.json());
 
 io.on("connection", (socket) => {
+  console.log(`Socket ${socket.id} connected`);
   socket.on("joinConversation", (conversationId) => {
     socket.join(conversationId);
     console.log(
       `Socket ${socket.id} joined conversation room ${conversationId}`
     );
+  });
+
+  socket.on("requestJoinConversation", (userId, conversationId, convo) => {
+    console.log("Sending request to the recipient", convo);
+    io.emit("requestJoinConversation", { userId, conversationId, convo });
   });
 
   socket.on("typing", (data) => {

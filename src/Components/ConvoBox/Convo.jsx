@@ -24,7 +24,7 @@ const Convo = ({
   useEffect(() => {
     socket.on("updateConversationHeader", (data) => {
       console.log("Received listening", data);
-      if (data.conversationId === conversationId) {
+      if (!data.new && data.conversationId === conversationId) {
         clearTimeout(typingTimeoutRef.current);
         typingTimeoutRef.current = null;
         setIsTyping(false);
@@ -53,6 +53,14 @@ const Convo = ({
             }),
           };
         });
+      } else {
+        navContext.setDisplayedConversations((prev) =>
+          prev.length > 0
+            ? {
+                result: [...prev.result, data.convo],
+              }
+            : { result: [data.convo] }
+        );
       }
     });
 
@@ -109,9 +117,9 @@ const Convo = ({
           <div id="flName">{`${conversation.name} `}</div>
           {isTyping && (
             <div className="typing-indicator">
-              <span class="dot">•</span>
-              <span class="dot">•</span>
-              <span class="dot">•</span>
+              <span className="dot">•</span>
+              <span className="dot">•</span>
+              <span className="dot">•</span>
             </div>
           )}
         </div>
