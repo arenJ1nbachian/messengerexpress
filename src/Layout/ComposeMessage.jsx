@@ -44,14 +44,19 @@ const ComposeMessage = () => {
                 return [...prev.result, conversation.convoSender];
               }
             });
+            socket.emit(
+              "joinConversation",
+              conversation.new
+                ? conversation.convoSender._id
+                : conversation.existingConvo._id
+            );
+            socket.emit(
+              "requestJoinConversation",
+              conversation.convoSender.userId,
+              conversation.convoSender._id,
+              conversation.convoRecipient
+            );
           }
-          socket.emit("joinConversation", conversation.convoSender._id);
-          socket.emit(
-            "requestJoinConversation",
-            conversation.convoSender.userId,
-            conversation.convoSender._id,
-            conversation.convoRecipient
-          );
         }
       } catch (error) {
         console.log(error);

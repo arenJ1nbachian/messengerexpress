@@ -110,7 +110,7 @@ const ConvoBox = () => {
             (conversation, index) => {
               return (
                 <Convo
-                  key={conversation.userId}
+                  key={conversation._id}
                   index={index}
                   navContext={navContext}
                   picture={conversation.profilePicture}

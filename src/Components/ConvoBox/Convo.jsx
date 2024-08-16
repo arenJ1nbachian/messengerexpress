@@ -24,35 +24,37 @@ const Convo = ({
   useEffect(() => {
     socket.on("updateConversationHeader", (data) => {
       console.log("Received listening", data);
-      if (!data.new && data.conversationId === conversationId) {
-        clearTimeout(typingTimeoutRef.current);
-        typingTimeoutRef.current = null;
-        setIsTyping(false);
-        setLastMessage(data.lastMessage);
-        if (data.sender === sessionStorage.getItem("userId")) {
-          setWho("You: ");
-        } else {
-          setWho("");
+      if (!data.new) {
+        if (data.conversationId === conversationId) {
+          clearTimeout(typingTimeoutRef.current);
+          typingTimeoutRef.current = null;
+          setIsTyping(false);
+          setLastMessage(data.lastMessage);
+          if (data.sender === sessionStorage.getItem("userId")) {
+            setWho("You: ");
+          } else {
+            setWho("");
+          }
+          navContext.setDisplayedConversations((prev) => {
+            return {
+              ...prev,
+              result: prev.result.map((conversation) => {
+                if (conversation._id === data.conversationId) {
+                  return {
+                    ...conversation,
+                    lastMessage: data.lastMessage,
+                    who:
+                      data.sender === sessionStorage.getItem("userId")
+                        ? "You: "
+                        : "",
+                  };
+                } else {
+                  return conversation;
+                }
+              }),
+            };
+          });
         }
-        navContext.setDisplayedConversations((prev) => {
-          return {
-            ...prev,
-            result: prev.result.map((conversation) => {
-              if (conversation._id === data.conversationId) {
-                return {
-                  ...conversation,
-                  lastMessage: data.lastMessage,
-                  who:
-                    data.sender === sessionStorage.getItem("userId")
-                      ? "You: "
-                      : "",
-                };
-              } else {
-                return conversation;
-              }
-            }),
-          };
-        });
       } else {
         navContext.setDisplayedConversations((prev) =>
           prev.length > 0
@@ -75,6 +77,7 @@ const Convo = ({
           clearTimeout(typingTimeoutRef.current);
           typingTimeoutRef.current = null;
         }
+        console.log("Changing typing state to true");
         setIsTyping(true);
       } else {
         typingTimeoutRef.current = setTimeout(() => {
