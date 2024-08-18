@@ -41,7 +41,7 @@ const ComposeMessage = () => {
               if (prev.length === 0) {
                 return { result: [conversation.convoSender] };
               } else {
-                return [...prev.result, conversation.convoSender];
+                return { result: [...prev.result, conversation.convoSender] };
               }
             });
             socket.emit(

@@ -1,7 +1,7 @@
 .typing-indicator {
   opacity: 0;
   animation: fadeIn 0.5s forwards;
-  margin-left: 1vw;
+  margin-left: 5%;
 }
 
 @keyframes fadeIn {
@@ -47,6 +47,6 @@
 #idHeader {
   display: flex;
   width: 100%;
-  justify-content: space-between;
+  text-wrap: nowrap;
   height: max-content;
 }
