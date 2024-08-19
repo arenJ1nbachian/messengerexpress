@@ -92,7 +92,6 @@ const Chatbox = () => {
     typingTimeoutRef.current = setTimeout(() => {
       console.log(isTypingRef.current);
       if (isTypingRef.current) {
-        console.log("Stopped typing");
         socket.emit("typing", {
           conversationId:
             nav?.displayedConversations.result[nav.selectedChat - 1]?._id,

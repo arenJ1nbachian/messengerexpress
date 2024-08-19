@@ -77,9 +77,13 @@ const Convo = ({
           clearTimeout(typingTimeoutRef.current);
           typingTimeoutRef.current = null;
         }
-        console.log("Changing typing state to true");
+
         setIsTyping(true);
-      } else {
+      } else if (
+        data.conversationId === conversationId &&
+        data.sender !== sessionStorage.getItem("userId") &&
+        data.isTyping === false
+      ) {
         typingTimeoutRef.current = setTimeout(() => {
           setIsTyping(false);
           typingTimeoutRef.current = null;
