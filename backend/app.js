@@ -34,7 +34,7 @@ io.on("connection", (socket) => {
 
   socket.on("typing", (data) => {
     console.log(data);
-    socket.to(data.conversationId).emit("typing", data);
+    socket.to(data.conversationId).emit(`typing_${data.conversationId}`, data);
   });
 
   socket.on("disconnect", () => {

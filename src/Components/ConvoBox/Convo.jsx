@@ -66,7 +66,7 @@ const Convo = ({
       }
     });
 
-    socket.on("typing", (data) => {
+    socket.on(`typing_${conversationId}`, (data) => {
       console.log("Received typing", data);
       if (
         data.conversationId === conversationId &&
