@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import settings from "../../images/settings.svg";
 import restricted from "../../images/restriced.svg";
 import security from "../../images/security.svg";
@@ -67,7 +67,7 @@ const AccountAndSettings = () => {
               src = accountSettingsSvg[index];
             }
             return (
-              <>
+              <React.Fragment key={index}>
                 <div
                   onClick={(e) => {
                     e.stopPropagation();
@@ -95,7 +95,7 @@ const AccountAndSettings = () => {
                   index !== 7 &&
                   index !== 9 &&
                   index !== 10 && <hr />}
-              </>
+              </React.Fragment>
             );
           })}
         </div>
