@@ -14,13 +14,6 @@ const Contacts = () => {
         </div>
         <div className="activeContacts">{"Active contacts (1)"}</div>
       </div>
-      <div
-        className={`chatConvoBox ${
-          navBar.navExpanded ? "expanded" : "default"
-        }`}
-      >
-        <Chatbox />
-      </div>
     </div>
   );
 };

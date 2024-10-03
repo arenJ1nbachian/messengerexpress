@@ -6,22 +6,17 @@ import Category from "../Components/NavBarButtons/Category";
 import "./Chat.css";
 import "../CSS/ScrollBar.css";
 import ConvoBox from "../Components/ConvoBox/ConvoBox";
-import Chatbox from "./ChatBox";
-import ComposeMessage from "./ComposeMessage";
 import { SocketContext } from "../Contexts/SocketContext";
+import { Outlet, useNavigate } from "react-router";
 
 const Chat = () => {
   const [hovered, setHovered] = useState(false);
   const [composeHover, setComposeHover] = useState(false);
+  const navigate = useNavigate();
 
   const navBar = useContext(NavContext);
 
   const { socket } = useContext(SocketContext);
-  const conversationRef = useRef(
-    navBar?.displayedConversations?.result
-      ? navBar?.displayedConversations?.result[navBar.selectedChat - 1]
-      : null
-  );
 
   useEffect(() => {
     if (socket) {
@@ -52,21 +47,14 @@ const Chat = () => {
   }, [socket]);
 
   useEffect(() => {
-    if (
-      navBar?.displayedConversations?.result &&
-      navBar?.displayedConversations?.result[navBar.selectedChat - 1] !==
-        conversationRef.current &&
-      conversationRef.current !== null
-    ) {
-      socket.emit("typing", {
-        conversationId: conversationRef.current?._id,
-        sender: sessionStorage.getItem("userId"),
-        isTyping: false,
-      });
-      conversationRef.current =
-        navBar?.displayedConversations?.result[navBar.selectedChat - 1];
+    if (navBar?.displayedConversations?.result) {
+      navigate(
+        `/chats/${
+          navBar?.displayedConversations?.result[navBar.selectedChat - 1]?._id
+        }`
+      );
     }
-  }, [navBar.selectedChat]);
+  }, [navBar?.displayedConversations?.result, navBar.selectedChat, navigate]);
 
   return (
     <div style={{ display: "flex" }}>
@@ -122,13 +110,7 @@ const Chat = () => {
           <div>Try Messenger for Windows</div>
         </div>
       </div>
-      <div
-        className={`chatConvoBox ${
-          navBar.navExpanded ? "expanded" : "default"
-        }`}
-      >
-        {navBar.compose ? <ComposeMessage /> : <Chatbox />}
-      </div>
+      <Outlet />
     </div>
   );
 };

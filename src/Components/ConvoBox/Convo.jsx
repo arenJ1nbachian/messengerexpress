@@ -73,10 +73,8 @@ const Convo = ({
         data.sender !== sessionStorage.getItem("userId") &&
         data.isTyping
       ) {
-        if (typingTimeoutRef.current) {
-          clearTimeout(typingTimeoutRef.current);
-          typingTimeoutRef.current = null;
-        }
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
 
         setIsTyping(true);
       } else if (
@@ -93,7 +91,7 @@ const Convo = ({
 
     return () => {
       socket.off("updateConversationHeader");
-      socket.off("typing");
+      socket.off(`typing_${conversationId}`);
     };
   }, []);
 
@@ -106,10 +104,16 @@ const Convo = ({
       onMouseEnter={() => setConvoHovered(index + 1)}
       onMouseLeave={() => setConvoHovered(-1)}
       onClick={() => {
-        navContext.setSelectedChat(index + 1);
-        navContext.setCompose(false);
-        navContext.setShowsearchField(true);
-        navContext.setSelectedElement(null);
+        if (navContext.selectedChat - 1 !== index) {
+          navContext.conversationRef.current =
+            navContext.displayedConversations.result[
+              navContext.selectedChat - 1
+            ];
+          navContext.setSelectedChat(index + 1);
+          navContext.setCompose(false);
+          navContext.setShowsearchField(true);
+          navContext.setSelectedElement(null);
+        }
       }}
     >
       <div id="pfPicture">

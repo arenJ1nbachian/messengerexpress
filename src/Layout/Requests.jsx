@@ -12,13 +12,6 @@ const Requests = () => {
           <div className="chatBoxContactTitle">Requests</div>
         </div>
       </div>
-      <div
-        className={`chatConvoBox ${
-          navBar.navExpanded ? "expanded" : "default"
-        }`}
-      >
-        <Chatbox />
-      </div>
     </div>
   );
 };

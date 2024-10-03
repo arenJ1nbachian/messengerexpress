@@ -11,13 +11,6 @@ const Archived = () => {
           <div className="chatBoxContactTitle">Archived Chats</div>
         </div>
       </div>
-      <div
-        className={`chatConvoBox ${
-          navBar.navExpanded ? "expanded" : "default"
-        }`}
-      >
-        <Chatbox />
-      </div>
     </div>
   );
 };

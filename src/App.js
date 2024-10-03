@@ -17,6 +17,7 @@ import { UserContext } from "./Contexts/UserContext.js";
 
 import { SocketContext } from "./Contexts/SocketContext.js";
 import io from "socket.io-client";
+import Chatbox from "./Layout/ChatBox.jsx";
 
 const handleDefaultNavigation = () => {
   const selected = sessionStorage.getItem("selected");
@@ -52,10 +53,14 @@ const loggedInRouter = createBrowserRouter([
     element: <Root />,
     children: [
       { path: "/", element: handleDefaultNavigation() },
-      { path: "chats", element: <Chat /> },
       { path: "people", element: <Contacts /> },
       { path: "requests", element: <Requests /> },
       { path: "archived", element: <Archived /> },
+      {
+        path: "chats",
+        element: <Chat />,
+        children: [{ path: ":id", element: <Chatbox /> }],
+      },
     ],
   },
 ]);
@@ -70,6 +75,7 @@ const App = () => {
   const [selected, setSelected] = useState(
     JSON.parse(sessionStorage.getItem("selected")) || 0
   );
+  const conversationRef = useRef(null);
   const [selectedChat, setSelectedChat] = useState(1);
   const [selectChatDetails, setSelectChatDetails] = useState({});
   const [displayedConversations, setDisplayedConversations] = useState([]);
@@ -170,6 +176,7 @@ const App = () => {
             showsearchField,
             setShowsearchField,
             searchFieldRef,
+            conversationRef,
           }}
         >
           <RouterProvider

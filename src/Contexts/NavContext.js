@@ -25,4 +25,5 @@ export const NavContext = createContext({
   showsearchField: true,
   setShowsearchField: () => {},
   searchFieldRef: null,
+  conversationRef: null,
 });

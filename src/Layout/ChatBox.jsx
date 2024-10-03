@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Category from "../Components/NavBarButtons/Category";
 import defaultPicture from "../images/default.svg";
 import send from "../images/send.svg";
@@ -6,17 +6,39 @@ import "./ChatBox.css";
 import ChatContent from "./ChatContent";
 import { SocketContext } from "../Contexts/SocketContext";
 import { NavContext } from "../Contexts/NavContext";
+import { useParams } from "react-router";
 
 const Chatbox = () => {
   const [inputValue, setInputValue] = useState("");
-  const isTypingRef = useRef(false);
+  const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
   const { socket } = useContext(SocketContext);
   const nav = useContext(NavContext);
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (
+      nav?.displayedConversations?.result &&
+      nav?.displayedConversations?.result[nav.selectedChat - 1] !==
+        nav.conversationRef.current &&
+      isTyping
+    ) {
+      socket.emit("typing", {
+        conversationId: nav.conversationRef.current?._id,
+        sender: sessionStorage.getItem("userId"),
+        isTyping: false,
+      });
+    }
+
+    setInputValue("");
+    setIsTyping(false);
+    clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = null;
+  }, [nav.selectedChat]);
 
   const handleClick = async (e) => {
     e.preventDefault();
-    console.log(nav?.displayedConversations?.result[nav.selectedChat - 1].name);
+
     if (
       inputValue.length > 0 &&
       nav?.displayedConversations?.result[nav.selectedChat - 1]
@@ -70,15 +92,13 @@ const Chatbox = () => {
       return;
     }
 
-    if (!isTypingRef.current && !isModifierKey) {
-      console.log("Currently typing");
+    if (!isTyping && !isModifierKey) {
       socket.emit("typing", {
-        conversationId:
-          nav?.displayedConversations.result[nav.selectedChat - 1]?._id,
+        conversationId: id,
         sender: sessionStorage.getItem("userId"),
         isTyping: true,
       });
-      isTypingRef.current = true;
+      setIsTyping(true);
     }
   };
 
@@ -90,70 +110,71 @@ const Chatbox = () => {
     }
 
     typingTimeoutRef.current = setTimeout(() => {
-      console.log(isTypingRef.current);
-      if (isTypingRef.current) {
+      if (isTyping) {
         socket.emit("typing", {
-          conversationId:
-            nav?.displayedConversations.result[nav.selectedChat - 1]?._id,
+          conversationId: id,
           sender: sessionStorage.getItem("userId"),
           isTyping: false,
         });
       }
-
-      isTypingRef.current = false;
-    }, 1000);
+      setIsTyping(false);
+    }, 3000);
   };
 
   return (
     <>
-      <div className="recipient">
-        <div className="uPicture">
-          <Category
-            img={
-              (nav.displayedConversations.result &&
-                nav?.displayedConversations?.result[nav.selectedChat - 1]
-                  ?.profilePicture) ||
-              defaultPicture
-            }
-            width="100%"
-            height="100%"
-          />
-        </div>
-        <div className="uInfo">
-          <div className="uName">
-            {nav.displayedConversations.result &&
-              nav?.displayedConversations.result[nav.selectedChat - 1]?.name}
+      <div
+        className={`chatConvoBox ${nav.navExpanded ? "expanded" : "default"}`}
+      >
+        <div className="recipient">
+          <div className="uPicture">
+            <Category
+              img={
+                (nav.displayedConversations.result &&
+                  nav?.displayedConversations?.result[nav.selectedChat - 1]
+                    ?.profilePicture) ||
+                defaultPicture
+              }
+              width="100%"
+              height="100%"
+            />
           </div>
-          <div className="uActive">Active 10h ago</div>
+          <div className="uInfo">
+            <div className="uName">
+              {nav.displayedConversations.result &&
+                nav?.displayedConversations.result[nav.selectedChat - 1]?.name}
+            </div>
+            <div className="uActive">Active 10h ago</div>
+          </div>
         </div>
+        <ChatContent />
+        <form>
+          <div className="chatInput">
+            <input
+              value={inputValue}
+              onKeyDown={handleKeyDown}
+              onChange={handleChange}
+              type="text"
+              autoComplete="off"
+              id="messageInput"
+              placeholder="Aa"
+            />
+            <button
+              onClick={(e) => handleClick(e)}
+              onSubmit={(e) => handleClick(e)}
+              style={{
+                marginLeft: "auto",
+                marginRight: "1vw",
+                cursor: "pointer",
+                backgroundColor: "transparent",
+                border: "none",
+              }}
+            >
+              <img src={send} width="100%" height="100%" alt="send" />
+            </button>
+          </div>
+        </form>
       </div>
-      <ChatContent />
-      <form>
-        <div className="chatInput">
-          <input
-            value={inputValue}
-            onKeyDown={handleKeyDown}
-            onChange={handleChange}
-            type="text"
-            autoComplete="off"
-            id="messageInput"
-            placeholder="Aa"
-          />
-          <button
-            onClick={(e) => handleClick(e)}
-            onSubmit={(e) => handleClick(e)}
-            style={{
-              marginLeft: "auto",
-              marginRight: "1vw",
-              cursor: "pointer",
-              backgroundColor: "transparent",
-              border: "none",
-            }}
-          >
-            <img src={send} width="100%" height="100%" alt="send" />
-          </button>
-        </div>
-      </form>
     </>
   );
 };
