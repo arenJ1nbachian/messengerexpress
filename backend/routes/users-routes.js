@@ -27,4 +27,6 @@ router.post("/login", usersController.loginUser);
 
 router.post("/search/:searchString", usersController.searchUsers);
 
+router.post("/getOnline", usersController.getOnline);
+
 module.exports = router;

@@ -22,76 +22,80 @@ const Convo = ({
   const { socket } = useContext(SocketContext);
 
   useEffect(() => {
-    socket.on("updateConversationHeader", (data) => {
-      console.log("Received listening", data);
-      if (!data.new) {
-        if (data.conversationId === conversationId) {
+    if (socket) {
+      socket.on("updateConversationHeader", (data) => {
+        console.log("Received listening", data);
+        if (!data.new) {
+          if (data.conversationId === conversationId) {
+            clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = null;
+            setIsTyping(false);
+            setLastMessage(data.lastMessage);
+            if (data.sender === sessionStorage.getItem("userId")) {
+              setWho("You: ");
+            } else {
+              setWho("");
+            }
+            navContext.setDisplayedConversations((prev) => {
+              return {
+                ...prev,
+                result: prev.result.map((conversation) => {
+                  if (conversation._id === data.conversationId) {
+                    return {
+                      ...conversation,
+                      lastMessage: data.lastMessage,
+                      who:
+                        data.sender === sessionStorage.getItem("userId")
+                          ? "You: "
+                          : "",
+                    };
+                  } else {
+                    return conversation;
+                  }
+                }),
+              };
+            });
+          }
+        } else {
+          navContext.setDisplayedConversations((prev) =>
+            prev.length > 0
+              ? {
+                  result: [...prev.result, data.convo],
+                }
+              : { result: [data.convo] }
+          );
+        }
+      });
+
+      socket.on(`typing_${conversationId}`, (data) => {
+        console.log("Received typing", data);
+        if (
+          data.conversationId === conversationId &&
+          data.sender !== sessionStorage.getItem("userId") &&
+          data.isTyping
+        ) {
           clearTimeout(typingTimeoutRef.current);
           typingTimeoutRef.current = null;
-          setIsTyping(false);
-          setLastMessage(data.lastMessage);
-          if (data.sender === sessionStorage.getItem("userId")) {
-            setWho("You: ");
-          } else {
-            setWho("");
-          }
-          navContext.setDisplayedConversations((prev) => {
-            return {
-              ...prev,
-              result: prev.result.map((conversation) => {
-                if (conversation._id === data.conversationId) {
-                  return {
-                    ...conversation,
-                    lastMessage: data.lastMessage,
-                    who:
-                      data.sender === sessionStorage.getItem("userId")
-                        ? "You: "
-                        : "",
-                  };
-                } else {
-                  return conversation;
-                }
-              }),
-            };
-          });
+
+          setIsTyping(true);
+        } else if (
+          data.conversationId === conversationId &&
+          data.sender !== sessionStorage.getItem("userId") &&
+          data.isTyping === false
+        ) {
+          typingTimeoutRef.current = setTimeout(() => {
+            setIsTyping(false);
+            typingTimeoutRef.current = null;
+          }, 3000);
         }
-      } else {
-        navContext.setDisplayedConversations((prev) =>
-          prev.length > 0
-            ? {
-                result: [...prev.result, data.convo],
-              }
-            : { result: [data.convo] }
-        );
-      }
-    });
-
-    socket.on(`typing_${conversationId}`, (data) => {
-      console.log("Received typing", data);
-      if (
-        data.conversationId === conversationId &&
-        data.sender !== sessionStorage.getItem("userId") &&
-        data.isTyping
-      ) {
-        clearTimeout(typingTimeoutRef.current);
-        typingTimeoutRef.current = null;
-
-        setIsTyping(true);
-      } else if (
-        data.conversationId === conversationId &&
-        data.sender !== sessionStorage.getItem("userId") &&
-        data.isTyping === false
-      ) {
-        typingTimeoutRef.current = setTimeout(() => {
-          setIsTyping(false);
-          typingTimeoutRef.current = null;
-        }, 3000);
-      }
-    });
+      });
+    }
 
     return () => {
-      socket.off("updateConversationHeader");
-      socket.off(`typing_${conversationId}`);
+      if (socket) {
+        socket.off("updateConversationHeader");
+        socket.off(`typing_${conversationId}`);
+      }
     };
   }, []);
 

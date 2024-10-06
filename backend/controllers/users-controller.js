@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator/lib");
+const { default: mongoose } = require("mongoose");
 const Users = require("../models/user");
 const path = require("path");
 const jwt = require("jsonwebtoken");
@@ -124,6 +125,11 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    // If the user is found and the password is valid, update the online status of the user
+    await Users.findByIdAndUpdate(user._id, {
+      onlineStatus: { status: true, lastSeen: Date.now() },
+    });
+
     // Generate a JWT token for the user
     const token = jwt.sign({ userId: user._id }, "secretkey", {
       expiresIn: "1h",
@@ -135,6 +141,17 @@ const loginUser = async (req, res) => {
     // If there is an error, log it and return an error message
     console.log(error);
     res.status(500).json({ error });
+  }
+};
+
+const logoutUser = async (userId) => {
+  console.log(userId);
+  try {
+    await Users.findByIdAndUpdate(userId, {
+      onlineStatus: { status: false, lastSeen: Date.now() },
+    });
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -186,8 +203,26 @@ const searchUsers = async (req, res) => {
   res.status(200).json({ result });
 };
 
+const getOnline = async (req, res) => {
+  const { users } = req.body;
+  console.log(users);
+  try {
+    const usersOnline = await Users.find({
+      _id: { $in: users },
+      "onlineStatus.status": true,
+    })
+      .select("_id firstname lastname profilePicture")
+      .sort({ firstname: 1 });
+    res.status(200).json(usersOnline);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 exports.createUser = createUser;
 exports.loginUser = loginUser;
+exports.logoutUser = logoutUser;
 exports.getUserPicture = getUserPicture;
 exports.getUserInfo = getUserInfo;
 exports.searchUsers = searchUsers;
+exports.getOnline = getOnline;

@@ -91,18 +91,24 @@ const App = () => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:5000");
-
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.close();
-    };
+    if ((token, userId)) {
+      console.log("His user id is", userId);
+      setSocket(
+        io("http://localhost:5000", {
+          query: { uid: userId },
+        })
+      );
+    }
   }, []);
 
   const login = useCallback((uid, token) => {
     setToken(token);
     setUserId(uid);
+    setSocket(
+      io("http://localhost:5000", {
+        query: { uid },
+      })
+    );
   }, []);
   const logout = useCallback(() => {
     setToken(null);
@@ -113,6 +119,7 @@ const App = () => {
     setNavExpanded(false);
     sessionStorage.clear();
     setCompose(false);
+    socket ? socket.disconnect() : <></>;
   }, []);
 
   const handleNavExpand = useCallback((value) => {
