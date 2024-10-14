@@ -17,4 +17,47 @@
   margin-left: 1.5vw;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
   color: white;
+  margin-bottom: 2vh;
+}
+
+.userConvo.people {
+  height: 10vh;
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 1.5vh;
+  margin-top: 1.5vh;
+  cursor: pointer;
+}
+
+.userConvo.people #pfPicture {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+.userConvo.people .convoPicture {
+  width: 95%;
+  height: 95%;
+  border-radius: 50%;
+}
+
+.userConvo.people #flName {
+  font-size: 25px;
+  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+  color: white;
+  margin-left: 0.5vw;
+}
+.status-indicator {
+  width: 15px;
+  height: 15px;
+  background-color: green;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  border: 2px solid white;
+}
+
+.userConvo.people .convoPicture {
+  object-fit: cover;
 }

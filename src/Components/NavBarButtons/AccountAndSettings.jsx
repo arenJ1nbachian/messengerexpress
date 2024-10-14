@@ -14,6 +14,7 @@ import "./AccountAndSettings.css";
 import { UserContext } from "../../Contexts/UserContext";
 import { useNavigate } from "react-router";
 import { NavContext } from "../../Contexts/NavContext";
+import { SocketContext } from "../../Contexts/SocketContext";
 
 const AccountAndSettings = () => {
   const userContext = useContext(UserContext);
@@ -21,6 +22,7 @@ const AccountAndSettings = () => {
   const [hovered, setHovered] = useState(false);
   const [buttonHovered, setButtonHovered] = useState(-1);
   const navigate = useNavigate();
+  const { socket } = useContext(SocketContext);
   const accountSettings = [
     "Preferences",
     "Restricted accounts",
@@ -72,7 +74,7 @@ const AccountAndSettings = () => {
                   onClick={(e) => {
                     e.stopPropagation();
                     if (index === 10) {
-                      console.log("test");
+                      socket.disconnect();
                       userContext.logout();
                       sessionStorage.removeItem("token");
                       sessionStorage.removeItem("userId");

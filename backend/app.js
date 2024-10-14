@@ -9,6 +9,9 @@ const Users = require("./models/user");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const { logoutUser } = require("./controllers/users-controller");
+const { getOnline } = require("./controllers/users-controller");
+const { getUserInfo } = require("./controllers/users-controller");
+const { getUserPicture } = require("./controllers/users-controller");
 
 const io = new Server(server, {
   cors: {
@@ -20,6 +23,8 @@ const io = new Server(server, {
 });
 
 const userSocketMap = {};
+
+const userLogoutTimeout = {};
 
 app.use(express.json());
 
@@ -39,6 +44,28 @@ io.on("connection", async (socket) => {
   }
 
   console.log(`User connected: ${userId}, Socket ID: ${socket.id}`);
+
+  const data = await getOnline(null, null, userId);
+  const userOnline = await getUserInfo(null, null, userId);
+  const userProfilePicture = await getUserPicture(null, null, userId);
+
+  console.log(userOnline, userProfilePicture);
+  if (userLogoutTimeout[userId]) {
+    console.log("TIMEOUT CLEARED");
+    console.log("TIMEOUT ID:", userLogoutTimeout[userId]);
+    clearTimeout(userLogoutTimeout[userId]);
+    delete userLogoutTimeout[userId];
+  } else {
+    data.forEach((onlineUser) => {
+      console.log("Socket to send a " + userSocketMap[onlineUser._id]);
+      socket.to(userSocketMap[onlineUser._id]).emit("userOnline", {
+        _id: userOnline._id,
+        firstname: userOnline.firstname,
+        lastname: userOnline.lastname,
+        profilePicture: userProfilePicture,
+      });
+    });
+  }
 
   socket.on("joinConversation", (conversationId) => {
     socket.join(conversationId);
@@ -61,6 +88,15 @@ io.on("connection", async (socket) => {
     console.log(`User disconnected: ${userId}, Socket ID: ${socket.id}`);
     try {
       await logoutUser(userId);
+      userLogoutTimeout[userId] = setTimeout(async () => {
+        const data = await getOnline(null, null, userId);
+        console.log("User logged out", data);
+        data.forEach((onlineUser) => {
+          console.log("Socket to send a " + userSocketMap[onlineUser._id]);
+          socket.to(userSocketMap[onlineUser._id]).emit("userOffline", userId);
+        });
+        delete userLogoutTimeout[userId];
+      }, 2000);
     } catch (error) {
       console.log(error);
     }

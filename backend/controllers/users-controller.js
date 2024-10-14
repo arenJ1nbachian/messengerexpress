@@ -3,6 +3,7 @@ const { default: mongoose } = require("mongoose");
 const Users = require("../models/user");
 const path = require("path");
 const jwt = require("jsonwebtoken");
+const Convo = require("../models/conversation");
 
 /**
  * Creates a new user in the database.
@@ -56,20 +57,23 @@ const createUser = async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The function does not return anything.
  */
-const getUserPicture = async (req, res) => {
-  // Log the user ID from the request parameters
-  console.log(req.params.uid);
+const getUserPicture = async (req, res, userId) => {
+  const uid = req ? req.params.uid : userId;
 
   try {
     // Find the user in the database by their ID
-    const user = await Users.findById(req.params.uid);
+    const user = await Users.findById(uid);
 
     // If the user does not have a profile picture, return a 404 error
     if (user.profilePicture === null) {
       res.status(404).json({ error: "Profile picture not found" });
     } else {
       // If the user has a profile picture, send the profile picture as a response
-      res.sendFile(path.join(__dirname, "..\\", user.profilePicture));
+      if (res) {
+        res.sendFile(path.join(__dirname, "..\\", user.profilePicture));
+      } else {
+        return "http://localhost:5000\\" + user.profilePicture;
+      }
     }
   } catch (error) {
     // If there is an error, log it and return an error message
@@ -85,15 +89,19 @@ const getUserPicture = async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The function does not return anything.
  */
-const getUserInfo = async (req, res) => {
+const getUserInfo = async (req, res, userId) => {
   try {
-    // Find the user in the database by their ID and select only the firstname and lastname fields
-    const userDetails = await Users.findById(req.params.uid).select(
-      "firstname lastname"
-    );
+    const uid = req ? req.params.uid : userId;
 
+    // Find the user in the database by their ID and select only the firstname and lastname fields
+    const userDetails = await Users.findById(uid).select("firstname lastname");
+
+    if (res) {
+      res.status(200).json({ userDetails });
+    } else {
+      return userDetails;
+    }
     // Send the user details as a successful response
-    res.status(200).json({ userDetails });
   } catch (error) {
     // If there is an error, log it and send an error response
     console.log(error);
@@ -203,17 +211,38 @@ const searchUsers = async (req, res) => {
   res.status(200).json({ result });
 };
 
-const getOnline = async (req, res) => {
-  const { users } = req.body;
-  console.log(users);
+const getOnline = async (req, res, userId) => {
+  const uid = req ? req.body.userId : userId;
+
   try {
-    const usersOnline = await Users.find({
-      _id: { $in: users },
-      "onlineStatus.status": true,
-    })
-      .select("_id firstname lastname profilePicture")
-      .sort({ firstname: 1 });
-    res.status(200).json(usersOnline);
+    const conversations = await Convo.find({
+      participants: uid, // Find conversations where participants array contains userId
+    }).populate({
+      path: "_id participants",
+      match: { _id: { $ne: uid }, "onlineStatus.status": true },
+      select: "_id firstname lastname profilePicture", // Exclude the given userId and get the other user
+    });
+    console.log("CONVERSATIONS FOUNDDD:", conversations);
+    let usersInteracted = conversations.map((conversation) => {
+      if (conversation.participants.length > 0) {
+        return {
+          convoId: conversation._id,
+          firstname: conversation.participants[0].firstname,
+          lastname: conversation.participants[0].lastname,
+          profilePicture:
+            "http://localhost:5000/" +
+            conversation.participants[0].profilePicture,
+        };
+      }
+    });
+
+    usersInteracted = usersInteracted.filter((user) => user !== undefined);
+    console.log("USERS INTERACTED", usersInteracted);
+    if (res) {
+      res.status(200).json(usersInteracted);
+    } else {
+      return usersInteracted;
+    }
   } catch (err) {
     console.log(err);
   }

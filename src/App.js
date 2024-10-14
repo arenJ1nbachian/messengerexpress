@@ -119,7 +119,6 @@ const App = () => {
     setNavExpanded(false);
     sessionStorage.clear();
     setCompose(false);
-    socket ? socket.disconnect() : <></>;
   }, []);
 
   const handleNavExpand = useCallback((value) => {
