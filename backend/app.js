@@ -26,6 +26,8 @@ const userSocketMap = {};
 
 const userLogoutTimeout = {};
 
+const usersTyping = [];
+
 app.use(express.json());
 
 io.on("connection", async (socket) => {
@@ -81,11 +83,30 @@ io.on("connection", async (socket) => {
 
   socket.on("typing", (data) => {
     console.log(data);
+    if (data.isTyping) {
+      usersTyping.push({
+        userId: data.sender,
+        conversationId: data.conversationId,
+      });
+    } else {
+      usersTyping.filter((user) => user.conversationId !== data.conversationId);
+    }
     socket.to(data.conversationId).emit(`typing_${data.conversationId}`, data);
   });
 
   socket.on("disconnect", async () => {
     console.log(`User disconnected: ${userId}, Socket ID: ${socket.id}`);
+    const index = usersTyping.findIndex((user) => user.userId === userId);
+    if (index !== -1) {
+      socket
+        .to(usersTyping[index].conversationId)
+        .emit(`typing_${usersTyping[index].conversationId}`, {
+          conversationId: usersTyping[index].conversationId,
+          isTyping: false,
+          sender: userId,
+        });
+    }
+
     try {
       await logoutUser(userId);
       userLogoutTimeout[userId] = setTimeout(async () => {

@@ -12,6 +12,7 @@ import { Outlet, useNavigate } from "react-router";
 const Chat = () => {
   const [hovered, setHovered] = useState(false);
   const [composeHover, setComposeHover] = useState(false);
+  const navigate = useNavigate();
 
   const navBar = useContext(NavContext);
 
@@ -44,6 +45,16 @@ const Chat = () => {
       }
     };
   }, [socket]);
+
+  useEffect(() => {
+    if (navBar.displayedConversations.length !== 0) {
+      navigate(
+        `/chats/${
+          navBar.displayedConversations.result[navBar.selectedChat - 1]._id
+        }`
+      );
+    }
+  }, [navBar.displayedConversations]);
 
   return (
     <div style={{ display: "flex" }}>
