@@ -112,16 +112,17 @@ io.on("connection", async (socket) => {
     console.log(`User disconnected: ${userId}, Socket ID: ${socket.id}`);
 
     for (const [conversationId, typingUsers] of Object.entries(usersTyping)) {
-      typingUsers.delete(userId);
-      if (typingUsers.size === 0) {
-        delete usersTyping[conversationId];
+      if (typingUsers.has(userId)) {
+        typingUsers.delete(userId);
+        if (typingUsers.size === 0) {
+          delete usersTyping[conversationId];
+        }
+        socket.to(conversationId).emit(`typing_${conversationId}`, {
+          conversationId,
+          isTyping: false,
+          sender: userId,
+        });
       }
-
-      socket.to(conversationId).emit(`typing_${conversationId}`, {
-        conversationId,
-        isTyping: false,
-        sender: userId,
-      });
     }
 
     try {
