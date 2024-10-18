@@ -16,9 +16,9 @@ const Contacts = () => {
   useEffect(() => {
     if (socket) {
       socket.on("userOffline", (data) => {
-        console.log("USER OFFLINE REMOVING CONTACT");
+        console.log("USER OFFLINE REMOVING CONTACT", data);
         setActiveContacts((prev) => {
-          return prev.filter((contact) => contact._id !== data);
+          return prev.filter((contact) => contact.userId !== data);
         });
       });
       socket.on("userOnline", (data) => {
