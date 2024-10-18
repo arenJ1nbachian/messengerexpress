@@ -36,6 +36,15 @@ const Chatbox = () => {
     typingTimeoutRef.current = null;
   }, [nav.selectedChat]);
 
+  useEffect(() => {
+    if (nav?.displayedConversations?.result) {
+      const index = nav.displayedConversations?.result.findIndex((convo) => {
+        return convo._id === id;
+      });
+      nav.setSelectedChat(index + 1);
+    }
+  }, [nav.displayedConversations?.result]);
+
   const handleClick = async (e) => {
     e.preventDefault();
 

@@ -3,6 +3,7 @@ import Category from "../NavBarButtons/Category";
 import { SocketContext } from "../../Contexts/SocketContext";
 import defaultPicture from "../../images/default.svg";
 import "./Convo.css";
+import { useNavigate } from "react-router";
 
 const Convo = ({
   index,
@@ -18,7 +19,7 @@ const Convo = ({
   const [who, setWho] = useState(conversation.who);
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
-
+  const navigate = useNavigate();
   const { socket } = useContext(SocketContext);
 
   useEffect(() => {
@@ -117,6 +118,7 @@ const Convo = ({
           navContext.setCompose(false);
           navContext.setShowsearchField(true);
           navContext.setSelectedElement(null);
+          navigate(`/chats/${conversation._id}`);
         }
       }}
     >

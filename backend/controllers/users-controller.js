@@ -222,11 +222,12 @@ const getOnline = async (req, res, userId) => {
       match: { _id: { $ne: uid }, "onlineStatus.status": true },
       select: "_id firstname lastname profilePicture", // Exclude the given userId and get the other user
     });
-    console.log("CONVERSATIONS FOUNDDD:", conversations);
+
     let usersInteracted = conversations.map((conversation) => {
       if (conversation.participants.length > 0) {
         return {
           convoId: conversation._id,
+          userId: conversation.participants[0]._id,
           firstname: conversation.participants[0].firstname,
           lastname: conversation.participants[0].lastname,
           profilePicture:
@@ -237,10 +238,11 @@ const getOnline = async (req, res, userId) => {
     });
 
     usersInteracted = usersInteracted.filter((user) => user !== undefined);
-    console.log("USERS INTERACTED", usersInteracted);
+
     if (res) {
       res.status(200).json(usersInteracted);
     } else {
+      console.log("USERS INTERACTED", usersInteracted);
       return usersInteracted;
     }
   } catch (err) {

@@ -72,12 +72,6 @@ const Contacts = () => {
                   onMouseEnter={() => setConvoHovered(index)}
                   onMouseLeave={() => setConvoHovered(-1)}
                   onClick={() => {
-                    const index =
-                      navBar.displayedConversations.result.findIndex(
-                        (convo) => convo._id === contact.convoId
-                      );
-
-                    navBar.setSelectedChat(index + 1);
                     navBar.setSelected(0);
                     navigate(`/chats/${contact.convoId}`);
                   }}

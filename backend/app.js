@@ -26,7 +26,7 @@ const userSocketMap = {};
 
 const userLogoutTimeout = {};
 
-const usersTyping = [];
+const usersTyping = {};
 
 app.use(express.json());
 
@@ -53,14 +53,11 @@ io.on("connection", async (socket) => {
 
   console.log(userOnline, userProfilePicture);
   if (userLogoutTimeout[userId]) {
-    console.log("TIMEOUT CLEARED");
-    console.log("TIMEOUT ID:", userLogoutTimeout[userId]);
     clearTimeout(userLogoutTimeout[userId]);
     delete userLogoutTimeout[userId];
   } else {
     data.forEach((onlineUser) => {
-      console.log("Socket to send a " + userSocketMap[onlineUser._id]);
-      socket.to(userSocketMap[onlineUser._id]).emit("userOnline", {
+      socket.to(userSocketMap[onlineUser.userId]).emit("userOnline", {
         _id: userOnline._id,
         firstname: userOnline.firstname,
         lastname: userOnline.lastname,
@@ -74,6 +71,17 @@ io.on("connection", async (socket) => {
     console.log(
       `Socket ${socket.id} joined conversation room ${conversationId}`
     );
+    if (usersTyping[conversationId]) {
+      usersTyping[conversationId].forEach((typingUserId) => {
+        if (typingUserId !== userId) {
+          socket.emit(`typing_${conversationId}`, {
+            conversationId,
+            isTyping: true,
+            sender: typingUserId,
+          });
+        }
+      });
+    }
   });
 
   socket.on("requestJoinConversation", (userId, conversationId, convo) => {
@@ -83,28 +91,37 @@ io.on("connection", async (socket) => {
 
   socket.on("typing", (data) => {
     console.log(data);
-    if (data.isTyping) {
-      usersTyping.push({
-        userId: data.sender,
-        conversationId: data.conversationId,
-      });
-    } else {
-      usersTyping.filter((user) => user.conversationId !== data.conversationId);
+
+    if (!usersTyping[data.conversationId]) {
+      usersTyping[data.conversationId] = new Set();
     }
+
+    if (data.isTyping) {
+      usersTyping[data.conversationId].add(data.sender);
+    } else {
+      usersTyping[data.conversationId].delete(data.sender);
+      if (usersTyping[data.conversationId].size === 0) {
+        delete usersTyping[data.conversationId];
+      }
+    }
+
     socket.to(data.conversationId).emit(`typing_${data.conversationId}`, data);
   });
 
   socket.on("disconnect", async () => {
     console.log(`User disconnected: ${userId}, Socket ID: ${socket.id}`);
-    const index = usersTyping.findIndex((user) => user.userId === userId);
-    if (index !== -1) {
-      socket
-        .to(usersTyping[index].conversationId)
-        .emit(`typing_${usersTyping[index].conversationId}`, {
-          conversationId: usersTyping[index].conversationId,
-          isTyping: false,
-          sender: userId,
-        });
+
+    for (const [conversationId, typingUsers] of Object.entries(usersTyping)) {
+      typingUsers.delete(userId);
+      if (typingUsers.size === 0) {
+        delete usersTyping[conversationId];
+      }
+
+      socket.to(conversationId).emit(`typing_${conversationId}`, {
+        conversationId,
+        isTyping: false,
+        sender: userId,
+      });
     }
 
     try {
@@ -113,8 +130,10 @@ io.on("connection", async (socket) => {
         const data = await getOnline(null, null, userId);
         console.log("User logged out", data);
         data.forEach((onlineUser) => {
-          console.log("Socket to send a " + userSocketMap[onlineUser._id]);
-          socket.to(userSocketMap[onlineUser._id]).emit("userOffline", userId);
+          console.log("Socket to send a " + userSocketMap[onlineUser.userId]);
+          socket
+            .to(userSocketMap[onlineUser.userId])
+            .emit("userOffline", userId);
         });
         delete userLogoutTimeout[userId];
       }, 2000);
