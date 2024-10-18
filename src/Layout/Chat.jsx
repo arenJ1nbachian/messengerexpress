@@ -47,12 +47,25 @@ const Chat = () => {
   }, [socket]);
 
   useEffect(() => {
-    if (navBar.displayedConversations.length !== 0) {
-      navigate(
-        `/chats/${
-          navBar.displayedConversations.result[navBar.selectedChat - 1]._id
-        }`
-      );
+    if (navBar.displayedConversations.length !== 0 && !navBar.compose) {
+      if (parseInt(sessionStorage.getItem("selectedChat")) === 0) {
+        sessionStorage.setItem("selectedChat", navBar.selectedChat);
+        navigate(
+          `/chats/${
+            navBar.displayedConversations.result[
+              JSON.parse(navBar.selectedChat - 1)
+            ]._id
+          }`
+        );
+      } else {
+        navigate(
+          `/chats/${
+            navBar.displayedConversations.result[
+              JSON.parse(sessionStorage.getItem("selectedChat")) - 1
+            ]._id
+          }`
+        );
+      }
     }
   }, [navBar.displayedConversations]);
 
@@ -65,7 +78,8 @@ const Chat = () => {
             onClick={(e) => {
               navBar.setCompose(true);
               navBar.setSelectedChat(0);
-
+              sessionStorage.setItem("selectedChat", 0);
+              navigate("/chats/compose");
               e.stopPropagation();
             }}
             className={`chatBoxCompose ${

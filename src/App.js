@@ -18,6 +18,7 @@ import { UserContext } from "./Contexts/UserContext.js";
 import { SocketContext } from "./Contexts/SocketContext.js";
 import io from "socket.io-client";
 import Chatbox from "./Layout/ChatBox.jsx";
+import ComposeMessage from "./Layout/ComposeMessage.jsx";
 
 const handleDefaultNavigation = () => {
   const selected = sessionStorage.getItem("selected");
@@ -59,7 +60,10 @@ const loggedInRouter = createBrowserRouter([
       {
         path: "chats",
         element: <Chat />,
-        children: [{ path: ":id", element: <Chatbox /> }],
+        children: [
+          { path: ":id", element: <Chatbox /> },
+          { path: "compose", element: <ComposeMessage /> },
+        ],
       },
     ],
   },
@@ -76,7 +80,11 @@ const App = () => {
     JSON.parse(sessionStorage.getItem("selected")) || 0
   );
   const conversationRef = useRef(null);
-  const [selectedChat, setSelectedChat] = useState(1);
+  const [selectedChat, setSelectedChat] = useState(
+    JSON.parse(sessionStorage.getItem("selectedChat")) === 0
+      ? 1
+      : JSON.parse(sessionStorage.getItem("selectedChat"))
+  );
   const [selectChatDetails, setSelectChatDetails] = useState({});
   const [displayedConversations, setDisplayedConversations] = useState([]);
   const [displayedPictures, setDisplayedPictures] = useState([]);
@@ -101,6 +109,11 @@ const App = () => {
     }
   }, []);
 
+  const composeOff = useCallback(() => {
+    setCompose(false);
+    setSelectedElement(null);
+  }, []);
+
   const login = useCallback((uid, token) => {
     setToken(token);
     setUserId(uid);
@@ -110,6 +123,7 @@ const App = () => {
       })
     );
   }, []);
+
   const logout = useCallback(() => {
     setToken(null);
     setUserId(null);
@@ -176,7 +190,7 @@ const App = () => {
             displayedPictures,
             setDisplayedPictures,
             compose,
-            setCompose,
+            setCompose: composeOff,
             selectedElement: selectedElement,
             setSelectedElement: setSelectedElement,
             showsearchField,

@@ -135,7 +135,11 @@ const ComposeMessage = () => {
   const debouncedHandleChange = debounce(handleChange, 300);
 
   return (
-    <>
+    <div
+      className={`chatConvoBox ${
+        navContext.navExpanded ? "expanded" : "default"
+      }`}
+    >
       <div className="composeHeader">
         <div className="to">To:</div>
         <div
@@ -220,7 +224,7 @@ const ComposeMessage = () => {
           </button>
         </div>
       </form>
-    </>
+    </div>
   );
 };
 

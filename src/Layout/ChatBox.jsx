@@ -41,7 +41,10 @@ const Chatbox = () => {
       const index = nav.displayedConversations?.result.findIndex((convo) => {
         return convo._id === id;
       });
+
       nav.setSelectedChat(index + 1);
+      sessionStorage.setItem("selectedChat", index + 1);
+      console.log("Session storage", sessionStorage.getItem("selectedChat"));
     }
   }, [nav.displayedConversations?.result]);
 

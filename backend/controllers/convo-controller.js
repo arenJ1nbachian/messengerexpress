@@ -104,6 +104,7 @@ const createConvo = async (req, res, io) => {
         sender: userID1,
         receiver: user2._id,
         content: message,
+        read: false,
       });
       console.log("New message: ", newMessage);
       await newMessage.save();
@@ -113,16 +114,18 @@ const createConvo = async (req, res, io) => {
       await existingConvo.save();
 
       // Emit updateConversationHeader to all participants
-      participants.forEach((participantId) => {
-        io.to(existingConvo._id.toString()).emit("updateConversationHeader", {
+
+      io.to(existingConvo._id.toString()).emit(
+        `updateConversationHeader_${existingConvo._id.toString()}`,
+        {
           conversationId: existingConvo._id.toString(),
           lastMessage: newMessage.content,
           timestamp: existingConvo.updatedAt,
           sender: userID1,
           new: false,
-        });
-        console.log("Emitting updateConversationHeader to", participantId);
-      });
+        }
+      );
+      console.log("Emitting updateConversationHeader to");
 
       return res.status(200).json({ existingConvo, new: false });
     } else {
@@ -203,6 +206,43 @@ const getConvo = async (req, res) => {
   }
 };
 
+const convoRead = async (req, res) => {
+  const { convoID } = req.body;
+  try {
+    const convo = await Convo.findById(convoID);
+    console.log("Convo to set read to true: ", convo);
+    if (convo) {
+      const message = await Message.findById(convo.lastMessage);
+      message.read = true;
+      await message.save();
+      res.status(200).json({ message });
+    } else {
+      res.status(404).json({ message: "Conversation not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+};
+
+const getMessageRead = async (req, res) => {
+  const { convoID } = req.params;
+  try {
+    const convo = await Convo.findById(convoID);
+    if (convo) {
+      const message = await Message.findById(convo.lastMessage);
+      res.status(200).json({ read: message.read });
+    } else {
+      res.status(404).json({ message: "Conversation not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+};
+
 exports.getConversations = getConversations;
 exports.createConvo = createConvo;
 exports.getConvo = getConvo;
+exports.convoRead = convoRead;
+exports.getMessageRead = getMessageRead;

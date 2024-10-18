@@ -12,14 +12,14 @@ const Button = ({ value, index, buttonText }) => {
     navBar.setSelected(index);
     switch (index) {
       case 0:
-        navBar.displayedConversations.result
+        navBar.displayedConversations.result && !navBar.compose
           ? navigate(
               `chats/${
                 navBar.displayedConversations.result[navBar.selectedChat - 1]
                   ._id
               }`
             )
-          : navigate("chats");
+          : navigate("/chats/compose");
         break;
       case 1:
         navigate("people");

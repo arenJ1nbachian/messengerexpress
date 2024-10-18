@@ -66,41 +66,39 @@ const Contacts = () => {
         {activeContacts &&
           activeContacts.map((contact, index) => {
             return (
-              <>
+              <div
+                key={contact.convoId}
+                onMouseEnter={() => setConvoHovered(index)}
+                onMouseLeave={() => setConvoHovered(-1)}
+                onClick={() => {
+                  navBar.setSelected(0);
+                  navigate(`/chats/${contact.convoId}`);
+                }}
+                className={`userConvo people ${
+                  convoHovered === index ? "hovered" : "default"
+                }`}
+              >
                 <div
-                  key={contact.convoId}
-                  onMouseEnter={() => setConvoHovered(index)}
-                  onMouseLeave={() => setConvoHovered(-1)}
-                  onClick={() => {
-                    navBar.setSelected(0);
-                    navigate(`/chats/${contact.convoId}`);
-                  }}
-                  className={`userConvo people ${
-                    convoHovered === index ? "hovered" : "default"
-                  }`}
+                  id="pfPicture"
+                  style={{ position: "relative", display: "inline-block" }}
                 >
-                  <div
-                    id="pfPicture"
-                    style={{ position: "relative", display: "inline-block" }}
-                  >
-                    <img
-                      className="convoPicture"
-                      src={
-                        contact.profilePicture !== ""
-                          ? contact.profilePicture
-                          : defaultPicture
-                      }
-                      alt="profilePic"
-                    />
-                    <span className="status-indicator"></span>
-                  </div>
-                  <div className="convoInfo">
-                    <div id="idHeader">
-                      <div id="flName">{`${contact.firstname} ${contact.lastname} `}</div>
-                    </div>
+                  <img
+                    className="convoPicture"
+                    src={
+                      contact.profilePicture !== ""
+                        ? contact.profilePicture
+                        : defaultPicture
+                    }
+                    alt="profilePic"
+                  />
+                  <span className="status-indicator"></span>
+                </div>
+                <div className="convoInfo">
+                  <div id="idHeader">
+                    <div id="flName">{`${contact.firstname} ${contact.lastname} `}</div>
                   </div>
                 </div>
-              </>
+              </div>
             );
           })}
       </div>

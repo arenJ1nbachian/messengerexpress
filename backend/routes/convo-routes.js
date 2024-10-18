@@ -11,5 +11,9 @@ module.exports = (io) => {
 
   router.get("/getConvo", convoController.getConvo);
 
+  router.patch("/convoRead", convoController.convoRead);
+
+  router.get("/getMessageRead/:convoID", convoController.getMessageRead);
+
   return router;
 };
