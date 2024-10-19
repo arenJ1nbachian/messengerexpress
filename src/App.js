@@ -83,7 +83,9 @@ const App = () => {
   const [selectedChat, setSelectedChat] = useState(
     JSON.parse(sessionStorage.getItem("selectedChat")) === 0
       ? 1
-      : JSON.parse(sessionStorage.getItem("selectedChat"))
+      : JSON.parse(sessionStorage.getItem("selectedChat")) !== null
+      ? JSON.parse(sessionStorage.getItem("selectedChat"))
+      : 1
   );
   const [selectChatDetails, setSelectChatDetails] = useState({});
   const [displayedConversations, setDisplayedConversations] = useState([]);
@@ -109,9 +111,13 @@ const App = () => {
     }
   }, []);
 
-  const composeOff = useCallback(() => {
-    setCompose(false);
-    setSelectedElement(null);
+  const composeOff = useCallback((bool, convoID) => {
+    if (!bool) {
+      setCompose(false);
+      setSelectedElement(null);
+    } else {
+      setCompose(true);
+    }
   }, []);
 
   const login = useCallback((uid, token) => {

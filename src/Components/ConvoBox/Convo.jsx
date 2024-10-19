@@ -22,7 +22,7 @@ const Convo = ({
   const navContext = useContext(NavContext);
   const [who, setWho] = useState(conversation.who);
   const [read, setRead] = useState(
-    navContext.displayedConversations.result[index]?.read
+    navContext.displayedConversations[index]?.read
   );
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
@@ -84,27 +84,24 @@ const Convo = ({
         if (!data.new) {
           if (data.conversationId === conversationId) {
             if (selectedChat.current === 0) {
-              const selection =
-                navContext.displayedConversations.result.findIndex(
-                  (conversation) => conversation._id === data.conversationId
-                );
+              const selection = navContext.displayedConversations.findIndex(
+                (conversation) => conversation._id === data.conversationId
+              );
               navContext.setSelectedChat(selection + 1);
               sessionStorage.setItem("selectedChat", selection + 1);
               selectedChat.current = selection + 1;
             }
             if (
-              navContext.displayedConversations.result[selectedChat.current - 1]
+              navContext.displayedConversations[selectedChat.current - 1]
                 ._id === conversationId &&
               conversationId === data.conversationId &&
-              !navContext.displayedConversations.result[
-                selectedChat.current - 1
-              ].read
+              !navContext.displayedConversations[selectedChat.current - 1].read
             ) {
               setRead(true);
               updateMessageRead();
             } else if (
-              navContext.displayedConversations.result[selectedChat.current - 1]
-                ._id !== navContext.displayedConversations.result[index]._id &&
+              navContext.displayedConversations[selectedChat.current - 1]
+                ._id !== navContext.displayedConversations[index]._id &&
               conversationId === data.conversationId
             ) {
               setRead(false);
@@ -120,9 +117,8 @@ const Convo = ({
             }
 
             navContext.setDisplayedConversations((prev) => {
-              return {
-                ...prev,
-                result: prev.result.map((conversation) => {
+              return [
+                ...prev.map((conversation) => {
                   if (conversation._id === data.conversationId) {
                     return {
                       ...conversation,
@@ -137,16 +133,12 @@ const Convo = ({
                     return conversation;
                   }
                 }),
-              };
+              ];
             });
           }
         } else {
           navContext.setDisplayedConversations((prev) =>
-            prev.length > 0
-              ? {
-                  result: [...prev.result, data.convo],
-                }
-              : { result: [data.convo] }
+            prev.length > 0 ? [...prev, data.convo] : [data.convo]
           );
         }
       });
@@ -201,9 +193,7 @@ const Convo = ({
       onClick={() => {
         if (navContext.selectedChat - 1 !== index) {
           navContext.conversationRef.current =
-            navContext.displayedConversations.result[
-              navContext.selectedChat - 1
-            ];
+            navContext.displayedConversations[navContext.selectedChat - 1];
           navContext.setSelectedChat(index + 1);
           sessionStorage.setItem("selectedChat", index + 1);
           navContext.setCompose(false);

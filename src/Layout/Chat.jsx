@@ -26,7 +26,7 @@ const Chat = () => {
           socket.emit("joinConversation", data.conversationId);
           navBar.setDisplayedConversations((prev) => {
             if (prev.length === 0) {
-              return { result: [data.convo] };
+              return data.convo;
             } else {
               return {
                 result: [...prev.result, data.convo],
@@ -52,20 +52,22 @@ const Chat = () => {
         sessionStorage.setItem("selectedChat", navBar.selectedChat);
         navigate(
           `/chats/${
-            navBar.displayedConversations.result[
-              JSON.parse(navBar.selectedChat - 1)
-            ]._id
-          }`
-        );
-      } else {
-        navigate(
-          `/chats/${
-            navBar.displayedConversations.result[
-              JSON.parse(sessionStorage.getItem("selectedChat")) - 1
-            ]._id
+            navBar.displayedConversations[JSON.parse(navBar.selectedChat - 1)]
+              ._id
           }`
         );
       }
+    }
+  }, [navBar.displayedConversations]);
+
+  useEffect(() => {
+    if (
+      navBar.displayedConversations.length !== 0 &&
+      sessionStorage.getItem("selectedChat") === null
+    ) {
+      navigate(
+        `/chats/${navBar.displayedConversations[navBar.selectedChat - 1]._id}`
+      );
     }
   }, [navBar.displayedConversations]);
 

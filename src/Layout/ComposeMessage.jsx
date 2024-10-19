@@ -5,6 +5,7 @@ import { NavContext } from "../Contexts/NavContext";
 import defaultPicture from "../images/default.svg";
 import ChatContent from "./ChatContent";
 import { SocketContext } from "../Contexts/SocketContext";
+import { useNavigate } from "react-router";
 
 const ComposeMessage = () => {
   const [usersFound, setUsersFound] = useState([]);
@@ -12,8 +13,10 @@ const ComposeMessage = () => {
   const [searchUserHovered, setSearchUserHovered] = useState(-1);
   const [messageInput, setMessageInput] = useState("");
   const { socket } = useContext(SocketContext);
+  const navigate = useNavigate();
 
   const handleClick = async (e) => {
+    let convoID = null;
     e.preventDefault();
     if (messageInput.length > 0 && navContext.selectedElement !== null) {
       try {
@@ -33,15 +36,17 @@ const ComposeMessage = () => {
         );
         if (res.ok) {
           const conversation = await res.json();
+          convoID = conversation.existingConvo._id;
           console.log("New conversation created");
           setMessageInput("");
           if (conversation.new) {
+            convoID = conversation.convoSender._id;
             console.log("New conversation created", conversation);
             navContext.setDisplayedConversations((prev) => {
               if (prev.length === 0) {
-                return { result: [conversation.convoSender] };
+                return conversation.convoSender;
               } else {
-                return { result: [...prev.result, conversation.convoSender] };
+                return [...prev.result, conversation.convoSender];
               }
             });
             socket.emit(
@@ -61,6 +66,8 @@ const ComposeMessage = () => {
       } catch (error) {
         console.log(error);
       }
+      navigate(`/chats/${convoID}`);
+      navContext.setCompose(false);
     }
   };
 

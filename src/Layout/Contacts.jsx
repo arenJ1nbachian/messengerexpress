@@ -72,6 +72,7 @@ const Contacts = () => {
                 onMouseLeave={() => setConvoHovered(-1)}
                 onClick={() => {
                   navBar.setSelected(0);
+                  navBar.setCompose(false);
                   navigate(`/chats/${contact.convoId}`);
                 }}
                 className={`userConvo people ${

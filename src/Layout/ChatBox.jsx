@@ -6,7 +6,7 @@ import "./ChatBox.css";
 import ChatContent from "./ChatContent";
 import { SocketContext } from "../Contexts/SocketContext";
 import { NavContext } from "../Contexts/NavContext";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 const Chatbox = () => {
   const [inputValue, setInputValue] = useState("");
@@ -18,8 +18,8 @@ const Chatbox = () => {
 
   useEffect(() => {
     if (
-      nav?.displayedConversations?.result &&
-      nav?.displayedConversations?.result[nav.selectedChat - 1] !==
+      nav?.displayedConversations &&
+      nav?.displayedConversations[nav.selectedChat - 1] !==
         nav.conversationRef.current &&
       isTyping
     ) {
@@ -37,23 +37,24 @@ const Chatbox = () => {
   }, [nav.selectedChat]);
 
   useEffect(() => {
-    if (nav?.displayedConversations?.result) {
-      const index = nav.displayedConversations?.result.findIndex((convo) => {
+    if (nav?.displayedConversations.length > 0) {
+      const index = nav.displayedConversations.findIndex((convo) => {
         return convo._id === id;
       });
 
       nav.setSelectedChat(index + 1);
       sessionStorage.setItem("selectedChat", index + 1);
+
       console.log("Session storage", sessionStorage.getItem("selectedChat"));
     }
-  }, [nav.displayedConversations?.result]);
+  }, [nav.displayedConversations]);
 
   const handleClick = async (e) => {
     e.preventDefault();
 
     if (
       inputValue.length > 0 &&
-      nav?.displayedConversations?.result[nav.selectedChat - 1]
+      nav?.displayedConversations[nav.selectedChat - 1]
     ) {
       try {
         const res = await fetch(
@@ -65,8 +66,7 @@ const Chatbox = () => {
             },
             body: JSON.stringify({
               userID1: sessionStorage.getItem("userId"),
-              userName2:
-                nav?.displayedConversations?.result[nav.selectedChat - 1].name,
+              userName2: nav?.displayedConversations[nav.selectedChat - 1].name,
               message: inputValue,
             }),
           }
@@ -142,8 +142,8 @@ const Chatbox = () => {
           <div className="uPicture">
             <Category
               img={
-                (nav.displayedConversations.result &&
-                  nav?.displayedConversations?.result[nav.selectedChat - 1]
+                (nav.displayedConversations &&
+                  nav?.displayedConversations[nav.selectedChat - 1]
                     ?.profilePicture) ||
                 defaultPicture
               }
@@ -153,8 +153,8 @@ const Chatbox = () => {
           </div>
           <div className="uInfo">
             <div className="uName">
-              {nav.displayedConversations.result &&
-                nav?.displayedConversations.result[nav.selectedChat - 1]?.name}
+              {nav.displayedConversations &&
+                nav?.displayedConversations[nav.selectedChat - 1]?.name}
             </div>
             <div className="uActive">Active 10h ago</div>
           </div>

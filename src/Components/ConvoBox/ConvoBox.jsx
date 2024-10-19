@@ -52,7 +52,7 @@ const ConvoBox = () => {
           } else {
             console.log("No socket");
           }
-          navContext.setDisplayedConversations(result);
+          navContext.setDisplayedConversations(result.result);
         } else {
           navContext.setDisplayedConversations([]);
         }
@@ -105,24 +105,22 @@ const ConvoBox = () => {
             }`}</div>
           </div>
         </div>
-        {navContext.displayedConversations.result?.length > 0 &&
-          navContext.displayedConversations.result.map(
-            (conversation, index) => {
-              return (
-                <Convo
-                  key={conversation._id}
-                  index={index}
-                  navContext={navContext}
-                  picture={conversation.profilePicture}
-                  conversation={conversation}
-                  setConvoHovered={setConvoHovered}
-                  convoHovered={convoHovered}
-                  unread={unread}
-                  conversationId={conversation._id}
-                />
-              );
-            }
-          )}
+        {navContext.displayedConversations?.length > 0 &&
+          navContext.displayedConversations.map((conversation, index) => {
+            return (
+              <Convo
+                key={conversation._id}
+                index={index}
+                navContext={navContext}
+                picture={conversation.profilePicture}
+                conversation={conversation}
+                setConvoHovered={setConvoHovered}
+                convoHovered={convoHovered}
+                unread={unread}
+                conversationId={conversation._id}
+              />
+            );
+          })}
       </div>
     </>
   );
