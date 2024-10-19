@@ -1,4 +1,4 @@
-const { Mongoose, default: mongoose } = require("mongoose");
+const { mongoose } = require("mongoose");
 const Convo = require("../models/conversation");
 const Message = require("../models/message");
 const Users = require("../models/user");
