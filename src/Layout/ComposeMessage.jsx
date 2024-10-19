@@ -44,7 +44,7 @@ const ComposeMessage = () => {
             console.log("New conversation created", conversation);
             navContext.setDisplayedConversations((prev) => {
               if (prev.length === 0) {
-                return [...conversation.convoSender];
+                return [conversation.convoSender];
               } else {
                 return [...prev, conversation.convoSender];
               }
