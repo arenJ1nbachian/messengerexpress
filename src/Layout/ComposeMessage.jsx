@@ -36,7 +36,7 @@ const ComposeMessage = () => {
         );
         if (res.ok) {
           const conversation = await res.json();
-          convoID = conversation.existingConvo._id;
+
           console.log("New conversation created");
           setMessageInput("");
           if (conversation.new) {
@@ -44,11 +44,20 @@ const ComposeMessage = () => {
             console.log("New conversation created", conversation);
             navContext.setDisplayedConversations((prev) => {
               if (prev.length === 0) {
-                return conversation.convoSender;
+                return [...conversation.convoSender];
               } else {
-                return [...prev.result, conversation.convoSender];
+                return [...prev, conversation.convoSender];
               }
             });
+            sessionStorage.setItem(
+              "displayedConversations",
+              navContext.displayedConversations.length === 0
+                ? JSON.stringify([conversation.convoSender])
+                : JSON.stringify([
+                    ...navContext.displayedConversations,
+                    conversation.convoSender,
+                  ])
+            );
             socket.emit(
               "joinConversation",
               conversation.new
@@ -61,6 +70,8 @@ const ComposeMessage = () => {
               conversation.convoSender._id,
               conversation.convoRecipient
             );
+          } else {
+            convoID = conversation.existingConvo._id;
           }
         }
       } catch (error) {

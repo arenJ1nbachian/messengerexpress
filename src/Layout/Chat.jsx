@@ -28,11 +28,15 @@ const Chat = () => {
             if (prev.length === 0) {
               return data.convo;
             } else {
-              return {
-                result: [...prev.result, data.convo],
-              };
+              return [...prev.result, data.convo];
             }
           });
+          sessionStorage.setItem(
+            "displayedConversations",
+            navBar.displayedConversations.length === 0
+              ? JSON.stringify(data.convo)
+              : JSON.stringify([...navBar.displayedConversations, data.convo])
+          );
         }
       });
     } else {
@@ -48,12 +52,15 @@ const Chat = () => {
 
   useEffect(() => {
     if (navBar.displayedConversations.length !== 0 && !navBar.compose) {
-      if (parseInt(sessionStorage.getItem("selectedChat")) === 0) {
-        sessionStorage.setItem("selectedChat", navBar.selectedChat);
+      if (
+        parseInt(sessionStorage.getItem("selectedChat")) !== 0 &&
+        sessionStorage.getItem("selectedChat") !== null
+      ) {
         navigate(
           `/chats/${
-            navBar.displayedConversations[JSON.parse(navBar.selectedChat - 1)]
-              ._id
+            navBar.displayedConversations[
+              sessionStorage.getItem("selectedChat") - 1
+            ]._id
           }`
         );
       }

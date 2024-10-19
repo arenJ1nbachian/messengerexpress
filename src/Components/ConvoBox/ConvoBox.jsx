@@ -53,8 +53,13 @@ const ConvoBox = () => {
             console.log("No socket");
           }
           navContext.setDisplayedConversations(result.result);
+          sessionStorage.setItem(
+            "displayedConversations",
+            JSON.stringify(result.result)
+          );
         } else {
           navContext.setDisplayedConversations([]);
+          sessionStorage.setItem("displayedConversations", JSON.stringify([]));
         }
       } catch (error) {
         console.log(error);

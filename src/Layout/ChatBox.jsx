@@ -7,6 +7,7 @@ import ChatContent from "./ChatContent";
 import { SocketContext } from "../Contexts/SocketContext";
 import { NavContext } from "../Contexts/NavContext";
 import { useNavigate, useParams } from "react-router";
+import noConvo from "../images/noConvoSelected.png";
 
 const Chatbox = () => {
   const [inputValue, setInputValue] = useState("");
@@ -15,6 +16,9 @@ const Chatbox = () => {
   const { socket } = useContext(SocketContext);
   const nav = useContext(NavContext);
   const { id } = useParams();
+  const [conversationSelected, setConversationSelected] = useState(
+    id === "none" ? false : true
+  );
 
   useEffect(() => {
     if (
@@ -138,54 +142,65 @@ const Chatbox = () => {
       <div
         className={`chatConvoBox ${nav.navExpanded ? "expanded" : "default"}`}
       >
-        <div className="recipient">
-          <div className="uPicture">
-            <Category
-              img={
-                (nav.displayedConversations &&
-                  nav?.displayedConversations[nav.selectedChat - 1]
-                    ?.profilePicture) ||
-                defaultPicture
-              }
-              width="100%"
-              height="100%"
-            />
-          </div>
-          <div className="uInfo">
-            <div className="uName">
-              {nav.displayedConversations &&
-                nav?.displayedConversations[nav.selectedChat - 1]?.name}
+        {conversationSelected && (
+          <>
+            <div className="recipient">
+              <div className="uPicture">
+                <Category
+                  img={
+                    (nav.displayedConversations &&
+                      nav?.displayedConversations[nav.selectedChat - 1]
+                        ?.profilePicture) ||
+                    defaultPicture
+                  }
+                  width="100%"
+                  height="100%"
+                />
+              </div>
+              <div className="uInfo">
+                <div className="uName">
+                  {nav.displayedConversations &&
+                    nav?.displayedConversations[nav.selectedChat - 1]?.name}
+                </div>
+                <div className="uActive">Active 10h ago</div>
+              </div>
             </div>
-            <div className="uActive">Active 10h ago</div>
+            <ChatContent />
+            <form>
+              <div className="chatInput">
+                <input
+                  value={inputValue}
+                  onKeyDown={handleKeyDown}
+                  onChange={handleChange}
+                  type="text"
+                  autoComplete="off"
+                  id="messageInput"
+                  placeholder="Aa"
+                />
+                <button
+                  onClick={(e) => handleClick(e)}
+                  onSubmit={(e) => handleClick(e)}
+                  style={{
+                    marginLeft: "auto",
+                    marginRight: "1vw",
+                    cursor: "pointer",
+                    backgroundColor: "transparent",
+                    border: "none",
+                  }}
+                >
+                  <img src={send} width="100%" height="100%" alt="send" />
+                </button>
+              </div>
+            </form>
+          </>
+        )}
+
+        {!conversationSelected && (
+          <div className="noConversationSelected">
+            <img src={noConvo} width="20%" height="25%" alt="no convo" />
+            <p>No conversation selected</p>
           </div>
-        </div>
-        <ChatContent />
-        <form>
-          <div className="chatInput">
-            <input
-              value={inputValue}
-              onKeyDown={handleKeyDown}
-              onChange={handleChange}
-              type="text"
-              autoComplete="off"
-              id="messageInput"
-              placeholder="Aa"
-            />
-            <button
-              onClick={(e) => handleClick(e)}
-              onSubmit={(e) => handleClick(e)}
-              style={{
-                marginLeft: "auto",
-                marginRight: "1vw",
-                cursor: "pointer",
-                backgroundColor: "transparent",
-                border: "none",
-              }}
-            >
-              <img src={send} width="100%" height="100%" alt="send" />
-            </button>
-          </div>
-        </form>
+        )}
       </div>
     </>
   );

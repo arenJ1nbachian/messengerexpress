@@ -54,9 +54,21 @@ const loggedInRouter = createBrowserRouter([
     element: <Root />,
     children: [
       { path: "/", element: handleDefaultNavigation() },
-      { path: "people", element: <Contacts /> },
-      { path: "requests", element: <Requests /> },
-      { path: "archived", element: <Archived /> },
+      {
+        path: "people",
+        element: <Contacts />,
+        children: [{ path: ":id", element: <Chatbox /> }],
+      },
+      {
+        path: "requests",
+        element: <Requests />,
+        children: [{ path: ":id", element: <Chatbox /> }],
+      },
+      {
+        path: "archived",
+        element: <Archived />,
+        children: [{ path: ":id", element: <Chatbox /> }],
+      },
       {
         path: "chats",
         element: <Chat />,
@@ -81,20 +93,22 @@ const App = () => {
   );
   const conversationRef = useRef(null);
   const [selectedChat, setSelectedChat] = useState(
-    JSON.parse(sessionStorage.getItem("selectedChat")) === 0
-      ? 1
-      : JSON.parse(sessionStorage.getItem("selectedChat")) !== null
-      ? JSON.parse(sessionStorage.getItem("selectedChat"))
-      : 1
+    JSON.parse(sessionStorage.getItem("selectedChat") || 1)
   );
   const [selectChatDetails, setSelectChatDetails] = useState({});
-  const [displayedConversations, setDisplayedConversations] = useState([]);
-  const [displayedPictures, setDisplayedPictures] = useState([]);
+  const [displayedConversations, setDisplayedConversations] = useState(
+    JSON.parse(sessionStorage.getItem("displayedConversations")) || []
+  );
+  const [displayedPictures, setDisplayedPictures] = useState(
+    sessionStorage.getItem("displayedPictures") || []
+  );
   const [token, setToken] = useState(sessionStorage.getItem("token") || false);
   const [userId, setUserId] = useState(
     sessionStorage.getItem("userId") || false
   );
-  const [compose, setCompose] = useState(false);
+  const [compose, setCompose] = useState(
+    JSON.parse(sessionStorage.getItem("selectedChat")) === 0 ? true : false
+  );
   const [selectedElement, setSelectedElement] = useState(null);
   const [showsearchField, setShowsearchField] = useState(true);
   const searchFieldRef = useRef(null);
@@ -134,7 +148,7 @@ const App = () => {
     setToken(null);
     setUserId(null);
     setSelected(0);
-    setSelectedChat(-1);
+    setSelectedChat(1);
     setSelectedElement(null);
     setNavExpanded(false);
     sessionStorage.clear();
@@ -194,7 +208,7 @@ const App = () => {
             displayedConversations,
             setDisplayedConversations,
             displayedPictures,
-            setDisplayedPictures,
+
             compose,
             setCompose: composeOff,
             selectedElement: selectedElement,

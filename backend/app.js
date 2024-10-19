@@ -50,15 +50,17 @@ io.on("connection", async (socket) => {
   const data = await getOnline(null, null, userId);
   const userOnline = await getUserInfo(null, null, userId);
   const userProfilePicture = await getUserPicture(null, null, userId);
+  console.log("data", data);
+  console.log("userOnline", userOnline);
 
   console.log(userOnline, userProfilePicture);
   if (userLogoutTimeout[userId]) {
     clearTimeout(userLogoutTimeout[userId]);
     delete userLogoutTimeout[userId];
   } else {
-    data.forEach((onlineUser) => {
+    data.forEach((onlineUser, index) => {
       socket.to(userSocketMap[onlineUser.userId]).emit("userOnline", {
-        _id: userOnline._id,
+        convoId: data[index].convoId,
         firstname: userOnline.firstname,
         lastname: userOnline.lastname,
         profilePicture: userProfilePicture,

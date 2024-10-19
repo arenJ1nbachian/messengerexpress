@@ -3,7 +3,7 @@ import { NavContext } from "../Contexts/NavContext";
 import "./Contacts.css";
 import defaultPicture from "../images/default.svg";
 import { SocketContext } from "../Contexts/SocketContext";
-import { useNavigate } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 
 const Contacts = () => {
   const { socket } = useContext(SocketContext);
@@ -56,6 +56,16 @@ const Contacts = () => {
     };
   }, [socket]);
 
+  useEffect(() => {
+    if (navBar.displayedConversations.length !== 0 && !navBar.compose) {
+      navigate(
+        `/people/${navBar.displayedConversations[navBar.selectedChat - 1]._id}`
+      );
+    } else {
+      navigate("/people/none");
+    }
+  }, []);
+
   return (
     <div style={{ display: "flex" }}>
       <div className={`chatBox ${navBar.navExpanded ? "expanded" : "default"}`}>
@@ -71,8 +81,13 @@ const Contacts = () => {
                 onMouseEnter={() => setConvoHovered(index)}
                 onMouseLeave={() => setConvoHovered(-1)}
                 onClick={() => {
-                  navBar.setSelected(0);
+                  const index = navBar.displayedConversations.findIndex(
+                    (convo) => convo._id === contact.convoId
+                  );
                   navBar.setCompose(false);
+                  navBar.setSelected(0);
+                  navBar.setSelectedChat(index + 1);
+                  sessionStorage.setItem("selectedChat", index + 1);
                   navigate(`/chats/${contact.convoId}`);
                 }}
                 className={`userConvo people ${
@@ -103,6 +118,7 @@ const Contacts = () => {
             );
           })}
       </div>
+      <Outlet />
     </div>
   );
 };

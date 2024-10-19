@@ -8,26 +8,60 @@ const Button = ({ value, index, buttonText }) => {
   const navBar = useContext(NavContext);
   const navigate = useNavigate();
 
+  const handleNavigation = (destination) => {
+    if (destination === "chats") {
+      !navBar.compose ? navigate(`chats`) : navigate("/chats/compose");
+    } else if (destination === "people") {
+      switch (navBar.compose) {
+        case true:
+          navigate(`people/none`);
+          break;
+        case false:
+          navigate(`people`);
+          break;
+        default:
+          break;
+      }
+    } else if (destination === "requests") {
+      switch (navBar.compose) {
+        case true:
+          navigate(`requests/none`);
+          break;
+        case false:
+          navigate(`requests/`);
+          break;
+        default:
+          break;
+      }
+    } else if (destination === "archived") {
+      switch (navBar.compose) {
+        case true:
+          navigate(`archived/none`);
+          break;
+        case false:
+          navigate(`archived/`);
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
   const handleNavButtonClick = (index) => {
     navBar.setSelected(index);
     switch (index) {
       case 0:
-        navBar.displayedConversations.length > 0 && !navBar.compose
-          ? navigate(
-              `chats/${
-                navBar.displayedConversations[navBar.selectedChat - 1]._id
-              }`
-            )
-          : navigate("/chats/compose");
+        handleNavigation("chats");
         break;
       case 1:
-        navigate("people");
+        handleNavigation("people");
         break;
       case 2:
-        navigate("requests");
+        handleNavigation("requests");
         break;
       case 3:
-        navigate("archived");
+        handleNavigation("archived");
+
         break;
       default:
         break;
