@@ -75,6 +75,11 @@ const Chat = () => {
       navigate(
         `/chats/${navBar.displayedConversations[navBar.selectedChat - 1]._id}`
       );
+    } else if (
+      navBar.displayedConversations.length === 0 &&
+      navBar.selectedChat === 1
+    ) {
+      navigate(`/chats/none`);
     }
   }, [navBar.displayedConversations]);
 

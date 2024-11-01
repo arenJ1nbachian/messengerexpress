@@ -20,22 +20,6 @@ import io from "socket.io-client";
 import Chatbox from "./Layout/ChatBox.jsx";
 import ComposeMessage from "./Layout/ComposeMessage.jsx";
 
-const handleDefaultNavigation = () => {
-  const selected = sessionStorage.getItem("selected");
-  switch (selected) {
-    case "0":
-      return <Navigate to="/chats" replace />;
-    case "1":
-      return <Navigate to="/people" replace />;
-    case "2":
-      return <Navigate to="/requests" replace />;
-    case "3":
-      return <Navigate to="/archived" replace />;
-    default:
-      return <Navigate to="/chats" replace />;
-  }
-};
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -53,7 +37,7 @@ const loggedInRouter = createBrowserRouter([
     path: "/",
     element: <Root />,
     children: [
-      { path: "/", element: handleDefaultNavigation() },
+      { path: "/", element: <Navigate to="/chats" replace /> },
       {
         path: "people",
         element: <Contacts />,
@@ -75,6 +59,7 @@ const loggedInRouter = createBrowserRouter([
         children: [
           { path: ":id", element: <Chatbox /> },
           { path: "compose", element: <ComposeMessage /> },
+          { path: "none", element: <Chatbox /> },
         ],
       },
     ],
@@ -152,6 +137,7 @@ const App = () => {
     setSelectedElement(null);
     setNavExpanded(false);
     sessionStorage.clear();
+
     setCompose(false);
   }, []);
 

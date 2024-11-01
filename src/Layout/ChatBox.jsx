@@ -17,7 +17,7 @@ const Chatbox = () => {
   const nav = useContext(NavContext);
   const { id } = useParams();
   const [conversationSelected, setConversationSelected] = useState(
-    id === "none" ? false : true
+    id === "none" ? false : id === undefined ? false : true
   );
 
   useEffect(() => {
