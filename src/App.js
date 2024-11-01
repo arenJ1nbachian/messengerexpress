@@ -141,6 +141,10 @@ const App = () => {
     setCompose(false);
   }, []);
 
+  useEffect(() => {
+    console.log("SELECTED CHAT HAS BEEN CHANGED", selectedChat);
+  }, [selectedChat]);
+
   const handleNavExpand = useCallback((value) => {
     setNavExpanded(value);
     sessionStorage.setItem("navExpanded", value);

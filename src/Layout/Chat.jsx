@@ -28,7 +28,7 @@ const Chat = () => {
             if (prev.length === 0) {
               return data.convo;
             } else {
-              return [...prev.result, data.convo];
+              return [...prev, data.convo];
             }
           });
           sessionStorage.setItem(

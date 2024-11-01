@@ -16,9 +16,14 @@ const Chatbox = () => {
   const { socket } = useContext(SocketContext);
   const nav = useContext(NavContext);
   const { id } = useParams();
+
   const [conversationSelected, setConversationSelected] = useState(
-    id === "none" ? false : id === undefined ? false : true
+    Boolean(id && id !== "none")
   );
+
+  useEffect(() => {
+    setConversationSelected(Boolean(id && id !== "none"));
+  }, [id, nav.compose, nav.selectedChat, nav.displayedConversations]);
 
   useEffect(() => {
     if (
@@ -39,19 +44,6 @@ const Chatbox = () => {
     clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = null;
   }, [nav.selectedChat]);
-
-  useEffect(() => {
-    if (nav?.displayedConversations.length > 0) {
-      const index = nav.displayedConversations.findIndex((convo) => {
-        return convo._id === id;
-      });
-
-      nav.setSelectedChat(index + 1);
-      sessionStorage.setItem("selectedChat", index + 1);
-
-      console.log("Session storage", sessionStorage.getItem("selectedChat"));
-    }
-  }, [nav.displayedConversations]);
 
   const handleClick = async (e) => {
     e.preventDefault();

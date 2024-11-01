@@ -10,7 +10,7 @@ const Button = ({ value, index, buttonText }) => {
 
   const handleNavigation = (destination) => {
     if (destination === "chats") {
-      !navBar.compose ? navigate(`chats`) : navigate("/chats/compose");
+      !navBar.compose ? navigate(`chats/`) : navigate("/chats/compose");
     } else if (destination === "people") {
       switch (navBar.compose) {
         case true:
