@@ -3,6 +3,11 @@ import "./Login.css";
 import { useContext, useState } from "react";
 import { UserContext } from "../Contexts/UserContext";
 
+/**
+ * Handles the login functionality
+ *
+ * @returns JSX.Element
+ */
 const Login = () => {
   const userContext = useContext(UserContext);
   const navigate = useNavigate();
@@ -11,10 +16,20 @@ const Login = () => {
     password: "",
   });
 
+  /**
+   * Checks if the form is valid
+   *
+   * @returns boolean
+   */
   const formIsValid = () => {
     return formData.email.length !== 0 && formData.password.length !== 0;
   };
 
+  /**
+   * Handles the form submission
+   *
+   * @param {Event} e - The event object
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formIsValid()) {
@@ -45,6 +60,7 @@ const Login = () => {
       console.log("Form is not valid");
     }
   };
+
   return (
     <>
       <div style={{ display: "flex" }}>

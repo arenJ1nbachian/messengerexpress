@@ -7,6 +7,10 @@ import ChatContent from "./ChatContent";
 import { SocketContext } from "../Contexts/SocketContext";
 import { useNavigate } from "react-router";
 
+/**
+ * ComposeMessage component allows users to search for other users, compose a message,
+ * and create or join a conversation.
+ */
 const ComposeMessage = () => {
   const [usersFound, setUsersFound] = useState([]);
   const navContext = useContext(NavContext);
@@ -15,6 +19,10 @@ const ComposeMessage = () => {
   const { socket } = useContext(SocketContext);
   const navigate = useNavigate();
 
+  /**
+   * Handles the click event to create or join a conversation.
+   * @param {Event} e - The click event.
+   */
   const handleClick = async (e) => {
     let convoID = null;
     e.preventDefault();
@@ -36,7 +44,6 @@ const ComposeMessage = () => {
         );
         if (res.ok) {
           const conversation = await res.json();
-
           console.log("New conversation created");
           setMessageInput("");
           if (conversation.new) {
@@ -82,6 +89,9 @@ const ComposeMessage = () => {
     }
   };
 
+  /**
+   * Effect to handle click events outside of the search field.
+   */
   useEffect(() => {
     const handleClickOutside = (event) => {
       console.log("Clicked");
@@ -113,6 +123,12 @@ const ComposeMessage = () => {
     };
   }, [navContext.showsearchField]);
 
+  /**
+   * Debounces a function by delaying its execution.
+   * @param {Function} func - The function to debounce.
+   * @param {number} delay - The delay in milliseconds.
+   * @returns {Function} - The debounced function.
+   */
   const debounce = (func, delay) => {
     let timeout;
     return (...args) => {
@@ -124,6 +140,11 @@ const ComposeMessage = () => {
       }, delay);
     };
   };
+
+  /**
+   * Handles changes in the search input field to find users.
+   * @param {Event} e - The change event.
+   */
   const handleChange = async (e) => {
     if (e.target.value[0] !== " " && e.target.value.length > 0) {
       try {

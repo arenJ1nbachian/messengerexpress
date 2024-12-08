@@ -7,9 +7,20 @@ import { useNavigate } from "react-router";
 import { NavContext } from "../../Contexts/NavContext";
 import NavBar from "../NavBar";
 
+/**
+ * Convo component represents a conversation in the chat list.
+ * Handles displaying conversation details, typing indicators, and unread status.
+ * @param {Object} props - The properties object.
+ * @param {number} props.index - The index of the conversation in the list.
+ * @param {string} props.picture - The profile picture URL.
+ * @param {Object} props.conversation - The conversation object.
+ * @param {Function} props.setConvoHovered - Function to set the hovered conversation index.
+ * @param {number} props.convoHovered - The currently hovered conversation index.
+ * @param {string} props.unread - The unread icon URL.
+ * @param {string} props.conversationId - The ID of the conversation.
+ */
 const Convo = ({
   index,
-
   picture,
   conversation,
   setConvoHovered,
@@ -29,6 +40,7 @@ const Convo = ({
   const navigate = useNavigate();
   const { socket } = useContext(SocketContext);
 
+  // Function to update the read status of the message
   const updateMessageRead = async () => {
     try {
       const res = await fetch(
@@ -50,34 +62,8 @@ const Convo = ({
     }
   };
 
+  // Effect to handle socket events for conversation updates and typing indicators
   useEffect(() => {
-    /*  const getRead = async () => {
-      try {
-        const res = await fetch(
-          `http://localhost:5000/api/conversations/getMessageRead/${conversation._id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const data = await res.json();
-        console.log(`SETTING READ STATUS for ${conversationId}`, data);
-        setRead(data.read);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    if (
-      navContext.displayedConversations.result[navContext.selectedChat - 1]
-        ._id === conversationId
-    ) {
-      updateMessageRead();
-    } else {
-      getRead();
-    }*/
-
     if (socket) {
       socket.on(`updateConversationHeader_${conversationId}`, (data) => {
         console.log("Received listening", data, navContext.selectedChat, index);
@@ -204,6 +190,7 @@ const Convo = ({
     };
   }, []);
 
+  // Effect to update read status when selected chat changes
   useEffect(() => {
     selectedChat.current = navContext.selectedChat;
     if (selectedChat.current === index + 1) {

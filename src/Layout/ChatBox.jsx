@@ -9,22 +9,68 @@ import { NavContext } from "../Contexts/NavContext";
 import { useNavigate, useParams } from "react-router";
 import noConvo from "../images/noConvoSelected.png";
 
+/**
+ * The Chatbox component is responsible for rendering the chat content and
+ * input box of the chat application. It also handles the logic for sending
+ * messages and displaying the recipient's information.
+ * @returns {JSX.Element} The JSX element representing the chatbox.
+ */
 const Chatbox = () => {
   const [inputValue, setInputValue] = useState("");
+
+  /**
+   * The isTyping state variable is used to keep track of whether the user is
+   * currently typing a message or not. It is used to emit the "typing" event to
+   * the server when the user starts typing a message.
+   */
   const [isTyping, setIsTyping] = useState(false);
+
+  /**
+   * The typingTimeoutRef is a reference to the timeout that is set when the
+   * user starts typing a message. It is used to clear the timeout when the user
+   * stops typing.
+   */
   const typingTimeoutRef = useRef(null);
+
+  /**
+   * The socket object is obtained from the SocketContext and is used to emit
+   * events to the server.
+   */
   const { socket } = useContext(SocketContext);
+
+  /**
+   * The nav object is obtained from the NavContext and is used to access the
+   * currently selected conversation and the displayed conversations.
+   */
   const nav = useContext(NavContext);
+
+  /**
+   * The id parameter is obtained from the useParams hook and is used to
+   * determine which conversation to render.
+   */
   const { id } = useParams();
 
+  /**
+   * The conversationSelected state variable is used to keep track of whether a
+   * conversation has been selected or not. It is used to render the chat content
+   * and input box only when a conversation has been selected.
+   */
   const [conversationSelected, setConversationSelected] = useState(
     Boolean(id && id !== "none")
   );
 
+  /**
+   * The useEffect hook is used to set the conversationSelected state variable
+   * to true when the user navigates to a conversation page.
+   */
   useEffect(() => {
     setConversationSelected(Boolean(id && id !== "none"));
   }, [id, nav.compose, nav.selectedChat, nav.displayedConversations]);
 
+  /**
+   * The useEffect hook is used to clear the timeout when the user navigates away
+   * from the conversation page.
+   */
   useEffect(() => {
     if (
       nav?.displayedConversations &&
@@ -45,6 +91,11 @@ const Chatbox = () => {
     typingTimeoutRef.current = null;
   }, [nav.selectedChat]);
 
+  /**
+   * The handleClick function is used to handle the click event of the send
+   * button. It sends the message to the server and clears the input field.
+   * @param {Event} e - The click event.
+   */
   const handleClick = async (e) => {
     e.preventDefault();
 
@@ -77,6 +128,12 @@ const Chatbox = () => {
     }
   };
 
+  /**
+   * The handleKeyDown function is used to handle the keydown event of the input
+   * field. It is used to detect when the user is typing a message and emits the
+   * "typing" event to the server.
+   * @param {Event} event - The keydown event.
+   */
   const handleKeyDown = (event) => {
     const nonCharacterKeys = [
       "Backspace",
@@ -110,6 +167,12 @@ const Chatbox = () => {
     }
   };
 
+  /**
+   * The handleChange function is used to handle the change event of the input
+   * field. It is used to update the inputValue state variable and to clear the
+   * typing timeout.
+   * @param {Event} event - The change event.
+   */
   const handleChange = (event) => {
     setInputValue(event.target.value);
 
@@ -197,4 +260,5 @@ const Chatbox = () => {
     </>
   );
 };
+
 export default Chatbox;

@@ -10,58 +10,60 @@ const Users = require("../models/user");
  * @returns {Object} - The result containing the conversations.
  */
 const getConversations = async (req, res) => {
-  // Get the user's ID from the request parameters.
+  // Extract the user ID from the request parameters.
   const uid = req.params.uid;
   const result = [];
 
   try {
-    // Find all conversations where the user is a participant.
+    // Retrieve all conversations where the user is a participant, sorted by the last update.
     const conversations = await Convo.find({
       participants: { $in: [uid] },
     }).sort({ updatedAt: -1 });
 
-    // If no conversations are found, return a 404 error.
+    // If there are no conversations, return a 404 error.
     if (conversations.length === 0) {
       return res
         .status(404)
         .json({ message: "No conversations found for this user." });
     }
 
-    // Iterate over each conversation.
+    // Loop through each conversation to gather details.
     for (let i = 0; i < conversations.length; i++) {
       const convo = conversations[i];
 
-      // Find the last message in the conversation.
+      // Retrieve the last message of the conversation.
       const lastMessage = await Message.findById(convo.lastMessage);
 
-      // Determine the name and profile picture of the other participant.
+      // Identify the other participant in the conversation.
       const nameID =
         lastMessage.sender.toString() === uid
           ? lastMessage.receiver
           : lastMessage.sender;
+
+      // Retrieve the name and profile picture of the other participant.
       const name = await Users.findById(nameID).select(
         "firstname lastname profilePicture"
       );
 
-      // Prepare the result object for the conversation.
+      // Construct the result object for each conversation.
       result.push({
         userId: nameID, // The ID of the other participant.
         name: name.firstname + " " + name.lastname, // The full name of the other participant.
         lastMessage: lastMessage.content, // The content of the last message.
-        who: lastMessage.sender.toString() === uid ? "You:" : "", // Indicates whether the user is the sender of the last message.
-        read: lastMessage.read, // Indicates whether the user has read the last message.
+        who: lastMessage.sender.toString() === uid ? "You:" : "", // Indicates if the user is the sender.
+        read: lastMessage.read, // Indicates if the last message is read.
         _id: convo._id, // The ID of the conversation.
         profilePicture:
           name.profilePicture === null
             ? ""
-            : "http://localhost:5000/" + name.profilePicture, // The URL of the other participant's profile picture.
+            : "http://localhost:5000/" + name.profilePicture, // URL of the other participant's profile picture.
       });
     }
 
-    // Return the result containing the conversations.
+    // Respond with the list of conversations.
     res.status(200).json({ result });
   } catch (error) {
-    // If an error occurs, log it and return a 500 error.
+    // Log any errors and return a 500 error response.
     console.log(error);
     res.status(500).json({ error });
   }

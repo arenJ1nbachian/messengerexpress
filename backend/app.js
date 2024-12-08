@@ -32,32 +32,36 @@ app.use(express.json());
 
 io.on("connection", async (socket) => {
   const userId = socket.handshake.query.uid;
+  console.log("userSocketMap", userSocketMap);
 
-  try {
-    await Users.findByIdAndUpdate(userId, {
-      onlineStatus: { status: true, lastSeen: Date.now() },
-    });
-  } catch (err) {
-    console.log(err);
-  }
-
-  if (userId) {
-    userSocketMap[userId] = socket.id;
-  }
-
-  console.log(`User connected: ${userId}, Socket ID: ${socket.id}`);
-
-  const data = await getOnline(null, null, userId);
-  const userOnline = await getUserInfo(null, null, userId);
-  const userProfilePicture = await getUserPicture(null, null, userId);
-  console.log("data", data);
-  console.log("userOnline", userOnline);
-
-  console.log(userOnline, userProfilePicture);
-  if (userLogoutTimeout[userId]) {
+  if (userLogoutTimeout[userId] && userSocketMap[userId].size > 0) {
+    console.log("STopping logout timer for", userId);
     clearTimeout(userLogoutTimeout[userId]);
     delete userLogoutTimeout[userId];
-  } else {
+  }
+  if (!userSocketMap[userId]) {
+    console.log("Starting logging in timer for", userId);
+    try {
+      await Users.findByIdAndUpdate(userId, {
+        onlineStatus: { status: true, lastSeen: Date.now() },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+
+    if (userId) {
+      userSocketMap[userId] = socket.id;
+    }
+
+    console.log(`User connected: ${userId}, Socket ID: ${socket.id}`);
+
+    const data = await getOnline(null, null, userId);
+    const userOnline = await getUserInfo(null, null, userId);
+    const userProfilePicture = await getUserPicture(null, null, userId);
+    console.log("data", data);
+    console.log("userOnline", userOnline);
+
+    console.log(userOnline, userProfilePicture);
     data.forEach((onlineUser, index) => {
       socket.to(userSocketMap[onlineUser.userId]).emit("userOnline", {
         convoId: data[index].convoId,
@@ -119,7 +123,7 @@ io.on("connection", async (socket) => {
         if (typingUsers.size === 0) {
           delete usersTyping[conversationId];
         }
-        socket.to(conversationId).emit(`typing_${conversationId}`, {
+        io.to(conversationId).emit(`typing_${conversationId}`, {
           conversationId,
           isTyping: false,
           sender: userId,
@@ -127,24 +131,28 @@ io.on("connection", async (socket) => {
       }
     }
 
-    try {
-      await logoutUser(userId);
-      userLogoutTimeout[userId] = setTimeout(async () => {
-        const data = await getOnline(null, null, userId);
-        console.log("User logged out", data);
-        data.forEach((onlineUser) => {
-          console.log("Socket to send a " + userSocketMap[onlineUser.userId]);
-          socket
-            .to(userSocketMap[onlineUser.userId])
-            .emit("userOffline", userId);
-        });
-        delete userLogoutTimeout[userId];
-      }, 2000);
-    } catch (error) {
-      console.log(error);
-    }
-
-    delete userSocketMap[userId];
+    userLogoutTimeout[userId] = setTimeout(async () => {
+      if (userSocketMap[userId].length > 0) {
+        try {
+          await logoutUser(userId);
+          const data = await getOnline(null, null, userId);
+          console.log("User logged out", data);
+          data.forEach((onlineUser) => {
+            console.log(
+              "Socket to send an offline status " +
+                userSocketMap[onlineUser.userId]
+            );
+            socket
+              .to(userSocketMap[onlineUser.userId])
+              .emit("userOffline", userId);
+          });
+          delete userLogoutTimeout[userId];
+          delete userSocketMap[userId];
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }, 2000);
   });
 });
 

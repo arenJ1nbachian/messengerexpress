@@ -9,15 +9,31 @@ import ConvoBox from "../Components/ConvoBox/ConvoBox";
 import { SocketContext } from "../Contexts/SocketContext";
 import { Outlet, useNavigate } from "react-router";
 
+/**
+ * This component renders the chat page where all the user's conversations get displayed.
+ */
 const Chat = () => {
   const [hovered, setHovered] = useState(false);
   const [composeHover, setComposeHover] = useState(false);
   const navigate = useNavigate();
 
+  /**
+   * This context contains the state of the sidebar navigation.
+   */
   const navBar = useContext(NavContext);
 
+  /**
+   * This context contains the socket to communicate with the server.
+   */
   const { socket } = useContext(SocketContext);
 
+  /**
+   * This effect is called when the component mounts and when the socket or the
+   * displayed conversations change.
+   * It sets up a listener for the "requestJoinConversation" event from the server.
+   * When the event is triggered, it joins the conversation and adds it to the displayed
+   * conversations.
+   */
   useEffect(() => {
     if (socket) {
       socket.on("requestJoinConversation", (data) => {
@@ -50,6 +66,12 @@ const Chat = () => {
     };
   }, [socket]);
 
+  /**
+   * This effect is called when the component mounts and when the displayed conversations
+   * change.
+   * It checks if the user has a selected chat and if the displayed conversations are not
+   * empty, it navigates to the selected chat.
+   */
   useEffect(() => {
     if (navBar.displayedConversations.length !== 0 && !navBar.compose) {
       if (
@@ -67,15 +89,14 @@ const Chat = () => {
     }
   }, [navBar.displayedConversations]);
 
+  /**
+   * This effect is called when the component mounts and when the displayed conversations
+   * change.
+   * It checks if the displayed conversations are empty and if the selected chat is 1, it
+   * navigates to the "none" chat.
+   */
   useEffect(() => {
     if (
-      navBar.displayedConversations.length !== 0 &&
-      sessionStorage.getItem("selectedChat") === null
-    ) {
-      navigate(
-        `/chats/${navBar.displayedConversations[navBar.selectedChat - 1]._id}`
-      );
-    } else if (
       navBar.displayedConversations.length === 0 &&
       navBar.selectedChat === 1
     ) {

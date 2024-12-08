@@ -16,6 +16,13 @@ import { useNavigate } from "react-router";
 import { NavContext } from "../../Contexts/NavContext";
 import { SocketContext } from "../../Contexts/SocketContext";
 
+/**
+ * AccountAndSettings component
+ * This component displays the settings panel when the `showSettings` state in the NavContext is true.
+ * It displays the account settings as a list of options.
+ *
+ * @returns {JSX.Element} The JSX element representing the settings panel.
+ */
 const AccountAndSettings = () => {
   const userContext = useContext(UserContext);
   const navBarContext = useContext(NavContext);
@@ -23,6 +30,11 @@ const AccountAndSettings = () => {
   const [buttonHovered, setButtonHovered] = useState(-1);
   const navigate = useNavigate();
   const { socket } = useContext(SocketContext);
+
+  /**
+   * The list of account settings that are displayed in the panel.
+   * @type {string[]}
+   */
   const accountSettings = [
     "Preferences",
     "Restricted accounts",
@@ -37,6 +49,10 @@ const AccountAndSettings = () => {
     "Log out",
   ];
 
+  /**
+   * The list of SVG sources that are used to display the icons in the panel.
+   * @type {string[]}
+   */
   const accountSettingsSvg = [
     settings,
     restricted,
@@ -74,6 +90,7 @@ const AccountAndSettings = () => {
                   onClick={(e) => {
                     e.stopPropagation();
                     if (index === 10) {
+                      // If the user clicks on the log out button, disconnect the socket and log out the user.
                       socket.disconnect();
                       userContext.logout();
                       sessionStorage.removeItem("token");

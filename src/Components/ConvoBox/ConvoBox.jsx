@@ -6,6 +6,14 @@ import unread from "../../images/unread.svg";
 import Convo from "./Convo";
 import { SocketContext } from "../../Contexts/SocketContext";
 
+/**
+ * ConvoBox component.
+ *
+ * This component renders a scrollable box of conversations.
+ * It also handles the logic of joining and leaving conversations.
+ *
+ * @returns {JSX.Element} The JSX element representing the ConvoBox component.
+ */
 const ConvoBox = () => {
   const [hovered, setHovered] = useState(-1);
   const [convoHovered, setConvoHovered] = useState(-1);
@@ -13,6 +21,10 @@ const ConvoBox = () => {
 
   const navContext = useContext(NavContext);
 
+  /**
+   * This effect is used to get the conversations of the user
+   * and to join the conversations using the socket.
+   */
   useEffect(() => {
     const displayConvo = async () => {
       try {
@@ -43,7 +55,7 @@ const ConvoBox = () => {
           if (profilePictures.ok) {
             navContext.setDisplayedPictures(await profilePictures.json());
           }
-          console.log("conversations", result);*/
+          console.log("conversations", result); */
           if (socket) {
             result.result.forEach((conversation) => {
               console.log("Joined", conversation._id);
@@ -130,4 +142,5 @@ const ConvoBox = () => {
     </>
   );
 };
+
 export default ConvoBox;

@@ -3,11 +3,32 @@ import "./Login.css";
 import { useState } from "react";
 import pfp from "../images/imgUpload.svg";
 
+/**
+ * Register component.
+ *
+ * This component is responsible for rendering the registration form
+ * and handling the submission of the form.
+ *
+ * @returns {JSX.Element} The rendered component.
+ */
 const Register = () => {
   const navigate = useNavigate();
   const [hovered, setHovered] = useState(false);
 
+  /**
+   * State for the preview of the profile picture.
+   *
+   * When the user selects a new image, this state is updated
+   * and the preview is updated accordingly.
+   */
   const [pfpPreview, setPfpPreview] = useState(pfp);
+
+  /**
+   * State for the form data.
+   *
+   * This state is updated when the user types something in the form.
+   * It is used to store the data that will be sent to the server.
+   */
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -17,6 +38,14 @@ const Register = () => {
     file: null,
   });
 
+  /**
+   * Checks if the form is valid.
+   *
+   * This function checks if the form data is valid and returns
+   * true if it is, or false if it's not.
+   *
+   * @returns {boolean} If the form is valid or not.
+   */
   const formIsValid = () => {
     return (
       formData.firstname.length !== 0 &&
@@ -28,6 +57,14 @@ const Register = () => {
     );
   };
 
+  /**
+   * Handles the submission of the form.
+   *
+   * This function is called when the user submits the form. It checks
+   * if the form is valid and if it is, it sends the data to the server.
+   *
+   * @param {Event} e The event that triggered the function.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formIsValid()) {

@@ -5,20 +5,30 @@ import defaultPicture from "../images/default.svg";
 import { SocketContext } from "../Contexts/SocketContext";
 import { Outlet, useNavigate } from "react-router";
 
+/**
+ * Component that displays a list of active contacts in the chat box.
+ * @returns {ReactElement} The component.
+ */
 const Contacts = () => {
+  // Get the socket and the navBar context.
   const { socket } = useContext(SocketContext);
   const navBar = useContext(NavContext);
+
+  // State variables to keep track of the active contacts and which one is hovered.
   const [activeContacts, setActiveContacts] = useState(0);
   const [convoHovered, setConvoHovered] = useState(-1);
 
+  // Use the navigate hook to navigate to the selected chat when it changes.
   const navigate = useNavigate();
 
+  // Fetch the online users when the component mounts.
   useEffect(() => {
     if (socket) {
+      // Set up event listeners for when users go online or offline.
       socket.on("userOffline", (data) => {
         console.log("USER OFFLINE REMOVING CONTACT", data);
         setActiveContacts((prev) => {
-          return prev.filter((contact) => contact.userId !== data);
+          return prev.filter((contact) => contact.convoId !== data);
         });
       });
       socket.on("userOnline", (data) => {
@@ -26,29 +36,32 @@ const Contacts = () => {
           return [...prev, data];
         });
       });
+
+      // Fetch the online users when the component mounts.
+      const fetchUsersOnline = async () => {
+        try {
+          const res = await fetch("http://localhost:5000/api/users/getOnline", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: sessionStorage.getItem("userId"),
+            }),
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            setActiveContacts(data);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      fetchUsersOnline();
     }
 
-    const fetchUsersOnline = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/users/getOnline", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: sessionStorage.getItem("userId"),
-          }),
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          setActiveContacts(data);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchUsersOnline();
+    // Clean up the event listeners when the component unmounts.
     return () => {
       if (socket) {
         socket.off("userOffline");
@@ -56,6 +69,7 @@ const Contacts = () => {
     };
   }, [socket]);
 
+  // Navigate to the selected chat when the selected chat changes.
   useEffect(() => {
     if (
       navBar.displayedConversations.length !== 0 &&

@@ -6,21 +6,40 @@ import Chevron from "./Chevron";
 import accountIcon from "../../images/accountIcon.svg";
 import "./AccButton.css";
 
+/**
+ * AccButton component
+ * This component displays the account icon and username in the navigation bar.
+ * If the navigation bar is expanded, the account icon is replaced with a chevron icon.
+ * Clicking on the account icon toggles the settings panel.
+ * @param {Object} account - The account object
+ * @param {String} loggedName - The username of the logged in user
+ * @returns {JSX.Element} The JSX element representing the account button.
+ */
 const AccButton = ({ account, loggedName }) => {
   const navBar = useContext(NavContext);
 
+  /**
+   * Handle the click outside event.
+   * This function is called when the user clicks outside of the settings panel.
+   * It checks if the click is outside of the panel and if the panel is currently open.
+   * If both conditions are met, it closes the panel.
+   * @param {Event} event - The click event
+   */
+  const handleClickOutside = (event) => {
+    if (
+      navBar.settingsRef.current &&
+      !navBar.settingsRef.current.contains(event.target) &&
+      !event.target.closest(".accBtnBox")
+    ) {
+      navBar.setShowSettings(false);
+    }
+  };
+
+  /**
+   * UseEffect hook that handles the click outside event.
+   * It adds the event listener when the settings panel is open and removes it when it is closed.
+   */
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        navBar.settingsRef.current &&
-        !navBar.settingsRef.current.contains(event.target) &&
-        !event.target.closest(".accBtnBox")
-      ) {
-        console.log("Closing settings");
-        navBar.setShowSettings(false);
-      }
-    };
-    console.log(navBar.showSettings);
     if (navBar.showSettings) {
       document.addEventListener("click", handleClickOutside);
     } else {
@@ -28,7 +47,6 @@ const AccButton = ({ account, loggedName }) => {
     }
 
     return () => {
-      console.log("Cleaning up");
       document.removeEventListener("click", handleClickOutside);
     };
   }, [navBar.showSettings]);
