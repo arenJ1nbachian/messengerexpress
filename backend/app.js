@@ -34,7 +34,7 @@ io.on("connection", async (socket) => {
   const userId = socket.handshake.query.uid;
   console.log("userSocketMap", userSocketMap);
 
-  if (userLogoutTimeout[userId] && userSocketMap[userId].size > 0) {
+  if (userLogoutTimeout[userId] && userSocketMap?.[userId]?.length > 0) {
     console.log("STopping logout timer for", userId);
     clearTimeout(userLogoutTimeout[userId]);
     delete userLogoutTimeout[userId];
@@ -106,7 +106,7 @@ io.on("connection", async (socket) => {
       usersTyping[data.conversationId].add(data.sender);
     } else {
       usersTyping[data.conversationId].delete(data.sender);
-      if (usersTyping[data.conversationId].size === 0) {
+      if (usersTyping[data.conversationId].length === 0) {
         delete usersTyping[data.conversationId];
       }
     }
@@ -120,7 +120,7 @@ io.on("connection", async (socket) => {
     for (const [conversationId, typingUsers] of Object.entries(usersTyping)) {
       if (typingUsers.has(userId)) {
         typingUsers.delete(userId);
-        if (typingUsers.size === 0) {
+        if (typingUsers.length === 0) {
           delete usersTyping[conversationId];
         }
         io.to(conversationId).emit(`typing_${conversationId}`, {
@@ -132,7 +132,7 @@ io.on("connection", async (socket) => {
     }
 
     userLogoutTimeout[userId] = setTimeout(async () => {
-      if (userSocketMap[userId].length > 0) {
+      if (userSocketMap?.[userId]?.length > 0) {
         try {
           await logoutUser(userId);
           const data = await getOnline(null, null, userId);

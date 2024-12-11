@@ -1,10 +1,8 @@
 import { Outlet } from "react-router-dom";
 import "./Root.css";
 import NavBar from "../Components/NavBar";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { UserContext } from "../Contexts/UserContext";
-import { SocketContext } from "../Contexts/SocketContext";
-import Chatbox from "./ChatBox";
 
 /**
  * Root component that conditionally renders the NavBar based on user's login status

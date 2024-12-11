@@ -207,6 +207,7 @@ const App = () => {
         query: { uid },
       })
     );
+    sessionStorage.setItem("selectedChat", 1);
   }, []);
 
   /**

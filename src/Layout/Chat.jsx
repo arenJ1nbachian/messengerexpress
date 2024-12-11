@@ -78,6 +78,7 @@ const Chat = () => {
         parseInt(sessionStorage.getItem("selectedChat")) !== 0 &&
         sessionStorage.getItem("selectedChat") !== null
       ) {
+        console.log("NAVIGATING TO THE SELECTED COnVERSATION");
         navigate(
           `/chats/${
             navBar.displayedConversations[
