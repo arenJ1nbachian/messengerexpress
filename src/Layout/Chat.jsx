@@ -47,12 +47,6 @@ const Chat = () => {
               return [...prev, data.convo];
             }
           });
-          sessionStorage.setItem(
-            "displayedConversations",
-            navBar.displayedConversations.length === 0
-              ? JSON.stringify(data.convo)
-              : JSON.stringify([...navBar.displayedConversations, data.convo])
-          );
         }
       });
     } else {

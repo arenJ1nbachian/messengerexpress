@@ -121,39 +121,10 @@ const Convo = ({
                 }),
               ];
             });
-            sessionStorage.setItem(
-              "displayedConversations",
-              JSON.stringify([
-                ...navContext.displayedConversations.map((conversation) => {
-                  if (conversation._id === data.conversationId) {
-                    return {
-                      ...conversation,
-                      lastMessage: data.lastMessage,
-                      who:
-                        data.sender === sessionStorage.getItem("userId")
-                          ? "You: "
-                          : "",
-                      read: false,
-                    };
-                  } else {
-                    return conversation;
-                  }
-                }),
-              ])
-            );
           }
         } else {
           navContext.setDisplayedConversations((prev) =>
             prev.length > 0 ? [...prev, data.convo] : [data.convo]
-          );
-          sessionStorage.setItem(
-            "displayedConversations",
-            navContext.displayedConversations.length > 0
-              ? JSON.stringify([
-                  ...navContext.displayedConversations,
-                  data.convo,
-                ])
-              : JSON.stringify([data.convo])
           );
         }
       });

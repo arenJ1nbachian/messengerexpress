@@ -56,15 +56,6 @@ const ComposeMessage = () => {
                 return [...prev, conversation.convoSender];
               }
             });
-            sessionStorage.setItem(
-              "displayedConversations",
-              navContext.displayedConversations.length === 0
-                ? JSON.stringify([conversation.convoSender])
-                : JSON.stringify([
-                    ...navContext.displayedConversations,
-                    conversation.convoSender,
-                  ])
-            );
             socket.emit(
               "joinConversation",
               conversation.new
