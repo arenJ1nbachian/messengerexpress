@@ -109,7 +109,7 @@ const App = () => {
    * The state to keep track of which chat is currently being displayed
    */
   const [selectedChat, setSelectedChat] = useState(
-    JSON.parse(sessionStorage.getItem("selectedChat")) || 1
+    JSON.parse(sessionStorage.getItem("selectedChat")) || 0
   );
 
   /**
@@ -142,9 +142,7 @@ const App = () => {
   /**
    * The state to keep track of whether the compose button is shown or not
    */
-  const [compose, setCompose] = useState(
-    JSON.parse(sessionStorage.getItem("selectedChat")) === 0 ? true : false
-  );
+  const [compose, setCompose] = useState(false);
 
   /**
    * The state to keep track of which element is selected
@@ -207,7 +205,6 @@ const App = () => {
         query: { uid },
       })
     );
-    sessionStorage.setItem("selectedChat", 1);
   }, []);
 
   /**
@@ -217,7 +214,7 @@ const App = () => {
     setToken(null);
     setUserId(null);
     setSelected(0);
-    setSelectedChat(1);
+    setSelectedChat(0);
     setSelectedElement(null);
     setNavExpanded(false);
     sessionStorage.clear();

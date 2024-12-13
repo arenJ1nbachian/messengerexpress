@@ -32,15 +32,15 @@ app.use(express.json());
 
 io.on("connection", async (socket) => {
   const userId = socket.handshake.query.uid;
-  console.log("userSocketMap", userSocketMap);
 
   if (userLogoutTimeout[userId] && userSocketMap?.[userId]?.length > 0) {
-    console.log("STopping logout timer for", userId);
+    console.log(
+      "The delay for logging out the user has been cleared. The user probably reconnected after disconnecting from the socket."
+    );
     clearTimeout(userLogoutTimeout[userId]);
     delete userLogoutTimeout[userId];
   }
   if (!userSocketMap[userId]) {
-    console.log("Starting logging in timer for", userId);
     try {
       await Users.findByIdAndUpdate(userId, {
         onlineStatus: { status: true, lastSeen: Date.now() },
@@ -53,15 +53,12 @@ io.on("connection", async (socket) => {
       userSocketMap[userId] = socket.id;
     }
 
-    console.log(`User connected: ${userId}, Socket ID: ${socket.id}`);
-
     const data = await getOnline(null, null, userId);
     const userOnline = await getUserInfo(null, null, userId);
     const userProfilePicture = await getUserPicture(null, null, userId);
-    console.log("data", data);
-    console.log("userOnline", userOnline);
 
-    console.log(userOnline, userProfilePicture);
+    console.log("This user has interacted with the following users: ", data);
+
     data.forEach((onlineUser, index) => {
       socket.to(userSocketMap[onlineUser.userId]).emit("userOnline", {
         convoId: data[index].convoId,
@@ -91,7 +88,6 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("requestJoinConversation", (userId, conversationId, convo) => {
-    console.log("Sending request to the recipient", convo);
     io.emit("requestJoinConversation", { userId, conversationId, convo });
   });
 
@@ -115,8 +111,6 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", async () => {
-    console.log(`User disconnected: ${userId}, Socket ID: ${socket.id}`);
-
     for (const [conversationId, typingUsers] of Object.entries(usersTyping)) {
       if (typingUsers.has(userId)) {
         typingUsers.delete(userId);
@@ -136,17 +130,12 @@ io.on("connection", async (socket) => {
         try {
           await logoutUser(userId);
           const data = await getOnline(null, null, userId);
-          console.log("User logged out", data);
+
           data.forEach((onlineUser) => {
-            console.log(
-              "Socket to send an offline status " +
-                userSocketMap[onlineUser.userId]
-            );
             socket
               .to(userSocketMap[onlineUser.userId])
               .emit("userOffline", userId);
           });
-          delete userLogoutTimeout[userId];
           delete userSocketMap[userId];
         } catch (error) {
           console.log(error);

@@ -66,29 +66,15 @@ const Chat = () => {
     };
   }, [socket]);
 
-  /**
-   * This effect is called when the component mounts and when the displayed conversations
-   * change.
-   * It checks if the user has a selected chat and if the displayed conversations are not
-   * empty, it navigates to the selected chat.
-   */
   useEffect(() => {
-    if (navBar.displayedConversations.length !== 0 && !navBar.compose) {
-      if (
-        parseInt(sessionStorage.getItem("selectedChat")) !== 0 &&
-        sessionStorage.getItem("selectedChat") !== null
-      ) {
-        console.log("NAVIGATING TO THE SELECTED COnVERSATION");
-        navigate(
-          `/chats/${
-            navBar.displayedConversations[
-              sessionStorage.getItem("selectedChat") - 1
-            ]._id
-          }`
-        );
-      }
+    if (!navBar.compose && navBar.selectedChat === 0) {
+      navigate("/chats/none");
+    } else if (navBar.selectedChat !== 0) {
+      navigate(
+        `/chats/${navBar.displayedConversations[navBar.selectedChat - 1]._id}`
+      );
     }
-  }, [navBar.displayedConversations]);
+  }, []);
 
   /**
    * This effect is called when the component mounts and when the displayed conversations
@@ -99,7 +85,7 @@ const Chat = () => {
   useEffect(() => {
     if (
       navBar.displayedConversations.length === 0 &&
-      navBar.selectedChat === 1
+      navBar.selectedChat === 0
     ) {
       navigate(`/chats/none`);
     }

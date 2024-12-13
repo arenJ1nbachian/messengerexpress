@@ -57,6 +57,7 @@ const getConversations = async (req, res) => {
           name.profilePicture === null
             ? ""
             : "http://localhost:5000/" + name.profilePicture, // URL of the other participant's profile picture.
+        updatedAt: convo.updatedAt, // The timestamp of the last update.
       });
     }
 
