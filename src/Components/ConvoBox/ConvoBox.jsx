@@ -126,13 +126,10 @@ const ConvoBox = () => {
               <Convo
                 key={conversation._id}
                 index={index}
-                navContext={navContext}
                 picture={conversation.profilePicture}
-                conversation={conversation}
                 setConvoHovered={setConvoHovered}
                 convoHovered={convoHovered}
                 unread={unread}
-                conversationId={conversation._id}
               />
             );
           })}

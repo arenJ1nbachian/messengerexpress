@@ -98,11 +98,35 @@ const Chatbox = () => {
    */
   const handleClick = async (e) => {
     e.preventDefault();
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+    if (isTyping) {
+      socket.emit("typing", {
+        conversationId: id,
+        sender: sessionStorage.getItem("userId"),
+        isTyping: false,
+        submitted: true,
+      });
+    }
+    setIsTyping(false);
 
-    if (
-      inputValue.length > 0 &&
-      nav?.displayedConversations[nav.selectedChat - 1]
-    ) {
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      if (isTyping) {
+        socket.emit("typing", {
+          conversationId: id,
+          sender: sessionStorage.getItem("userId"),
+          isTyping: false,
+        });
+      }
+      setIsTyping(false);
+    });
+    if (inputValue.length > 0) {
       try {
         const res = await fetch(
           "http://localhost:5000/api/conversations/createConvo",

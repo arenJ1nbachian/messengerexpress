@@ -19,22 +19,9 @@ import NavBar from "../NavBar";
  * @param {string} props.unread - The unread icon URL.
  * @param {string} props.conversationId - The ID of the conversation.
  */
-const Convo = ({
-  index,
-  picture,
-  conversation,
-  setConvoHovered,
-  convoHovered,
-  unread,
-  conversationId,
-}) => {
-  const [lastMessage, setLastMessage] = useState(null);
-  const selectedChat = useRef(NavContext.selectedChat);
+const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
   const navContext = useContext(NavContext);
-  const [who, setWho] = useState(conversation.who);
-  const [read, setRead] = useState(
-    navContext.displayedConversations[index]?.read
-  );
+
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
   const navigate = useNavigate();
@@ -51,12 +38,12 @@ const Convo = ({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            convoID: conversationId,
+            convoID: navContext.displayedConversations[index]._id,
           }),
         }
       );
-      const data = await res.json();
-      setRead(data.read);
+
+      navContext.displayedConversations[index].read = true;
     } catch (error) {
       console.log(error);
     }
@@ -65,48 +52,45 @@ const Convo = ({
   // Effect to handle socket events for conversation updates and typing indicators
   useEffect(() => {
     if (socket) {
-      socket.on(`typing_${conversationId}`, (data) => {
-        console.log("Received typing", data, navContext.selectedChat);
-        if (
-          data.conversationId === conversationId &&
-          data.sender !== sessionStorage.getItem("userId") &&
-          data.isTyping
-        ) {
-          clearTimeout(typingTimeoutRef.current);
-          typingTimeoutRef.current = null;
-
-          setIsTyping(true);
-        } else if (
-          data.conversationId === conversationId &&
-          data.sender !== sessionStorage.getItem("userId") &&
-          data.isTyping === false
-        ) {
-          typingTimeoutRef.current = setTimeout(() => {
-            setIsTyping(false);
+      socket.on(
+        `typing_${navContext.displayedConversations[index]._id}`,
+        (data) => {
+          console.log("Received typing", data, navContext.selectedChat);
+          if (
+            data.sender !== sessionStorage.getItem("userId") &&
+            data.isTyping
+          ) {
+            clearTimeout(typingTimeoutRef.current);
             typingTimeoutRef.current = null;
-          }, 3000);
+            setIsTyping(true);
+          } else if (
+            data.sender !== sessionStorage.getItem("userId") &&
+            data.isTyping === false &&
+            !data.submitted
+          ) {
+            typingTimeoutRef.current = setTimeout(() => {
+              setIsTyping(false);
+              typingTimeoutRef.current = null;
+            }, 3000);
+          } else {
+            clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = null;
+            setIsTyping(false);
+          }
         }
-      });
+      );
     }
 
     return () => {
       if (socket) {
-        socket.off(`typing_${conversationId}`);
+        socket.off(`typing_${navContext.displayedConversations[index]._id}`);
       }
     };
   }, []);
 
-  // Effect to update read status when selected chat changes
-  useEffect(() => {
-    selectedChat.current = navContext.selectedChat;
-    if (selectedChat.current === index + 1) {
-      updateMessageRead();
-    }
-  }, [navContext.selectedChat]);
-
   return (
     <div
-      key={conversation.userId}
+      key={navContext.displayedConversations[index].userId}
       className={`userConvo ${
         navContext.selectedChat === index + 1 ? "clicked" : "default"
       } ${convoHovered === index + 1 ? "hovered" : "default"}`}
@@ -121,7 +105,10 @@ const Convo = ({
           navContext.setCompose(false);
           navContext.setShowsearchField(true);
           navContext.setSelectedElement(null);
-          navigate(`/chats/${conversation._id}`);
+          if (navContext.displayedConversations[index]?.read === false) {
+            updateMessageRead();
+          }
+          navigate(`/chats/${navContext.displayedConversations[index]._id}`);
         }
       }}
     >
@@ -134,7 +121,7 @@ const Convo = ({
       </div>
       <div className="convoInfo">
         <div id="idHeader">
-          <div id="flName">{`${conversation.name} `}</div>
+          <div id="flName">{`${navContext.displayedConversations[index].name} `}</div>
           {isTyping && (
             <div className="typing-indicator">
               <span className="dot">•</span>
@@ -145,16 +132,24 @@ const Convo = ({
         </div>
         <div
           id="latest-message"
-          className={`${read === false && who.length === 0 ? "unread" : ""}`}
-        >{`${who} ${
-          lastMessage === null ? conversation.lastMessage : lastMessage
+          className={`${
+            navContext.displayedConversations[index].read === false &&
+            navContext.displayedConversations[index].who.length === 0
+              ? "unread"
+              : ""
+          }`}
+        >{`${navContext.displayedConversations[index].who} ${
+          navContext.displayedConversations[index].lastMessage === null
+            ? navContext.displayedConversations[index].lastMessage
+            : navContext.displayedConversations[index].lastMessage
         }`}</div>
       </div>
-      {read === false && who.length === 0 && (
-        <div className="unreadIcon">
-          <Category img={unread} width="100%" height="100%" />
-        </div>
-      )}
+      {navContext.displayedConversations[index].read === false &&
+        navContext.displayedConversations[index].who.length === 0 && (
+          <div className="unreadIcon">
+            <Category img={unread} width="100%" height="100%" />
+          </div>
+        )}
     </div>
   );
 };

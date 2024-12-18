@@ -55,7 +55,10 @@ const getConversations = async (req, res) => {
         name: name.firstname + " " + name.lastname, // The full name of the other participant.
         lastMessage: lastMessage.content, // The content of the last message.
         who: lastMessage.sender.toString() === uid ? "You:" : "", // Indicates if the user is the sender.
-        read: lastMessage.read, // Indicates if the last message is read.
+        read:
+          lastMessage.receiver.toString() === uid
+            ? lastMessage.read
+            : undefined, // Indicates if the last message is read.
         _id: convo._id, // The ID of the conversation.
         profilePicture:
           name.profilePicture === null
