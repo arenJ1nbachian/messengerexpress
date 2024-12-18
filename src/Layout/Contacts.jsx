@@ -15,7 +15,7 @@ const Contacts = () => {
   const navBar = useContext(NavContext);
 
   // State variables to keep track of the active contacts and which one is hovered.
-  const [activeContacts, setActiveContacts] = useState(0);
+  const [activeContacts, setActiveContacts] = useState([]);
   const [convoHovered, setConvoHovered] = useState(-1);
 
   // Use the navigate hook to navigate to the selected chat when it changes.
@@ -28,10 +28,11 @@ const Contacts = () => {
       socket.on("userOffline", (data) => {
         console.log("USER OFFLINE REMOVING CONTACT", data);
         setActiveContacts((prev) => {
-          return prev.filter((contact) => contact.convoId !== data);
+          return prev.filter((contact) => contact.convoId === data);
         });
       });
       socket.on("userOnline", (data) => {
+        console.log("USER ONLINE ADDING CONTACT", data);
         setActiveContacts((prev) => {
           return [...prev, data];
         });

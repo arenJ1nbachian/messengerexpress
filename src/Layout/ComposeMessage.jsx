@@ -45,32 +45,14 @@ const ComposeMessage = () => {
         if (res.ok) {
           const conversation = await res.json();
           console.log("New conversation created");
+          console.log(conversation);
           setMessageInput("");
-          if (conversation.new) {
-            convoID = conversation.convoSender._id;
-            console.log("New conversation created", conversation);
-            navContext.setDisplayedConversations((prev) => {
-              if (prev.length === 0) {
-                return [conversation.convoSender];
-              } else {
-                return [...prev, conversation.convoSender];
-              }
-            });
-            socket.emit(
-              "joinConversation",
-              conversation.new
-                ? conversation.convoSender._id
-                : conversation.existingConvo._id
-            );
-            socket.emit(
-              "requestJoinConversation",
-              conversation.convoSender.userId,
-              conversation.convoSender._id,
-              conversation.convoRecipient
-            );
-          } else {
-            convoID = conversation.existingConvo._id;
+          let displayedConversations = [];
+          displayedConversations.push(conversation.convoSender);
+          for (let i = 0; i < navContext.displayedConversations.length; i++) {
+            displayedConversations.push(navContext.displayedConversations[i]);
           }
+          navContext.setDisplayedConversations(displayedConversations);
         }
       } catch (error) {
         console.log(error);

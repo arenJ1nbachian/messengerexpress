@@ -1,5 +1,6 @@
 const express = require("express");
 const usersRoutes = require("./routes/users-routes");
+const messagesRoutes = require("./routes/messages-routes");
 const convoRoutes = require("./routes/convo-routes");
 const mongoose = require("mongoose");
 const path = require("path");
@@ -12,8 +13,23 @@ const { logoutUser } = require("./controllers/users-controller");
 const { getOnline } = require("./controllers/users-controller");
 const { getUserInfo } = require("./controllers/users-controller");
 const { getUserPicture } = require("./controllers/users-controller");
+const {
+  addUserSocket,
+  removeUserSocket,
+  getSocketsByUserId,
+  setNewUserSocket,
+  deleteUserSocket,
+  getOfflineNotificationTimeoutByUserId,
+  deleteOfflineNotificationTimeoutByUserId,
+  searchActiveUsers,
+  addActiveUser,
+  setOfflineNotificationTimeout,
+  deleteActiveUser,
+} = require("./userOnlineStatus");
 
 const io = new Server(server, {
+  pingTimeout: 3000,
+  pingInterval: 1000,
   cors: {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"],
@@ -22,10 +38,6 @@ const io = new Server(server, {
   },
 });
 
-const userSocketMap = {};
-
-const userLogoutTimeout = {};
-
 const usersTyping = {};
 
 app.use(express.json());
@@ -33,47 +45,100 @@ app.use(express.json());
 io.on("connection", async (socket) => {
   const userId = socket.handshake.query.uid;
 
-  if (userLogoutTimeout[userId] && userSocketMap?.[userId]?.length > 0) {
-    console.log(
-      "The delay for logging out the user has been cleared. The user probably reconnected after disconnecting from the socket."
-    );
-    clearTimeout(userLogoutTimeout[userId]);
-    delete userLogoutTimeout[userId];
-  }
-  if (!userSocketMap[userId]) {
-    try {
-      await Users.findByIdAndUpdate(userId, {
-        onlineStatus: { status: true, lastSeen: Date.now() },
-      });
-    } catch (err) {
-      console.log(err);
+  if (userId) {
+    console.log(`User ${userId} connected with socket ${socket.id}`);
+
+    // 1. Clear any pending 'userOffline' timeout
+    // This happens when a user reconnects quickly (e.g., page refresh or F5 spamming or for any other reason).
+    if (getOfflineNotificationTimeoutByUserId(userId)) {
+      clearTimeout(getOfflineNotificationTimeoutByUserId(userId));
+      deleteOfflineNotificationTimeoutByUserId(userId);
     }
 
-    if (userId) {
-      userSocketMap[userId] = socket.id;
+    // 2. Update userSocketMap to track this user's socket
+    // Initialize a new Set for sockets if this is the first connection for the user.
+    if (!getSocketsByUserId(userId)) {
+      setNewUserSocket(userId);
     }
+    addUserSocket(userId, socket.id); // Add the new socketId to the Set
 
-    const data = await getOnline(null, null, userId);
-    const userOnline = await getUserInfo(null, null, userId);
-    const userProfilePicture = await getUserPicture(null, null, userId);
+    // 3. Notify other users that this user is online
+    // Only broadcast "userOnline" if the user is not already marked as online.
+    if (!searchActiveUsers(userId)) {
+      addActiveUser(userId); // Add the user to the active users Set
+      console.log(`Marking ${userId} as online`);
 
-    console.log("This user has interacted with the following users: ", data);
+      try {
+        // Update the user's status in the database
+        await Users.findByIdAndUpdate(userId, {
+          onlineStatus: { status: true, lastSeen: Date.now() },
+        });
 
-    data.forEach((onlineUser, index) => {
-      socket.to(userSocketMap[onlineUser.userId]).emit("userOnline", {
-        convoId: data[index].convoId,
-        firstname: userOnline.firstname,
-        lastname: userOnline.lastname,
-        profilePicture: userProfilePicture,
-      });
-    });
+        // Get the list of users who should be notified (shared conversations)
+        const data = await getOnline(null, null, userId);
+        const userOnline = await getUserInfo(null, null, userId);
+        const userProfilePicture = await getUserPicture(null, null, userId);
+
+        // Notify relevant users (those who share conversations with this user)
+        data.forEach((onlineUser) => {
+          const recipientSockets = getSocketsByUserId(onlineUser.userId); // Get recipient socketIds
+          recipientSockets.forEach((recipientSocketId) => {
+            socket.to(recipientSocketId).emit("userOnline", {
+              convoId: onlineUser.convoId, // Conversation ID
+              firstname: userOnline.firstname,
+              lastname: userOnline.lastname,
+              profilePicture: userProfilePicture,
+            });
+          });
+        });
+      } catch (err) {
+        console.error("Error sending userOnline event:", err);
+      }
+    }
   }
+
+  // Handle Socket.IO 'disconnect' event
+  socket.on("disconnect", () => {
+    console.log(`User ${userId} disconnected with socket ${socket.id}`);
+
+    // Remove the socketId from the user's Set of active sockets
+    if (getSocketsByUserId(userId)) {
+      removeUserSocket(userId, socket.id);
+
+      // If no sockets remain for this user, prepare to mark them offline
+      if (getSocketsByUserId(userId).size === 0) {
+        deleteUserSocket(userId); // Clean up the socket map for this user
+
+        // Start a timeout to debounce the offline event
+        setOfflineNotificationTimeout(userId, async () => {
+          if (searchActiveUsers(userId)) {
+            deleteActiveUser(userId); // Remove user from active users
+            console.log(`Marking ${userId} as offline`);
+
+            try {
+              // Update the user's status to offline in the database
+              await logoutUser(userId);
+              const onlineUsers = await getOnline(null, null, userId);
+
+              // Notify relevant users that this user is now offline
+              onlineUsers.forEach((onlineUser) => {
+                const recipientSockets = getSocketsByUserId(onlineUser.userId);
+                recipientSockets.forEach((recipientSocketId) => {
+                  socket.to(recipientSocketId).emit("userOffline", userId);
+                });
+              });
+            } catch (err) {
+              console.error("Error sending userOffline event:", err);
+            }
+          }
+          deleteOfflineNotificationTimeoutByUserId(userId); // Clean up the timeout
+        });
+      }
+    }
+  });
 
   socket.on("joinConversation", (conversationId) => {
     socket.join(conversationId);
-    console.log(
-      `Socket ${socket.id} joined conversation room ${conversationId}`
-    );
     if (usersTyping[conversationId]) {
       usersTyping[conversationId].forEach((typingUserId) => {
         if (typingUserId !== userId) {
@@ -109,40 +174,6 @@ io.on("connection", async (socket) => {
 
     socket.to(data.conversationId).emit(`typing_${data.conversationId}`, data);
   });
-
-  socket.on("disconnect", async () => {
-    for (const [conversationId, typingUsers] of Object.entries(usersTyping)) {
-      if (typingUsers.has(userId)) {
-        typingUsers.delete(userId);
-        if (typingUsers.length === 0) {
-          delete usersTyping[conversationId];
-        }
-        io.to(conversationId).emit(`typing_${conversationId}`, {
-          conversationId,
-          isTyping: false,
-          sender: userId,
-        });
-      }
-    }
-
-    userLogoutTimeout[userId] = setTimeout(async () => {
-      if (userSocketMap?.[userId]?.length > 0) {
-        try {
-          await logoutUser(userId);
-          const data = await getOnline(null, null, userId);
-
-          data.forEach((onlineUser) => {
-            socket
-              .to(userSocketMap[onlineUser.userId])
-              .emit("userOffline", userId);
-          });
-          delete userSocketMap[userId];
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    }, 2000);
-  });
 });
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -158,13 +189,14 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/users", usersRoutes);
+app.use("/api/messages", messagesRoutes);
 app.use("/api/conversations", convoRoutes(io));
 
 mongoose
   .connect("mongodb://localhost:27017/")
   .then(() => {
     server.listen(5000, () => {
-      console.log("Server running on http://localhost:5000");
+      console.log("Server running on http://localhost:5000\n\n");
     });
   })
   .catch((err) => console.log(err));

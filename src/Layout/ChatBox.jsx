@@ -119,8 +119,19 @@ const Chatbox = () => {
           }
         );
         if (res.ok) {
+          const conversation = await res.json();
           console.log("New conversation created");
           setInputValue("");
+          let displayedConversations = [];
+          displayedConversations.push(conversation.convoSender);
+          for (let i = 0; i < nav.displayedConversations.length; i++) {
+            if (
+              conversation.convoSender._id !== nav.displayedConversations[i]._id
+            ) {
+              displayedConversations.push(nav.displayedConversations[i]);
+            }
+            nav.setDisplayedConversations(displayedConversations);
+          }
         }
       } catch (error) {
         console.log(error);

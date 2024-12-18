@@ -38,24 +38,6 @@ const ConvoBox = () => {
 
         if (conversations.ok) {
           const result = await conversations.json();
-          /*  const userIds = result.result.map(
-            (conversation) => conversation.userId
-          );
-          const profilePictures = await fetch(
-            "http://localhost:5000/api/users/getProfilePictures",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ userIDs: userIds }),
-            }
-          );
-
-          if (profilePictures.ok) {
-            navContext.setDisplayedPictures(await profilePictures.json());
-          }
-          console.log("conversations", result); */
           if (socket) {
             result.result.forEach((conversation) => {
               console.log("Joined", conversation._id);
@@ -73,11 +55,32 @@ const ConvoBox = () => {
       }
     };
     displayConvo();
+  }, [socket]);
+
+  useEffect(() => {
+    if (!socket) return; // Wait until socket is initialized
+    console.log("Subscribed to updateConversationHeader");
+    const handleUpdate = (data) => {
+      console.log("Received emit", data);
+
+      if (sessionStorage.getItem("userId") !== data.convoReceiver.userId) {
+        const updatedConversations = [
+          data.convoReceiver,
+          ...navContext.displayedConversations.filter(
+            (convo) => convo._id !== data.convoReceiver._id
+          ),
+        ];
+
+        console.log("Updated conversations:", updatedConversations);
+        navContext.setDisplayedConversations(updatedConversations);
+      }
+    };
+
+    socket.on("updateConversationHeader", handleUpdate);
 
     return () => {
-      if (socket) {
-        socket.off("connect"); // Remove listener on unmount
-      }
+      console.log("Unsubscribed from updateConversationHeader");
+      socket.off("updateConversationHeader", handleUpdate);
     };
   }, [socket]);
 

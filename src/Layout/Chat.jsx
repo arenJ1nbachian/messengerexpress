@@ -63,12 +63,15 @@ const Chat = () => {
   useEffect(() => {
     if (!navBar.compose && navBar.selectedChat === 0) {
       navigate("/chats/none");
-    } else if (navBar.selectedChat !== 0) {
+    } else if (
+      navBar.selectedChat !== 0 &&
+      navBar.displayedConversations.length > 0
+    ) {
       navigate(
         `/chats/${navBar.displayedConversations[navBar.selectedChat - 1]._id}`
       );
     }
-  }, []);
+  }, [navBar.displayedConversations]);
 
   /**
    * This effect is called when the component mounts and when the displayed conversations

@@ -242,7 +242,6 @@ const getOnline = async (req, res, userId) => {
     if (res) {
       res.status(200).json(usersInteracted);
     } else {
-      console.log("USERS INTERACTED", usersInteracted);
       return usersInteracted;
     }
   } catch (err) {

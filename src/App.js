@@ -169,14 +169,16 @@ const App = () => {
    */
   useEffect(() => {
     if ((token, userId)) {
-      console.log("His user id is", userId);
       setSocket(
         io("http://localhost:5000", {
           query: { uid: userId },
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
         })
       );
     }
-  }, []);
+  }, [userId, token]);
 
   /**
    * The callback to turn the compose button on or off
@@ -200,11 +202,6 @@ const App = () => {
   const login = useCallback((uid, token) => {
     setToken(token);
     setUserId(uid);
-    setSocket(
-      io("http://localhost:5000", {
-        query: { uid },
-      })
-    );
   }, []);
 
   /**

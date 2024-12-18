@@ -65,70 +65,6 @@ const Convo = ({
   // Effect to handle socket events for conversation updates and typing indicators
   useEffect(() => {
     if (socket) {
-      socket.on(`updateConversationHeader_${conversationId}`, (data) => {
-        console.log("Received listening", data, navContext.selectedChat, index);
-        if (!data.new) {
-          if (data.conversationId === conversationId) {
-            if (selectedChat.current === 0) {
-              const selection = navContext.displayedConversations.findIndex(
-                (conversation) => conversation._id === data.conversationId
-              );
-              navContext.setSelectedChat(selection + 1);
-              sessionStorage.setItem("selectedChat", selection + 1);
-              selectedChat.current = selection + 1;
-            }
-            if (
-              navContext.displayedConversations[selectedChat.current - 1]
-                ._id === conversationId &&
-              conversationId === data.conversationId &&
-              !navContext.displayedConversations[selectedChat.current - 1].read
-            ) {
-              setRead(true);
-              updateMessageRead();
-            } else if (
-              navContext.displayedConversations[selectedChat.current - 1]
-                ._id !== navContext.displayedConversations[index]._id &&
-              conversationId === data.conversationId
-            ) {
-              setRead(false);
-            }
-            clearTimeout(typingTimeoutRef.current);
-            typingTimeoutRef.current = null;
-            setIsTyping(false);
-            setLastMessage(data.lastMessage);
-            if (data.sender === sessionStorage.getItem("userId")) {
-              setWho("You: ");
-            } else {
-              setWho("");
-            }
-
-            navContext.setDisplayedConversations((prev) => {
-              return [
-                ...prev.map((conversation) => {
-                  if (conversation._id === data.conversationId) {
-                    return {
-                      ...conversation,
-                      lastMessage: data.lastMessage,
-                      who:
-                        data.sender === sessionStorage.getItem("userId")
-                          ? "You: "
-                          : "",
-                      read: false,
-                    };
-                  } else {
-                    return conversation;
-                  }
-                }),
-              ];
-            });
-          }
-        } else {
-          navContext.setDisplayedConversations((prev) =>
-            prev.length > 0 ? [...prev, data.convo] : [data.convo]
-          );
-        }
-      });
-
       socket.on(`typing_${conversationId}`, (data) => {
         console.log("Received typing", data, navContext.selectedChat);
         if (
@@ -155,7 +91,6 @@ const Convo = ({
 
     return () => {
       if (socket) {
-        socket.off(`updateConversationHeader_${conversationId}`);
         socket.off(`typing_${conversationId}`);
       }
     };
