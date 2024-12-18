@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import defaultPicture from "../../images/default.svg";
 import "./ConvoBox.css";
 import { NavContext } from "../../Contexts/NavContext";
@@ -18,7 +18,8 @@ const ConvoBox = () => {
   const [hovered, setHovered] = useState(-1);
   const [convoHovered, setConvoHovered] = useState(-1);
   const { socket } = useContext(SocketContext);
-
+  const displayedConversations = useRef(null);
+  const selectedChat = useRef(null);
   const navContext = useContext(NavContext);
 
   /**
@@ -58,15 +59,31 @@ const ConvoBox = () => {
   }, [socket]);
 
   useEffect(() => {
+    displayedConversations.current = navContext.displayedConversations;
+  }, [navContext.displayedConversations]);
+
+  useEffect(() => {
+    selectedChat.current = navContext.selectedChat;
+  }, [navContext.selectedChat]);
+
+  useEffect(() => {
     if (!socket) return; // Wait until socket is initialized
     console.log("Subscribed to updateConversationHeader");
     const handleUpdate = (data) => {
       console.log("Received emit", data);
-
+      console.log("Displayed conversations:", displayedConversations.current);
       if (sessionStorage.getItem("userId") !== data.convoReceiver.userId) {
+        if (
+          selectedChat.current !== 0 &&
+          displayedConversations.current[selectedChat.current - 1]._id ===
+            data.convoReceiver._id &&
+          !displayedConversations.current[selectedChat.current - 1].read
+        ) {
+          data.convoReceiver.read = true;
+        }
         const updatedConversations = [
           data.convoReceiver,
-          ...navContext.displayedConversations.filter(
+          ...displayedConversations.current.filter(
             (convo) => convo._id !== data.convoReceiver._id
           ),
         ];

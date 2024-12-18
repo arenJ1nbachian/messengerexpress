@@ -21,7 +21,9 @@ import NavBar from "../NavBar";
  */
 const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
   const navContext = useContext(NavContext);
-
+  const [read, setRead] = useState(
+    navContext.displayedConversations[index].read
+  );
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
   const navigate = useNavigate();
@@ -43,11 +45,24 @@ const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
         }
       );
 
-      navContext.displayedConversations[index].read = true;
+      setRead(true);
     } catch (error) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (
+      navContext.selectedChat !== 0 &&
+      navContext.displayedConversations[navContext.selectedChat - 1]._id ===
+        navContext.displayedConversations[index]._id &&
+      !read
+    ) {
+      updateMessageRead();
+    } else if (navContext.displayedConversations[index].read !== read) {
+      setRead(navContext.displayedConversations[index].read);
+    }
+  }, [navContext.displayedConversations]);
 
   // Effect to handle socket events for conversation updates and typing indicators
   useEffect(() => {
@@ -105,7 +120,7 @@ const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
           navContext.setCompose(false);
           navContext.setShowsearchField(true);
           navContext.setSelectedElement(null);
-          if (navContext.displayedConversations[index]?.read === false) {
+          if (read === false) {
             updateMessageRead();
           }
           navigate(`/chats/${navContext.displayedConversations[index]._id}`);
@@ -133,7 +148,7 @@ const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
         <div
           id="latest-message"
           className={`${
-            navContext.displayedConversations[index].read === false &&
+            read === false &&
             navContext.displayedConversations[index].who.length === 0
               ? "unread"
               : ""
@@ -144,7 +159,7 @@ const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
             : navContext.displayedConversations[index].lastMessage
         }`}</div>
       </div>
-      {navContext.displayedConversations[index].read === false &&
+      {read === false &&
         navContext.displayedConversations[index].who.length === 0 && (
           <div className="unreadIcon">
             <Category img={unread} width="100%" height="100%" />
