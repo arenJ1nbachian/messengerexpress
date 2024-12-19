@@ -224,17 +224,17 @@ const getOnline = async (req, res, userId) => {
     });
 
     let usersInteracted = conversations.map((conversation) => {
-      if (conversation.participants.length > 0) {
-        return {
-          convoId: conversation._id,
-          userId: conversation.participants[0]._id,
-          firstname: conversation.participants[0].firstname,
-          lastname: conversation.participants[0].lastname,
-          profilePicture:
-            "http://localhost:5000/" +
-            conversation.participants[0].profilePicture,
-        };
-      }
+      return conversation.participants.length > 0
+        ? {
+            convoId: conversation._id,
+            userId: conversation.participants[0]._id,
+            firstname: conversation.participants[0].firstname,
+            lastname: conversation.participants[0].lastname,
+            profilePicture:
+              "http://localhost:5000/" +
+              conversation.participants[0].profilePicture,
+          }
+        : undefined;
     });
 
     usersInteracted = usersInteracted.filter((user) => user !== undefined);

@@ -84,7 +84,8 @@ io.on("connection", async (socket) => {
           const recipientSockets = getSocketsByUserId(onlineUser.userId); // Get recipient socketIds
           recipientSockets.forEach((recipientSocketId) => {
             socket.to(recipientSocketId).emit("userOnline", {
-              convoId: onlineUser.convoId, // Conversation ID
+              userId: userId,
+              convoId: onlineUser.convoId,
               firstname: userOnline.firstname,
               lastname: userOnline.lastname,
               profilePicture: userProfilePicture,

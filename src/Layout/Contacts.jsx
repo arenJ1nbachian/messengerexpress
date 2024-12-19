@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { NavContext } from "../Contexts/NavContext";
 import "./Contacts.css";
 import defaultPicture from "../images/default.svg";
@@ -17,9 +17,14 @@ const Contacts = () => {
   // State variables to keep track of the active contacts and which one is hovered.
   const [activeContacts, setActiveContacts] = useState([]);
   const [convoHovered, setConvoHovered] = useState(-1);
+  const activeContactsRef = useRef(activeContacts);
 
   // Use the navigate hook to navigate to the selected chat when it changes.
   const navigate = useNavigate();
+
+  useEffect(() => {
+    activeContactsRef.current = activeContacts;
+  }, [activeContacts]);
 
   // Fetch the online users when the component mounts.
   useEffect(() => {
@@ -27,8 +32,12 @@ const Contacts = () => {
       // Set up event listeners for when users go online or offline.
       socket.on("userOffline", (data) => {
         console.log("USER OFFLINE REMOVING CONTACT", data);
+        const filteredContacts = activeContactsRef.current.filter(
+          (contact) => contact.userId !== data
+        );
+        console.log(filteredContacts);
         setActiveContacts((prev) => {
-          return prev.filter((contact) => contact.convoId === data);
+          return prev.filter((contact) => contact.userId !== data);
         });
       });
       socket.on("userOnline", (data) => {
