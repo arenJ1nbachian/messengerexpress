@@ -19,7 +19,14 @@ import NavBar from "../NavBar";
  * @param {string} props.unread - The unread icon URL.
  * @param {string} props.conversationId - The ID of the conversation.
  */
-const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
+const Convo = ({
+  index,
+  picture,
+  setConvoHovered,
+  convoHovered,
+  unread,
+  displayedConversations,
+}) => {
   const navContext = useContext(NavContext);
   const [read, setRead] = useState(
     navContext.displayedConversations[index].read
@@ -46,6 +53,7 @@ const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
       );
 
       setRead(true);
+      displayedConversations.current[index].read = true;
     } catch (error) {
       console.log(error);
     }
@@ -63,6 +71,8 @@ const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
       updateMessageRead();
     } else if (navContext.displayedConversations[index].read !== read) {
       setRead(navContext.displayedConversations[index].read);
+      displayedConversations.current[index].read =
+        navContext.displayedConversations[index].read;
     }
   }, [navContext.displayedConversations]);
 

@@ -89,16 +89,19 @@ const ConvoBox = () => {
 
         console.log("Updated conversations:", updatedConversations);
         if (selectedChat.current !== 0) {
-          navContext.setSelectedChat(
+          const index =
             updatedConversations.findIndex(
               (conversation) =>
                 conversation._id ===
                 displayedConversations.current[selectedChat.current - 1]._id
-            ) + 1
-          );
+            ) + 1;
+          navContext.setSelectedChat(index);
+          selectedChat.current = index;
+          sessionStorage.setItem("selectedChat", index);
         }
 
         navContext.setDisplayedConversations(updatedConversations);
+        displayedConversations.current = updatedConversations;
       }
     };
 
@@ -156,6 +159,7 @@ const ConvoBox = () => {
                 setConvoHovered={setConvoHovered}
                 convoHovered={convoHovered}
                 unread={unread}
+                displayedConversations={displayedConversations}
               />
             );
           })}
