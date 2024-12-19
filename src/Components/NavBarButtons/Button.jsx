@@ -102,23 +102,24 @@ const Button = ({ value, index, buttonText }) => {
    * index to.
    */
   const handleNavButtonClick = (index) => {
-    navBar.setSelected(index);
-    switch (index) {
-      case 0:
-        handleNavigation("chats");
-        break;
-      case 1:
-        handleNavigation("people");
-        break;
-      case 2:
-        handleNavigation("requests");
-        break;
-      case 3:
-        handleNavigation("archived");
-
-        break;
-      default:
-        break;
+    if (index !== navBar.selected) {
+      navBar.setSelected(index);
+      switch (index) {
+        case 0:
+          handleNavigation("chats");
+          break;
+        case 1:
+          handleNavigation("people");
+          break;
+        case 2:
+          handleNavigation("requests");
+          break;
+        case 3:
+          handleNavigation("archived");
+          break;
+        default:
+          break;
+      }
     }
   };
 

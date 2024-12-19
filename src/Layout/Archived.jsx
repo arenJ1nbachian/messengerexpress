@@ -9,15 +9,11 @@ const Archived = () => {
 
   useEffect(() => {
     if (
-      navBar.displayedConversations.length !== 0 &&
+      navBar.selectedChatDetails?.current &&
       !navBar.compose &&
       navBar.selectedChat !== 0
     ) {
-      navigate(
-        `/archived/${
-          navBar.displayedConversations[navBar.selectedChat - 1]._id
-        }`
-      );
+      navigate(`/archived/${navBar.selectedChatDetails?.current._id}`);
     } else {
       navigate("/archived/none");
     }

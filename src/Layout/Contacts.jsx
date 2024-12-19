@@ -82,13 +82,11 @@ const Contacts = () => {
   // Navigate to the selected chat when the selected chat changes.
   useEffect(() => {
     if (
-      navBar.displayedConversations.length !== 0 &&
+      navBar.selectedChatDetails?.current &&
       !navBar.compose &&
       navBar.selectedChat !== 0
     ) {
-      navigate(
-        `/people/${navBar.displayedConversations[navBar.selectedChat - 1]._id}`
-      );
+      navigate(`/people/${navBar.selectedChatDetails.current._id}`);
     } else {
       navigate("/people/none");
     }

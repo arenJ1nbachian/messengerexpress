@@ -112,10 +112,9 @@ const App = () => {
     JSON.parse(sessionStorage.getItem("selectedChat")) || 0
   );
 
-  /**
-   * The state to keep track of the details of the selected chat
-   */
-  const [selectChatDetails, setSelectChatDetails] = useState({});
+  const selectedChatDetails = useRef(
+    JSON.parse(sessionStorage.getItem("selectedChatDetails")) || null
+  );
 
   /**
    * The state to keep track of the conversations that are displayed
@@ -224,7 +223,17 @@ const App = () => {
    */
   useEffect(() => {
     console.log("SELECTED CHAT HAS BEEN CHANGED", selectedChat);
-  }, [selectedChat]);
+    if (selectedChat !== 0 && displayedConversations.length > 0) {
+      selectedChatDetails.current = displayedConversations[selectedChat - 1];
+      sessionStorage.setItem(
+        "selectedChatDetails",
+        JSON.stringify(selectedChatDetails.current)
+      );
+    } else if (selectedChat === 0) {
+      selectedChatDetails.current = null;
+      sessionStorage.removeItem("selectedChatDetails");
+    }
+  }, [selectedChat, displayedConversations]);
 
   /**
    * The callback to handle the nav expand button being clicked
@@ -278,7 +287,7 @@ const App = () => {
             settingsRef,
             selectedChat,
             setSelectedChat,
-            selectChatDetails,
+
             displayedConversations,
             setDisplayedConversations,
             displayedPictures,
@@ -290,6 +299,7 @@ const App = () => {
             setShowsearchField,
             searchFieldRef,
             conversationRef,
+            selectedChatDetails,
           }}
         >
           <RouterProvider

@@ -24,15 +24,11 @@ const Requests = () => {
    */
   useEffect(() => {
     if (
-      navBar.displayedConversations.length !== 0 &&
+      navBar.selectedChatDetails?.current &&
       !navBar.compose &&
       navBar.selectedChat !== 0
     ) {
-      navigate(
-        `/requests/${
-          navBar.displayedConversations[navBar.selectedChat - 1]._id
-        }`
-      );
+      navigate(`/requests/${navBar.selectedChatDetails?.current._id}`);
     } else {
       navigate("/requests/none");
     }

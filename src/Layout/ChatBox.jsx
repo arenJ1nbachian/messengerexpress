@@ -243,6 +243,7 @@ const Chatbox = () => {
                     (nav.displayedConversations &&
                       nav?.displayedConversations[nav.selectedChat - 1]
                         ?.profilePicture) ||
+                    nav.selectedChatDetails.current.profilePicture ||
                     defaultPicture
                   }
                   width="100%"
@@ -251,8 +252,9 @@ const Chatbox = () => {
               </div>
               <div className="uInfo">
                 <div className="uName">
-                  {nav.displayedConversations &&
-                    nav?.displayedConversations[nav.selectedChat - 1]?.name}
+                  {(nav.displayedConversations &&
+                    nav?.displayedConversations[nav.selectedChat - 1]?.name) ||
+                    nav.selectedChatDetails.current.name}
                 </div>
                 <div className="uActive">Active 10h ago</div>
               </div>
