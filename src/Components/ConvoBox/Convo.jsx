@@ -56,7 +56,9 @@ const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
       navContext.selectedChat !== 0 &&
       navContext.displayedConversations[navContext.selectedChat - 1]._id ===
         navContext.displayedConversations[index]._id &&
-      !read
+      !read &&
+      navContext.displayedConversations[index].userId ===
+        sessionStorage.getItem("userId")
     ) {
       updateMessageRead();
     } else if (navContext.displayedConversations[index].read !== read) {

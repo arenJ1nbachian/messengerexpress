@@ -76,8 +76,7 @@ const ConvoBox = () => {
         if (
           selectedChat.current !== 0 &&
           displayedConversations.current[selectedChat.current - 1]._id ===
-            data.convoReceiver._id &&
-          !displayedConversations.current[selectedChat.current - 1].read
+            data.convoReceiver._id
         ) {
           data.convoReceiver.read = true;
         }
@@ -89,6 +88,16 @@ const ConvoBox = () => {
         ];
 
         console.log("Updated conversations:", updatedConversations);
+        if (selectedChat.current !== 0) {
+          navContext.setSelectedChat(
+            updatedConversations.findIndex(
+              (conversation) =>
+                conversation._id ===
+                displayedConversations.current[selectedChat.current - 1]._id
+            ) + 1
+          );
+        }
+
         navContext.setDisplayedConversations(updatedConversations);
       }
     };

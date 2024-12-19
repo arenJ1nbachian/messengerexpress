@@ -179,7 +179,6 @@ const createConvo = async (req, res, io) => {
             receiver.profilePicture === null
               ? ""
               : "http://localhost:5000/" + receiver.profilePicture,
-          read: newMessage.read,
           updatedAt: convo.updatedAt,
           userId: receiver._id.toString(),
           who: "You:",

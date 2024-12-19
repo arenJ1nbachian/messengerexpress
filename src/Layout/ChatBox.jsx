@@ -154,8 +154,10 @@ const Chatbox = () => {
             ) {
               displayedConversations.push(nav.displayedConversations[i]);
             }
-            nav.setDisplayedConversations(displayedConversations);
           }
+          nav.setDisplayedConversations(displayedConversations);
+          nav.setSelectedChat(1);
+          sessionStorage.setItem("selectedChat", 1);
         }
       } catch (error) {
         console.log(error);
