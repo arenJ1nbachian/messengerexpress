@@ -137,7 +137,10 @@ const Chatbox = () => {
             },
             body: JSON.stringify({
               userID1: sessionStorage.getItem("userId"),
-              userName2: nav?.displayedConversations[nav.selectedChat - 1].name,
+              userName2:
+                nav?.displayedConversations.length > 0
+                  ? nav?.displayedConversations[nav.selectedChat - 1].name
+                  : nav.selectedChatDetails.current.name,
               message: inputValue,
             }),
           }
@@ -146,18 +149,23 @@ const Chatbox = () => {
           const conversation = await res.json();
           console.log("New conversation created");
           setInputValue("");
-          let displayedConversations = [];
-          displayedConversations.push(conversation.convoSender);
-          for (let i = 0; i < nav.displayedConversations.length; i++) {
-            if (
-              conversation.convoSender._id !== nav.displayedConversations[i]._id
-            ) {
-              displayedConversations.push(nav.displayedConversations[i]);
+          if (nav.selected === 0) {
+            let displayedConversations = [];
+            displayedConversations.push(conversation.convoSender);
+            for (let i = 0; i < nav.displayedConversations.length; i++) {
+              if (
+                conversation.convoSender._id !==
+                nav.displayedConversations[i]._id
+              ) {
+                displayedConversations.push(nav.displayedConversations[i]);
+              }
             }
+            nav.setDisplayedConversations(displayedConversations);
+            nav.setSelectedChat(1);
+            sessionStorage.setItem("selectedChat", 1);
+          } else {
+            nav.composedMessage.current = true;
           }
-          nav.setDisplayedConversations(displayedConversations);
-          nav.setSelectedChat(1);
-          sessionStorage.setItem("selectedChat", 1);
         }
       } catch (error) {
         console.log(error);

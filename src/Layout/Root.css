@@ -7,3 +7,15 @@
   margin-top: auto;
   margin-bottom: auto;
 }
+
+.chatContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.composeContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}

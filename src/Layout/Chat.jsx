@@ -61,15 +61,30 @@ const Chat = () => {
   }, [socket]);
 
   useEffect(() => {
+    // If the user is not composing a message and has not selected a conversation, navigate to the "none" chat.
     if (!navBar.compose && navBar.selectedChat === 0) {
-      navigate("/chats/none");
+      navigate(`/chats/none`);
+      // If there are displayed conversations and the selected chat is not that of the compose button and the user's previously
+      // composed message was not sent outside of the chats page, navigate to the selected chat.
     } else if (
       navBar.selectedChat !== 0 &&
-      navBar.displayedConversations.length > 0
+      navBar.displayedConversations.length > 0 &&
+      !navBar.composedMessage.current
     ) {
       navigate(
         `/chats/${navBar.displayedConversations[navBar.selectedChat - 1]._id}`
       );
+
+      // Navigate to the selected chat from navBar.selectedChatDetails.
+      // Special case: when the user sends a message outside the chats page, avoid changing displayedConversations
+      // to prevent displaying the wrong profile picture or falling back to the default one.
+      // Use navBar.composedMessage to track that a message was composed outside the chats page.
+      // Note: The GetConversation HTTP request automatically sorts the latest messages,
+      // so we only need to setSelectedChat to the first conversation and disable composedMessage.
+    } else {
+      navBar.setSelectedChat(1);
+      navBar.composedMessage.current = false;
+      navigate(`/chats/${navBar.selectedChatDetails.current._id}`);
     }
   }, [navBar.displayedConversations]);
 
@@ -79,14 +94,6 @@ const Chat = () => {
    * It checks if the displayed conversations are empty and if the selected chat is 1, it
    * navigates to the "none" chat.
    */
-  useEffect(() => {
-    if (
-      navBar.displayedConversations.length === 0 &&
-      navBar.selectedChat === 0
-    ) {
-      navigate(`/chats/none`);
-    }
-  }, [navBar.displayedConversations]);
 
   return (
     <div style={{ display: "flex" }}>

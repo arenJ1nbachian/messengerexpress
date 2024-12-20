@@ -53,9 +53,13 @@ const Button = ({ value, index, buttonText }) => {
       switch (navBar.compose) {
         case true:
           navigate(`people/none`);
+          navBar.setCompose(false);
           break;
         case false:
           navigate(`people`);
+          if (navBar.displayedConversations.length > 0) {
+            navBar.setDisplayedConversations([]);
+          }
           break;
         default:
           break;
@@ -64,9 +68,13 @@ const Button = ({ value, index, buttonText }) => {
       switch (navBar.compose) {
         case true:
           navigate(`requests/none`);
+          navBar.setCompose(false);
           break;
         case false:
           navigate(`requests/`);
+          if (navBar.displayedConversations.length > 0) {
+            navBar.setDisplayedConversations([]);
+          }
           break;
         default:
           break;
@@ -75,9 +83,13 @@ const Button = ({ value, index, buttonText }) => {
       switch (navBar.compose) {
         case true:
           navigate(`archived/none`);
+          navBar.setCompose(false);
           break;
         case false:
           navigate(`archived/`);
+          if (navBar.displayedConversations.length > 0) {
+            navBar.setDisplayedConversations([]);
+          }
           break;
         default:
           break;

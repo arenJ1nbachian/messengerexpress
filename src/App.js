@@ -17,8 +17,6 @@ import { UserContext } from "./Contexts/UserContext.js";
 
 import { SocketContext } from "./Contexts/SocketContext.js";
 import io from "socket.io-client";
-import Chatbox from "./Layout/ChatBox.jsx";
-import ComposeMessage from "./Layout/ComposeMessage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -41,25 +39,25 @@ const loggedInRouter = createBrowserRouter([
       {
         path: "people",
         element: <Contacts />,
-        children: [{ path: ":id", element: <Chatbox /> }],
+        children: [{ path: ":id", element: null }],
       },
       {
         path: "requests",
         element: <Requests />,
-        children: [{ path: ":id", element: <Chatbox /> }],
+        children: [{ path: ":id", element: null }],
       },
       {
         path: "archived",
         element: <Archived />,
-        children: [{ path: ":id", element: <Chatbox /> }],
+        children: [{ path: ":id", element: null }],
       },
       {
         path: "chats",
         element: <Chat />,
         children: [
-          { path: ":id", element: <Chatbox /> },
-          { path: "compose", element: <ComposeMessage /> },
-          { path: "none", element: <Chatbox /> },
+          { path: ":id", element: null },
+          { path: "compose", element: null },
+          { path: "none", element: null },
         ],
       },
     ],
@@ -115,6 +113,8 @@ const App = () => {
   const selectedChatDetails = useRef(
     JSON.parse(sessionStorage.getItem("selectedChatDetails")) || null
   );
+
+  const composedMessage = useRef(false);
 
   /**
    * The state to keep track of the conversations that are displayed
@@ -300,6 +300,7 @@ const App = () => {
             searchFieldRef,
             conversationRef,
             selectedChatDetails,
+            composedMessage,
           }}
         >
           <RouterProvider
