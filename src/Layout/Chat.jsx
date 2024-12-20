@@ -81,7 +81,7 @@ const Chat = () => {
       // Use navBar.composedMessage to track that a message was composed outside the chats page.
       // Note: The GetConversation HTTP request automatically sorts the latest messages,
       // so we only need to setSelectedChat to the first conversation and disable composedMessage.
-    } else {
+    } else if (navBar.composedMessage.current) {
       navBar.setSelectedChat(1);
       navBar.composedMessage.current = false;
       navigate(`/chats/${navBar.selectedChatDetails.current._id}`);

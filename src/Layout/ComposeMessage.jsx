@@ -47,12 +47,21 @@ const ComposeMessage = () => {
           console.log("New conversation created");
           console.log(conversation);
           setMessageInput("");
+          convoID = conversation.convoSender._id;
           let displayedConversations = [];
           displayedConversations.push(conversation.convoSender);
           for (let i = 0; i < navContext.displayedConversations.length; i++) {
-            displayedConversations.push(navContext.displayedConversations[i]);
+            if (
+              conversation.convoSender._id !==
+              navContext.displayedConversations[i]._id
+            ) {
+              displayedConversations.push(navContext.displayedConversations[i]);
+            }
           }
           navContext.setDisplayedConversations(displayedConversations);
+          navContext.setSelectedChat(1);
+          sessionStorage.setItem("selectedChat", 1);
+          navContext.selectChatDetails = conversation.convoSender;
         }
       } catch (error) {
         console.log(error);
