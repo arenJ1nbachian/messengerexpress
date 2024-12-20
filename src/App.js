@@ -76,6 +76,10 @@ const App = () => {
     JSON.parse(sessionStorage.getItem("navExpanded")) || false
   );
 
+  const convoOverride = useRef({ status: false, _id: "" });
+
+  const displayedConversationsRef = useRef(null);
+
   /**
    * The state to keep track of which item is hovered
    */
@@ -119,9 +123,7 @@ const App = () => {
   /**
    * The state to keep track of the conversations that are displayed
    */
-  const [displayedConversations, setDisplayedConversations] = useState(
-    JSON.parse(sessionStorage.getItem("displayedConversations")) || []
-  );
+  const [displayedConversations, setDisplayedConversations] = useState([]);
 
   /**
    * The state to keep track of the pictures that are displayed
@@ -287,7 +289,6 @@ const App = () => {
             settingsRef,
             selectedChat,
             setSelectedChat,
-
             displayedConversations,
             setDisplayedConversations,
             displayedPictures,
@@ -301,6 +302,8 @@ const App = () => {
             conversationRef,
             selectedChatDetails,
             composedMessage,
+            convoOverride,
+            displayedConversationsRef,
           }}
         >
           <RouterProvider

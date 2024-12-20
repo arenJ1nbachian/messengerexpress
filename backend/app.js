@@ -154,7 +154,11 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("requestJoinConversation", (userId, conversationId, convo) => {
-    io.emit("requestJoinConversation", { userId, conversationId, convo });
+    for (const socketId of getSocketsByUserId(userId)) {
+      socket
+        .to(socketId)
+        .emit("requestJoinConversation", { conversationId, convo });
+    }
   });
 
   socket.on("typing", (data) => {

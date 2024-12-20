@@ -6,7 +6,7 @@ import "./ChatBox.css";
 import ChatContent from "./ChatContent";
 import { SocketContext } from "../Contexts/SocketContext";
 import { NavContext } from "../Contexts/NavContext";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import noConvo from "../images/noConvoSelected.png";
 
 /**
@@ -16,6 +16,8 @@ import noConvo from "../images/noConvoSelected.png";
  * @returns {JSX.Element} The JSX element representing the chatbox.
  */
 const Chatbox = () => {
+  const inputRef = useRef(null);
+
   const [inputValue, setInputValue] = useState("");
 
   /**
@@ -59,6 +61,16 @@ const Chatbox = () => {
     Boolean(id && id !== "none")
   );
 
+  useEffect(() => {
+    if (sessionStorage.getItem("typing") && socket) {
+      socket.emit("typing", {
+        conversationId: id,
+        sender: sessionStorage.getItem("userId"),
+        isTyping: false,
+      });
+    }
+  }, [socket]);
+
   /**
    * The useEffect hook is used to set the conversationSelected state variable
    * to true when the user navigates to a conversation page.
@@ -66,6 +78,16 @@ const Chatbox = () => {
   useEffect(() => {
     setConversationSelected(Boolean(id && id !== "none"));
   }, [id, nav.compose, nav.selectedChat, nav.displayedConversations]);
+
+  useEffect(() => {
+    document.addEventListener("click", () => {
+      inputRef.current?.focus();
+    });
+
+    return () => {
+      document.removeEventListener("click", () => {});
+    };
+  }, []);
 
   /**
    * The useEffect hook is used to clear the timeout when the user navigates away
@@ -83,12 +105,12 @@ const Chatbox = () => {
         sender: sessionStorage.getItem("userId"),
         isTyping: false,
       });
+      sessionStorage.removeItem("typing");
+      setInputValue("");
+      setIsTyping(false);
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
     }
-
-    setInputValue("");
-    setIsTyping(false);
-    clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = null;
   }, [nav.selectedChat]);
 
   /**
@@ -110,6 +132,7 @@ const Chatbox = () => {
         submitted: true,
       });
     }
+    sessionStorage.removeItem("typing");
     setIsTyping(false);
 
     if (typingTimeoutRef.current) {
@@ -203,6 +226,11 @@ const Chatbox = () => {
     }
 
     if (!isTyping && !isModifierKey) {
+      sessionStorage.setItem("typing", {
+        conversationId: id,
+        sender: sessionStorage.getItem("userId"),
+        isTyping: true,
+      });
       socket.emit("typing", {
         conversationId: id,
         sender: sessionStorage.getItem("userId"),
@@ -249,7 +277,7 @@ const Chatbox = () => {
                 <Category
                   img={
                     (nav.displayedConversations &&
-                      nav?.displayedConversations[nav.selectedChat - 1]
+                      nav?.displayedConversations?.[nav.selectedChat - 1]
                         ?.profilePicture) ||
                     nav.selectedChatDetails.current.profilePicture ||
                     defaultPicture
@@ -261,7 +289,8 @@ const Chatbox = () => {
               <div className="uInfo">
                 <div className="uName">
                   {(nav.displayedConversations &&
-                    nav?.displayedConversations[nav.selectedChat - 1]?.name) ||
+                    nav?.displayedConversations?.[nav.selectedChat - 1]
+                      ?.name) ||
                     nav.selectedChatDetails.current.name}
                 </div>
                 <div className="uActive">Active 10h ago</div>
@@ -271,6 +300,7 @@ const Chatbox = () => {
             <form>
               <div className="chatInput">
                 <input
+                  ref={inputRef}
                   value={inputValue}
                   onKeyDown={handleKeyDown}
                   onChange={handleChange}
@@ -278,6 +308,7 @@ const Chatbox = () => {
                   autoComplete="off"
                   id="messageInput"
                   placeholder="Aa"
+                  autoFocus={true}
                 />
                 <button
                   onClick={(e) => handleClick(e)}

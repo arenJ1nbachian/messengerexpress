@@ -48,7 +48,9 @@ const Button = ({ value, index, buttonText }) => {
    */
   const handleNavigation = (destination) => {
     if (destination === "chats") {
-      !navBar.compose ? navigate(`chats/`) : navigate("/chats/compose");
+      navBar.selectedChatDetails?.current
+        ? navigate(`chats/${navBar.selectedChatDetails.current._id}`)
+        : navigate(`chats`);
     } else if (destination === "people") {
       switch (navBar.compose) {
         case true:

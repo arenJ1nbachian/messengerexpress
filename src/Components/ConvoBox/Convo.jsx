@@ -6,6 +6,7 @@ import "./Convo.css";
 import { useNavigate } from "react-router";
 import { NavContext } from "../../Contexts/NavContext";
 import NavBar from "../NavBar";
+import { markConversationAsRead } from "../../utils/markConversationAsRead";
 
 /**
  * Convo component represents a conversation in the chat list.
@@ -19,14 +20,7 @@ import NavBar from "../NavBar";
  * @param {string} props.unread - The unread icon URL.
  * @param {string} props.conversationId - The ID of the conversation.
  */
-const Convo = ({
-  index,
-  picture,
-  setConvoHovered,
-  convoHovered,
-  unread,
-  displayedConversations,
-}) => {
+const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
   const navContext = useContext(NavContext);
   const [read, setRead] = useState(
     navContext.displayedConversations[index].read
@@ -38,25 +32,10 @@ const Convo = ({
 
   // Function to update the read status of the message
   const updateMessageRead = async () => {
-    try {
-      const res = await fetch(
-        "http://localhost:5000/api/conversations/convoRead",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            convoID: navContext.displayedConversations[index]._id,
-          }),
-        }
-      );
+    markConversationAsRead(navContext.displayedConversations[index]._id);
+    navContext.selectedChatDetails.current.read = true;
 
-      setRead(true);
-      displayedConversations.current[index].read = true;
-    } catch (error) {
-      console.log(error);
-    }
+    setRead(true);
   };
 
   useEffect(() => {
@@ -71,7 +50,7 @@ const Convo = ({
       updateMessageRead();
     } else if (navContext.displayedConversations[index].read !== read) {
       setRead(navContext.displayedConversations[index].read);
-      displayedConversations.current[index].read =
+      navContext.displayedConversationsRef.current[index].read =
         navContext.displayedConversations[index].read;
     }
   }, [navContext.displayedConversations]);
@@ -126,13 +105,18 @@ const Convo = ({
       onClick={() => {
         if (navContext.selectedChat - 1 !== index) {
           navContext.conversationRef.current =
-            navContext.displayedConversations[navContext.selectedChat - 1];
+            navContext.displayedConversationsRef.current[
+              navContext.selectedChat - 1
+            ];
           navContext.setSelectedChat(index + 1);
           sessionStorage.setItem("selectedChat", index + 1);
           navContext.setCompose(false);
           navContext.setShowsearchField(true);
           navContext.setSelectedElement(null);
+          navContext.selectedChatDetails.current =
+            navContext.displayedConversations[index];
           if (read === false) {
+            navContext.displayedConversationsRef.current[index].read = true;
             updateMessageRead();
           }
           navigate(`/chats/${navContext.displayedConversations[index]._id}`);

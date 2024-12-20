@@ -4,6 +4,7 @@ const Users = require("../models/user");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const Convo = require("../models/conversation");
+const message = require("../models/message");
 
 /**
  * Creates a new user in the database.
@@ -215,29 +216,32 @@ const getOnline = async (req, res, userId) => {
   const uid = req ? req.body.userId : userId;
 
   try {
-    const conversations = await Convo.find({
-      participants: uid, // Find conversations where participants array contains userId
+    let usersInteracted = [];
+    let conversations = await Convo.find({
+      participants: { $in: [uid] }, // Find conversations where participants array contains userId
     }).populate({
       path: "_id participants",
       match: { _id: { $ne: uid }, "onlineStatus.status": true },
       select: "_id firstname lastname profilePicture", // Exclude the given userId and get the other user
     });
 
-    let usersInteracted = conversations.map((conversation) => {
-      return conversation.participants.length > 0
-        ? {
-            convoId: conversation._id,
-            userId: conversation.participants[0]._id,
-            firstname: conversation.participants[0].firstname,
-            lastname: conversation.participants[0].lastname,
-            profilePicture:
-              "http://localhost:5000/" +
-              conversation.participants[0].profilePicture,
-          }
-        : undefined;
-    });
+    conversations = conversations.filter(
+      (conversation) => conversation.participants.length > 0
+    );
 
-    usersInteracted = usersInteracted.filter((user) => user !== undefined);
+    for (const conversation of conversations) {
+      const lastMessage = await message.findById(conversation.lastMessage);
+      usersInteracted.push({
+        convoId: conversation._id,
+        userId: conversation.participants[0]._id,
+        firstname: conversation.participants[0].firstname,
+        lastname: conversation.participants[0].lastname,
+        profilePicture:
+          "http://localhost:5000/" +
+          conversation.participants[0].profilePicture,
+        read: lastMessage.read,
+      });
+    }
 
     if (res) {
       res.status(200).json(usersInteracted);

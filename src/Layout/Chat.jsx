@@ -38,16 +38,19 @@ const Chat = () => {
     if (socket) {
       socket.on("requestJoinConversation", (data) => {
         console.log("Recipient received join request", data);
-        if (data.userId === sessionStorage.getItem("userId")) {
-          socket.emit("joinConversation", data.conversationId);
-          navBar.setDisplayedConversations((prev) => {
-            if (prev.length === 0) {
-              return data.convo;
-            } else {
-              return [...prev, data.convo];
+        socket.emit("joinConversation", data.conversationId);
+        navBar.setDisplayedConversations((prev) => {
+          if (prev.length === 0) {
+            return data.convo;
+          } else {
+            let convos = [];
+            convos.push(data.convo);
+            for (const convo of prev) {
+              convos.push(convo);
             }
-          });
-        }
+            return convos;
+          }
+        });
       });
     } else {
       console.log("Socket not found");
@@ -62,18 +65,29 @@ const Chat = () => {
 
   useEffect(() => {
     // If the user is not composing a message and has not selected a conversation, navigate to the "none" chat.
-    if (!navBar.compose && navBar.selectedChat === 0) {
+    if (
+      !navBar.compose &&
+      navBar.selectedChat === 0 &&
+      !navBar.convoOverride.current.status
+    ) {
       navigate(`/chats/none`);
       // If there are displayed conversations and the selected chat is not that of the compose button and the user's previously
       // composed message was not sent outside of the chats page, navigate to the selected chat.
     } else if (
       navBar.selectedChat !== 0 &&
       navBar.displayedConversations.length > 0 &&
-      !navBar.composedMessage.current
+      !navBar.composedMessage.current &&
+      !navBar.convoOverride.current.status
     ) {
-      navigate(
-        `/chats/${navBar.displayedConversations[navBar.selectedChat - 1]._id}`
-      );
+      if (
+        !navBar.displayedConversations[navBar.selectedChat - 1]._id ===
+        navBar.selectedChatDetails.current._id
+      ) {
+        const index = navBar.displayedConversations.findIndex(
+          (convo) => convo._id === navBar.selectedChatDetails.current._id
+        );
+        navBar.setSelectedChat(index + 1);
+      }
 
       // Navigate to the selected chat from navBar.selectedChatDetails.
       // Special case: when the user sends a message outside the chats page, avoid changing displayedConversations
@@ -81,10 +95,25 @@ const Chat = () => {
       // Use navBar.composedMessage to track that a message was composed outside the chats page.
       // Note: The GetConversation HTTP request automatically sorts the latest messages,
       // so we only need to setSelectedChat to the first conversation and disable composedMessage.
-    } else if (navBar.composedMessage.current) {
+    } else if (
+      navBar.composedMessage.current &&
+      !navBar.convoOverride.current.status
+    ) {
       navBar.setSelectedChat(1);
       navBar.composedMessage.current = false;
       navigate(`/chats/${navBar.selectedChatDetails.current._id}`);
+    } else if (
+      navBar.convoOverride.current.status &&
+      navBar.displayedConversations.length > 0
+    ) {
+      const index =
+        navBar.displayedConversations.findIndex(
+          (convo) => convo._id === navBar.convoOverride.current._id
+        ) + 1;
+      navigate(`/chats/${navBar.convoOverride.current._id}`);
+      navBar.setSelectedChat(index);
+      sessionStorage.setItem("selectedChat", index);
+      navBar.convoOverride.current = { status: false, _id: "" };
     }
   }, [navBar.displayedConversations]);
 

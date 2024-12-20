@@ -4,6 +4,7 @@ import "./Contacts.css";
 import defaultPicture from "../images/default.svg";
 import { SocketContext } from "../Contexts/SocketContext";
 import { Outlet, useNavigate } from "react-router";
+import { markConversationAsRead } from "../utils/markConversationAsRead";
 
 /**
  * Component that displays a list of active contacts in the chat box.
@@ -106,15 +107,16 @@ const Contacts = () => {
                 key={contact.convoId}
                 onMouseEnter={() => setConvoHovered(index)}
                 onMouseLeave={() => setConvoHovered(-1)}
-                onClick={() => {
-                  const index = navBar.displayedConversations.findIndex(
-                    (convo) => convo._id === contact.convoId
-                  );
-                  navBar.setCompose(false);
+                onClick={async () => {
+                  navBar.convoOverride.current = {
+                    status: true,
+                    _id: contact.convoId,
+                  };
+                  if (!contact.read) {
+                    await markConversationAsRead(contact.convoId);
+                  }
                   navBar.setSelected(0);
-                  navBar.setSelectedChat(index + 1);
-                  sessionStorage.setItem("selectedChat", index + 1);
-                  navigate(`/chats/${contact.convoId}`);
+                  navigate(`/chats/`);
                 }}
                 className={`userConvo people ${
                   convoHovered === index ? "hovered" : "default"
