@@ -231,9 +231,6 @@ const App = () => {
         "selectedChatDetails",
         JSON.stringify(selectedChatDetails.current)
       );
-    } else if (selectedChat === 0) {
-      selectedChatDetails.current = null;
-      sessionStorage.removeItem("selectedChatDetails");
     }
   }, [selectedChat, displayedConversations]);
 

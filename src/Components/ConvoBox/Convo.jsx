@@ -34,7 +34,10 @@ const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
   const updateMessageRead = async () => {
     markConversationAsRead(navContext.displayedConversations[index]._id);
     navContext.selectedChatDetails.current.read = true;
-
+    sessionStorage.setItem(
+      "selectedChatDetails",
+      JSON.stringify(navContext.selectedChatDetails.current)
+    );
     setRead(true);
   };
 
@@ -115,6 +118,10 @@ const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
           navContext.setSelectedElement(null);
           navContext.selectedChatDetails.current =
             navContext.displayedConversations[index];
+          sessionStorage.setItem(
+            "selectedChatDetails",
+            JSON.stringify(navContext.selectedChatDetails.current)
+          );
           if (read === false) {
             navContext.displayedConversationsRef.current[index].read = true;
             updateMessageRead();
