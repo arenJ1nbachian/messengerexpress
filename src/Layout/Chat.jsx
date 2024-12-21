@@ -81,7 +81,7 @@ const Chat = () => {
     ) {
       if (
         !navBar.displayedConversations[navBar.selectedChat - 1]._id ===
-        navBar.selectedChatDetails.current._id
+        navBar.selectedChatDetails?.current?._id
       ) {
         const index = navBar.displayedConversations.findIndex(
           (convo) => convo._id === navBar.selectedChatDetails.current._id

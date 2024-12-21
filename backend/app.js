@@ -80,18 +80,21 @@ io.on("connection", async (socket) => {
         const userProfilePicture = await getUserPicture(null, null, userId);
 
         // Notify relevant users (those who share conversations with this user)
-        data.forEach((onlineUser) => {
-          const recipientSockets = getSocketsByUserId(onlineUser.userId); // Get recipient socketIds
-          recipientSockets.forEach((recipientSocketId) => {
-            socket.to(recipientSocketId).emit("userOnline", {
-              userId: userId,
-              convoId: onlineUser.convoId,
-              firstname: userOnline.firstname,
-              lastname: userOnline.lastname,
-              profilePicture: userProfilePicture,
+        if (data?.length > 0) {
+          console.log("DATA", data);
+          data.forEach((onlineUser) => {
+            const recipientSockets = getSocketsByUserId(onlineUser.userId); // Get recipient socketIds
+            recipientSockets.forEach((recipientSocketId) => {
+              socket.to(recipientSocketId).emit("userOnline", {
+                userId: userId,
+                convoId: onlineUser.convoId,
+                firstname: userOnline.firstname,
+                lastname: userOnline.lastname,
+                profilePicture: userProfilePicture,
+              });
             });
           });
-        });
+        }
       } catch (err) {
         console.error("Error sending userOnline event:", err);
       }
@@ -122,12 +125,16 @@ io.on("connection", async (socket) => {
               const onlineUsers = await getOnline(null, null, userId);
 
               // Notify relevant users that this user is now offline
-              onlineUsers.forEach((onlineUser) => {
-                const recipientSockets = getSocketsByUserId(onlineUser.userId);
-                recipientSockets.forEach((recipientSocketId) => {
-                  socket.to(recipientSocketId).emit("userOffline", userId);
+              if (onlineUsers?.length > 0) {
+                onlineUsers.forEach((onlineUser) => {
+                  const recipientSockets = getSocketsByUserId(
+                    onlineUser.userId
+                  );
+                  recipientSockets.forEach((recipientSocketId) => {
+                    socket.to(recipientSocketId).emit("userOffline", userId);
+                  });
                 });
-              });
+              }
             } catch (err) {
               console.error("Error sending userOffline event:", err);
             }
