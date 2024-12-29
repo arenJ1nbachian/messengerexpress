@@ -19,21 +19,31 @@ const Root = () => {
   return (
     <>
       {/* Render NavBar if the user is logged in */}
-      {userContext.isLoggedIn && <NavBar />}
+      {userContext.isLoggedIn && (
+        <div
+          className={`navBar ${
+            navContext.navExpanded ? "expanded" : "default"
+          }`}
+        >
+          <NavBar />
+        </div>
+      )}
 
-      <main className="main">
+      <main className={userContext.isLoggedIn ? "main" : ""}>
         {/* Outlet for rendering child routes */}
         <Outlet />
       </main>
-      {navContext.compose ? (
-        <div className="composeContainer">
-          <ComposeMessage />
-        </div>
-      ) : (
-        <div className="chatContainer">
-          <Chatbox />
-        </div>
-      )}
+      {userContext.isLoggedIn ? (
+        navContext.compose ? (
+          <div className="composeContainer">
+            <ComposeMessage />
+          </div>
+        ) : (
+          <div className="chatContainer">
+            <Chatbox request={Boolean(navContext.selectedRequest)} />
+          </div>
+        )
+      ) : null}
     </>
   );
 };

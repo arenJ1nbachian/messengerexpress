@@ -22,6 +22,7 @@ const getConversations = async (req, res) => {
     // Retrieve all conversations where the user is a participant, sorted by the last update.
     const conversations = await Convo.find({
       participants: { $in: [uid] },
+      status: { $eq: "Accepted" },
     }).sort({ updatedAt: -1 });
 
     // If there are no conversations, return a 404 error.
@@ -49,23 +50,28 @@ const getConversations = async (req, res) => {
         "firstname lastname profilePicture"
       );
 
-      // Construct the result object for each conversation.
-      result.push({
-        userId: nameID, // The ID of the other participant.
-        name: name.firstname + " " + name.lastname, // The full name of the other participant.
-        lastMessage: lastMessage.content, // The content of the last message.
-        who: lastMessage.sender.toString() === uid ? "You:" : "", // Indicates if the user is the sender.
-        read:
-          lastMessage.receiver.toString() === uid
-            ? lastMessage.read
-            : undefined, // Indicates if the last message is read.
-        _id: convo._id, // The ID of the conversation.
-        profilePicture:
-          name.profilePicture === null
-            ? ""
-            : "http://localhost:5000/" + name.profilePicture, // URL of the other participant's profile picture.
-        updatedAt: convo.updatedAt, // The timestamp of the last update.
-      });
+      if (
+        (lastMessage.sender.toString() === uid && convo.status === "Pending") ||
+        convo.status === "Accepted"
+      ) {
+        // Construct the result object for each conversation.
+        result.push({
+          userId: nameID, // The ID of the other participant.
+          name: name.firstname + " " + name.lastname, // The full name of the other participant.
+          lastMessage: lastMessage.content, // The content of the last message.
+          who: lastMessage.sender.toString() === uid ? "You:" : "", // Indicates if the user is the sender.
+          read:
+            lastMessage.receiver.toString() === uid
+              ? lastMessage.read
+              : undefined, // Indicates if the last message is read.
+          _id: convo._id, // The ID of the conversation.
+          profilePicture:
+            name.profilePicture === null
+              ? ""
+              : "http://localhost:5000/" + name.profilePicture, // URL of the other participant's profile picture.
+          updatedAt: convo.updatedAt, // The timestamp of the last update.
+        });
+      }
     }
 
     // Respond with the list of conversations.
@@ -81,6 +87,9 @@ const updateConversation = async (convo, newMessage) => {
   try {
     convo.lastMessage = newMessage._id;
     convo.updatedAt = Date.now();
+    if (convo.status === "Rejected") {
+      convo.status = "Pending";
+    }
     await convo.save();
     return convo;
   } catch (error) {
@@ -117,6 +126,30 @@ const createConversation = async (participants, lastMessage) => {
   }
 };
 
+const emitnewRequestEvent = (io, newConvo, message, sender, receiverID) => {
+  if (searchActiveUsers(receiverID)) {
+    for (const socket of getSocketsByUserId(receiverID)) {
+      io.to(socket).emit("newRequest", {
+        convoReceiver: {
+          _id: newConvo._id.toString(),
+          lastMessage: message.content,
+          name: sender.firstname + " " + sender.lastname,
+          profilePicture:
+            sender.profilePicture === null
+              ? ""
+              : "http://localhost:5000/" + sender.profilePicture,
+          read: message.read,
+          updatedAt: newConvo.updatedAt,
+          userId: sender._id.toString(),
+          who: "",
+        },
+      });
+    }
+  } else {
+    console.log("User is offline, there's no need to emit the event");
+  }
+};
+
 const emitRealTimeEvent = (io, convo, newMessage, sender, receiverID) => {
   if (searchActiveUsers(receiverID)) {
     console.log(getSocketsByUserId(receiverID));
@@ -136,6 +169,90 @@ const emitRealTimeEvent = (io, convo, newMessage, sender, receiverID) => {
           who: "",
         },
       });
+    }
+  } else {
+    console.log("User is offline, there's no need to emit the event");
+  }
+};
+
+const getRequests = async (req, res) => {
+  const uid = req.params.uid;
+  try {
+    let requestsList = [];
+    const requests = await Convo.find({ status: "Pending" }).sort({
+      updatedAt: -1,
+    });
+
+    if (requests.length > 0) {
+      for (const request of requests) {
+        const lastMessage = await Message.findById(request.lastMessage);
+
+        if (lastMessage.receiver.toString() === uid) {
+          const sender = await Users.findById(lastMessage.sender);
+          requestsList.push({
+            _id: request._id,
+            lastMessage: lastMessage.content,
+            name: sender.firstname + " " + sender.lastname,
+            profilePicture:
+              sender.profilePicture === null
+                ? ""
+                : "http://localhost:5000/" + sender.profilePicture,
+            read: lastMessage.read,
+            updatedAt: request.updatedAt,
+            userId: sender._id.toString(),
+            who: "",
+          });
+        }
+      }
+    } else {
+      return res.status(200).json({ requests: [] });
+    }
+
+    return res.status(200).json({ requests: requestsList });
+  } catch (error) {}
+};
+
+// Accept a conversation request. This will update the status of the conversation to "Accepted"
+const acceptRequest = async (req, res) => {
+  const { convoID } = req.body;
+  try {
+    const convo = await Convo.findById(convoID);
+    if (convo) {
+      convo.status = "Accepted";
+      await convo.save();
+      res.status(200).json({ convo });
+    } else {
+      res.status(404).json({ message: "Conversation not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+};
+
+// Reject a conversation request. This will update the status of the conversation to "Rejected"
+const rejectRequest = async (req, res) => {
+  const { convoID } = req.body;
+  try {
+    const convo = await Convo.findById(convoID);
+    if (convo) {
+      convo.status = "Rejected";
+      await convo.save();
+      res.status(200).json({ convo });
+    } else {
+      res.status(404).json({ message: "Conversation not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+};
+
+const emitRemoveFromRequestsEvent = (io, convoID, receiverID) => {
+  if (searchActiveUsers(receiverID)) {
+    for (const socket of getSocketsByUserId(receiverID)) {
+      io.to(socket).emit("removeFromRequests", { convoID });
+      io.to(socket).emit("updateRequestsNumber", -1);
     }
   } else {
     console.log("User is offline, there's no need to emit the event");
@@ -167,8 +284,53 @@ const createConvo = async (req, res, io) => {
     const newMessage = await createMessage(message, sender._id, receiver._id);
 
     if (convo) {
+      const lastMessage = await Message.findById(convo.lastMessage);
+
+      // If the conversation already exists, emit a real-time event
+      // Or if the conversation is pending and the user who sent this current message was also
+      // the same user who received the last message, emit a realTimeEvent.
+      // This will also change the status of the conversation to "Accepted" and will also emit
+      // a realTimeEvent to remove the request from the other user's screen since it's being accepted
+      if (convo.status === "Accepted") {
+        emitRealTimeEvent(
+          io,
+          convo,
+          newMessage,
+          sender,
+          receiver._id.toString()
+        );
+      } else if (
+        convo.status === "Pending" &&
+        lastMessage.receiver.equals(sender._id)
+      ) {
+        convo.status = "Accepted";
+        convo.save();
+        emitRealTimeEvent(
+          io,
+          convo,
+          newMessage,
+          sender,
+          receiver._id.toString()
+        );
+        emitRemoveFromRequestsEvent(io, convo._id, receiver._id.toString());
+      }
+      // If the conversation is pending and the user who sent this current message was also
+      // the same user who sent the last message, emit a newRequest event to the other user.
+      // This will just change the information shown on the other user's screen
+      else if (
+        convo.status === "Pending" &&
+        lastMessage.sender.equals(sender._id)
+      ) {
+        emitnewRequestEvent(
+          io,
+          convo,
+          newMessage,
+          sender,
+          receiver._id.toString()
+        );
+      }
+
       updateConversation(convo, newMessage);
-      emitRealTimeEvent(io, convo, newMessage, sender, receiver._id.toString());
 
       res.status(201).json({
         convoSender: {
@@ -187,6 +349,18 @@ const createConvo = async (req, res, io) => {
     } else {
       const newConvo = await createConversation(participants, newMessage._id);
 
+      emitnewRequestEvent(
+        io,
+        newConvo,
+        message,
+        sender,
+        receiver._id.toString()
+      );
+
+      for (const socket of getSocketsByUserId(receiver._id)) {
+        io.to(socket).emit("updateRequestsNumber", 1);
+      }
+
       res.status(201).json({
         convoSender: {
           _id: newConvo._id.toString(),
@@ -196,23 +370,10 @@ const createConvo = async (req, res, io) => {
             receiver.profilePicture === null
               ? ""
               : "http://localhost:5000/" + receiver.profilePicture,
-          read: true,
+          read: false,
           updatedAt: newConvo.updatedAt,
           userId: receiver._id.toString(),
           who: "You:",
-        },
-        convoReceiver: {
-          _id: newConvo._id.toString(),
-          lastMessage: newMessage.content,
-          name: sender.firstname + " " + sender.lastname,
-          profilePicture:
-            sender.profilePicture === null
-              ? ""
-              : "http://localhost:5000/" + sender.profilePicture,
-          read: newMessage.read,
-          updatedAt: newConvo.updatedAt,
-          userId: sender._id.toString(),
-          who: "",
         },
       });
     }
@@ -285,3 +446,6 @@ exports.createConvo = createConvo;
 exports.getConvo = getConvo;
 exports.convoRead = convoRead;
 exports.getMessageRead = getMessageRead;
+exports.getRequests = getRequests;
+exports.acceptRequest = acceptRequest;
+exports.rejectRequest = rejectRequest;

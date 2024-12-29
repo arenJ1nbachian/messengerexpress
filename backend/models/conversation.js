@@ -6,6 +6,7 @@ const conversationSchema = new mongoose.Schema({
   ],
   lastMessage: { type: mongoose.Schema.Types.ObjectId, ref: "Messages" },
   updatedAt: { type: Date, default: Date.now },
+  status: { type: String, default: "Pending", required: true },
 });
 
 conversationSchema.pre("save", function (next) {

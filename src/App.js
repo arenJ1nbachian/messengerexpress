@@ -145,6 +145,12 @@ const App = () => {
    */
   const [compose, setCompose] = useState(false);
 
+  const [requests, setRequests] = useState([]);
+
+  const [requestCount, setRequestCount] = useState(0);
+
+  const [selectedRequest, setSelectedRequest] = useState(null);
+
   /**
    * The state to keep track of which element is selected
    */
@@ -216,7 +222,7 @@ const App = () => {
     setSelectedElement(null);
     setNavExpanded(false);
     sessionStorage.clear();
-
+    selectedChatDetails.current = null;
     setCompose(false);
   }, []);
 
@@ -301,6 +307,12 @@ const App = () => {
             composedMessage,
             convoOverride,
             displayedConversationsRef,
+            requests,
+            setRequests,
+            requestCount,
+            setRequestCount,
+            selectedRequest,
+            setSelectedRequest,
           }}
         >
           <RouterProvider

@@ -19,13 +19,12 @@ const Archived = () => {
     }
   }, []);
   return (
-    <div style={{ display: "flex" }}>
+    <div style={{ display: "flex", height: "100%", width: "100%" }}>
       <div className={`chatBox ${navBar.navExpanded ? "expanded" : "default"}`}>
         <div className="chatBoxContactHeader">
           <div className="chatBoxContactTitle">Archived Chats</div>
         </div>
       </div>
-      <Outlet />
     </div>
   );
 };

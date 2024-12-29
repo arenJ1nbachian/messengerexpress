@@ -221,22 +221,26 @@ const ComposeMessage = () => {
         )}
       </div>
       <ChatContent />
-      <form>
-        <div className="chatInput">
+      <form className={navContext.selectedElement === null ? "disabled" : ""}>
+        <div className={"chatInput"}>
           <input
+            className={navContext.selectedElement === null ? "disabled" : ""}
             onChange={(e) => setMessageInput(e.target.value)}
             type="text"
             autoComplete="off"
             id="message"
             placeholder="Aa"
+            disabled={navContext.selectedElement === null ? true : false}
           />
           <button
+            disabled={navContext.selectedElement === null ? true : false}
             onClick={(e) => handleClick(e)}
             onSubmit={(e) => handleClick(e)}
             style={{
               marginLeft: "auto",
               marginRight: "1vw",
-              cursor: "pointer",
+              cursor:
+                navContext.selectedElement === null ? "not-allowed" : "pointer",
               backgroundColor: "transparent",
               border: "none",
             }}

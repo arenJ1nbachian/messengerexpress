@@ -47,7 +47,10 @@ const ConvoBox = () => {
           } else {
             console.log("No socket");
           }
-          if (navContext.selectedChatDetails.current) {
+          if (
+            navContext.selectedChatDetails.current &&
+            navContext.selectedChat !== 0
+          ) {
             const index = result.result.findIndex((conversation) => {
               return (
                 conversation._id === navContext.selectedChatDetails.current._id

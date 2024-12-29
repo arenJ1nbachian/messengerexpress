@@ -125,7 +125,7 @@ const Chat = () => {
    */
 
   return (
-    <div style={{ display: "flex" }}>
+    <div style={{ display: "flex", height: "100%", width: "100%" }}>
       <div className={`chatBox ${navBar.navExpanded ? "expanded" : "default"}`}>
         <div className="chatBoxHeader">
           <div className="chatBoxTitle">Chats</div>
@@ -179,7 +179,6 @@ const Chat = () => {
           <div>Try Messenger for Windows</div>
         </div>
       </div>
-      <Outlet />
     </div>
   );
 };

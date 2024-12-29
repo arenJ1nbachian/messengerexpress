@@ -1,10 +1,13 @@
 .btnBox {
   background-color: transparent;
-  width: 16vw;
+  align-items: center;
   display: flex;
+
   flex-direction: row;
   border: 2px solid transparent;
   border-radius: 10px;
+  position: relative;
+  cursor: pointer;
 }
 
 .hovClick {
@@ -20,6 +23,39 @@
   align-items: center;
   border: 2px solid transparent;
   border-radius: 10px;
+  position: relative;
+}
+
+.reqNum {
+  border-radius: 50%;
+  background-color: red;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: -18%;
+  right: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.reqNumExpanded {
+  position: absolute;
+  right: 5%;
+  border-radius: 50%;
+  background-color: red;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
 }
 
 .btnText {

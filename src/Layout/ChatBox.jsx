@@ -15,7 +15,7 @@ import noConvo from "../images/noConvoSelected.png";
  * messages and displaying the recipient's information.
  * @returns {JSX.Element} The JSX element representing the chatbox.
  */
-const Chatbox = () => {
+const Chatbox = ({ request = false }) => {
   const inputRef = useRef(null);
 
   const [inputValue, setInputValue] = useState("");
@@ -276,11 +276,13 @@ const Chatbox = () => {
               <div className="uPicture">
                 <Category
                   img={
-                    (nav.displayedConversations &&
-                      nav?.displayedConversations?.[nav.selectedChat - 1]
-                        ?.profilePicture) ||
-                    nav.selectedChatDetails.current.profilePicture ||
-                    defaultPicture
+                    nav.selectedRequest
+                      ? nav.selectedRequest.profilePicture
+                      : (nav.displayedConversations &&
+                          nav?.displayedConversations?.[nav.selectedChat - 1]
+                            ?.profilePicture) ||
+                        nav.selectedChatDetails?.current.profilePicture ||
+                        defaultPicture
                   }
                   width="100%"
                   height="100%"
@@ -288,43 +290,54 @@ const Chatbox = () => {
               </div>
               <div className="uInfo">
                 <div className="uName">
-                  {(nav.displayedConversations &&
-                    nav?.displayedConversations?.[nav.selectedChat - 1]
-                      ?.name) ||
-                    nav.selectedChatDetails.current.name}
+                  {request
+                    ? nav.selectedRequest.name
+                    : (nav.displayedConversations &&
+                        nav?.displayedConversations?.[nav.selectedChat - 1]
+                          ?.name) ||
+                      nav.selectedChatDetails.current.name}
                 </div>
                 <div className="uActive">Active 10h ago</div>
               </div>
             </div>
             <ChatContent />
-            <form>
-              <div className="chatInput">
-                <input
-                  ref={inputRef}
-                  value={inputValue}
-                  onKeyDown={handleKeyDown}
-                  onChange={handleChange}
-                  type="text"
-                  autoComplete="off"
-                  id="messageInput"
-                  placeholder="Aa"
-                  autoFocus={true}
-                />
-                <button
-                  onClick={(e) => handleClick(e)}
-                  onSubmit={(e) => handleClick(e)}
-                  style={{
-                    marginLeft: "auto",
-                    marginRight: "1vw",
-                    cursor: "pointer",
-                    backgroundColor: "transparent",
-                    border: "none",
-                  }}
-                >
-                  <img src={send} width="100%" height="100%" alt="send" />
-                </button>
+            {request ? (
+              <div className="requestBox">
+                <div className="answerRequest">
+                  <button className="btnChoice">Accept</button>
+                  <button className="btnChoice">Decline</button>
+                </div>
               </div>
-            </form>
+            ) : (
+              <form>
+                <div className="chatInput">
+                  <input
+                    ref={inputRef}
+                    value={inputValue}
+                    onKeyDown={handleKeyDown}
+                    onChange={handleChange}
+                    type="text"
+                    autoComplete="off"
+                    id="messageInput"
+                    placeholder="Aa"
+                    autoFocus={true}
+                  />
+                  <button
+                    onClick={(e) => handleClick(e)}
+                    onSubmit={(e) => handleClick(e)}
+                    style={{
+                      marginLeft: "auto",
+                      marginRight: "1vw",
+                      cursor: "pointer",
+                      backgroundColor: "transparent",
+                      border: "none",
+                    }}
+                  >
+                    <img src={send} width="100%" height="100%" alt="send" />
+                  </button>
+                </div>
+              </form>
+            )}
           </>
         )}
 

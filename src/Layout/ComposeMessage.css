@@ -91,6 +91,10 @@
   height: 4vh;
 }
 
+.disabled {
+  cursor: not-allowed;
+}
+
 .selectedUser.hide {
   display: none;
 }

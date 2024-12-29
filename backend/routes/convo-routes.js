@@ -15,5 +15,7 @@ module.exports = (io) => {
 
   router.get("/getMessageRead/:convoID", convoController.getMessageRead);
 
+  router.get("/getRequests/:uid", convoController.getRequests);
+
   return router;
 };

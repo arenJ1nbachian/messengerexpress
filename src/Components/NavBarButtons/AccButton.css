@@ -1,16 +1,17 @@
 .accBtnBox {
   margin-top: auto;
   background-color: transparent;
-  width: 3vw;
+  width: 100%;
+  justify-content: center;
   display: flex;
   flex-direction: row;
   border: 2px solid transparent;
   border-radius: 10px;
-  margin-bottom: 2vh;
+  cursor: pointer;
 }
 
 .accBtnBox.Expanded {
-  width: 13vw;
+  width: 82%;
 }
 
 .accBtnBox.Hovered {
@@ -31,6 +32,7 @@
 }
 
 .accName {
+  width: 75%;
   margin-left: 0.5vw;
   text-align: center;
   align-content: center;

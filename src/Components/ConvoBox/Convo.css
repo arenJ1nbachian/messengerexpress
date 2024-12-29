@@ -50,3 +50,7 @@
   text-wrap: nowrap;
   height: max-content;
 }
+
+.userConvo {
+  cursor: pointer;
+}

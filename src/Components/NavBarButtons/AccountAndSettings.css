@@ -23,6 +23,7 @@
   align-items: center;
   gap: 1vw;
   background-color: transparent;
+  cursor: pointer;
 }
 
 .optionBox.firstOption {

@@ -26,10 +26,46 @@ import { SocketContext } from "../Contexts/SocketContext";
  */
 const NavBar = () => {
   const navBar = useContext(NavContext);
-
+  const { socket } = useContext(SocketContext);
   const buttonText = ["Chats", "People", "Requests", "Archive"];
   const [profilePictureUrl, setProfilePictureUrl] = useState(null);
   const [name, setName] = useState(null);
+
+  useEffect(() => {
+    const getRequests = async () => {
+      try {
+        const requests = await fetch(
+          "http://localhost:5000/api/conversations/getRequests/" +
+            sessionStorage.getItem("userId"),
+          {
+            method: "GET",
+          }
+        );
+
+        if (requests.ok) {
+          const result = await requests.json();
+          if (result.requests.length > 0) {
+            navBar.setRequests(result.requests);
+            navBar.setRequestCount(result.requests.length);
+          }
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getRequests();
+  });
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("updateRequestsNumber", (num) => {
+        num === -1
+          ? navBar.setRequestCount((prev) => prev - 1)
+          : navBar.setRequestCount((prev) => prev + 1);
+      });
+    }
+  }, [socket]);
 
   /**
    * Fetches the user's profile picture from the server.
@@ -84,7 +120,11 @@ const NavBar = () => {
 
   return (
     <>
-      <div className={`navBox ${navBar.navExpanded ? "expanded" : "default"}`}>
+      <div
+        className={
+          navBar.navExpanded ? "navigationBtn expanded" : "navigationBtn"
+        }
+      >
         {Array.from([message, people, request, archive], (value, index) => (
           <Button
             key={index}
@@ -93,10 +133,12 @@ const NavBar = () => {
             buttonText={buttonText}
           />
         ))}
-        <div className="accBtn">
-          <AccButton account={profilePictureUrl} loggedName={name} />
+        <div className="acc">
+          <div className={navBar.navExpanded ? "accBtn expanded" : "accBtn"}>
+            <AccButton account={profilePictureUrl} loggedName={name} />
+          </div>
+          {!navBar.navExpanded && <Chevron />}
         </div>
-        {!navBar.navExpanded && <Chevron />}
       </div>
     </>
   );

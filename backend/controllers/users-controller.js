@@ -218,7 +218,8 @@ const getOnline = async (req, res, userId) => {
   try {
     let usersInteracted = [];
     let conversations = await Convo.find({
-      participants: { $in: [uid] }, // Find conversations where participants array contains userId
+      $and: [{ participants: { $in: [uid] } }, { status: "Accepted" }],
+      // Find conversations where participants array contains userId
     }).populate({
       path: "_id participants",
       match: { _id: { $ne: uid }, "onlineStatus.status": true },

@@ -1,21 +1,49 @@
 #root {
   display: flex;
   flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+}
+
+.navBar {
+  margin-left: 15px;
+  margin-top: 2%;
+  height: 95%;
+  width: 5%;
+}
+
+.navBar.expanded {
+  width: 20%;
 }
 
 .main {
+  margin-left: 15px;
   margin-top: auto;
   margin-bottom: auto;
+  height: 95%;
+  width: 30%;
 }
 
 .chatContainer {
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-top: auto;
+  margin-bottom: auto;
   display: flex;
   flex-direction: row;
   align-items: center;
+  height: 95%;
+  width: 62%;
 }
 
 .composeContainer {
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-top: auto;
+  margin-bottom: auto;
   display: flex;
   flex-direction: row;
   align-items: center;
+  height: 95%;
+  width: 62%;
 }

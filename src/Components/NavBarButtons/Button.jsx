@@ -134,6 +134,7 @@ const Button = ({ value, index, buttonText }) => {
         default:
           break;
       }
+      navBar.setSelectedRequest(null);
     }
   };
 
@@ -167,9 +168,15 @@ const Button = ({ value, index, buttonText }) => {
         }
         onClick={() => handleNavButtonClick(index)}
       >
+        {index === 2 && !navBar.navExpanded && navBar.requestCount !== 0 && (
+          <div className="reqNum">1</div>
+        )}
         <Category img={value} />
       </div>
       {navBar.navExpanded && <div className="btnText">{buttonText[index]}</div>}
+      {index === 2 && navBar.navExpanded && navBar.requestCount !== 0 && (
+        <div className="reqNumExpanded">1</div>
+      )}
     </div>
   );
 };

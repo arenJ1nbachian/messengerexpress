@@ -94,7 +94,7 @@ const Contacts = () => {
   }, []);
 
   return (
-    <div style={{ display: "flex" }}>
+    <div style={{ display: "flex", height: "100%", width: "100%" }}>
       <div className={`chatBox ${navBar.navExpanded ? "expanded" : "default"}`}>
         <div className="chatBoxContactHeader">
           <div className="chatBoxContactTitle">People</div>
@@ -146,7 +146,6 @@ const Contacts = () => {
             );
           })}
       </div>
-      <Outlet />
     </div>
   );
 };

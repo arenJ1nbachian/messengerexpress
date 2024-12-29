@@ -1,9 +1,8 @@
 .chatBox {
-  width: 30vw;
+  height: inherit;
+  width: inherit;
   display: flex;
   flex-direction: column;
-  margin-left: 1vw;
-  height: 94vh;
   background-color: rgb(34, 34, 34);
   border: 2px solid rgb(34, 34, 34);
   border-radius: 15px;
@@ -11,23 +10,15 @@
 }
 
 .chatConvoBox {
-  width: 63vw;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  margin-left: 1vw;
-  height: 94vh;
+
+  height: 100%;
   background-color: rgb(34, 34, 34);
   border: 2px solid rgb(34, 34, 34);
   border-radius: 15px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-}
-
-.chatConvoBox.expanded {
-  width: 54vw;
-}
-
-.chatBox.expanded {
-  width: 25vw;
 }
 
 .chatBoxHeader {
