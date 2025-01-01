@@ -52,15 +52,6 @@ const Chatbox = ({ request = false }) => {
    */
   const { id } = useParams();
 
-  /**
-   * The conversationSelected state variable is used to keep track of whether a
-   * conversation has been selected or not. It is used to render the chat content
-   * and input box only when a conversation has been selected.
-   */
-  const [conversationSelected, setConversationSelected] = useState(
-    Boolean(id && id !== "none")
-  );
-
   useEffect(() => {
     if (sessionStorage.getItem("typing") && socket) {
       socket.emit("typing", {
@@ -70,14 +61,6 @@ const Chatbox = ({ request = false }) => {
       });
     }
   }, [socket]);
-
-  /**
-   * The useEffect hook is used to set the conversationSelected state variable
-   * to true when the user navigates to a conversation page.
-   */
-  useEffect(() => {
-    setConversationSelected(Boolean(id && id !== "none"));
-  }, [id, nav.compose, nav.selectedChat, nav.displayedConversations]);
 
   useEffect(() => {
     document.addEventListener("click", () => {
@@ -270,7 +253,8 @@ const Chatbox = ({ request = false }) => {
       <div
         className={`chatConvoBox ${nav.navExpanded ? "expanded" : "default"}`}
       >
-        {conversationSelected && (
+        {(nav.selectedChatDetails.current || nav.selectedRequest) &&
+        !nav.compose ? (
           <>
             <div className="recipient">
               <div className="uPicture">
@@ -303,9 +287,25 @@ const Chatbox = ({ request = false }) => {
             <ChatContent />
             {request ? (
               <div className="requestBox">
+                <div>
+                  <div className="requestTitle">
+                    <strong> {nav.selectedRequest.name} </strong>wants to send
+                    you a message.
+                  </div>
+                  <div className="requestQuestion">
+                    Do you want to let{" "}
+                    <strong> {nav.selectedRequest.name} </strong> send you
+                    messages from now on?
+                  </div>
+                  <div className="requestInfo">
+                    They'll only know you've seen their request if you choose
+                    Accept.
+                  </div>
+                </div>
                 <div className="answerRequest">
                   <button className="btnChoice">Accept</button>
                   <button className="btnChoice">Decline</button>
+                  <button className="btnChoice">Block</button>
                 </div>
               </div>
             ) : (
@@ -339,9 +339,7 @@ const Chatbox = ({ request = false }) => {
               </form>
             )}
           </>
-        )}
-
-        {!conversationSelected && (
+        ) : (
           <div className="noConversationSelected">
             <img src={noConvo} width="20%" height="25%" alt="no convo" />
             <p>No conversation selected</p>

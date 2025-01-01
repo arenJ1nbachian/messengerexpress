@@ -224,6 +224,8 @@ const App = () => {
     sessionStorage.clear();
     selectedChatDetails.current = null;
     setCompose(false);
+    setRequests([]);
+    setRequestCount(null);
   }, []);
 
   /**

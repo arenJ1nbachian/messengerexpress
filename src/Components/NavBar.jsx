@@ -55,7 +55,7 @@ const NavBar = () => {
     };
 
     getRequests();
-  });
+  }, []);
 
   useEffect(() => {
     if (socket) {

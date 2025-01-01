@@ -4,7 +4,6 @@ import defaultPicture from "../images/default.svg";
 import { useNavigate } from "react-router";
 
 const RequestBox = ({
-  key,
   index,
   picture,
   setConvoHovered,
@@ -15,7 +14,6 @@ const RequestBox = ({
   const navigate = useNavigate();
   return (
     <div
-      key={key}
       className={`userConvo ${
         navContext.selectedChat === index + 1 ? "clicked" : "default"
       } ${convoHovered === index + 1 ? "hovered" : "default"}`}
@@ -35,7 +33,10 @@ const RequestBox = ({
       </div>
       <div className="convoInfo">
         <div id="idHeader">
-          <div id="flName">{`${request.name} `}</div>
+          <div
+            id="flName"
+            style={{ fontWeight: "bolder", color: "white" }}
+          >{`${request.name} `}</div>
         </div>
         <div
           id="latest-message"

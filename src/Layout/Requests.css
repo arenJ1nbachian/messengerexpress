@@ -1,0 +1,20 @@
+.noConversations {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 15%;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+  color: rgb(197, 195, 195);
+  width: 100%;
+}
+
+.noConversations img {
+  scale: 1.5;
+}
+
+.noConversations h6 {
+  width: 100%;
+}

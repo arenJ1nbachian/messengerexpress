@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { NavContext } from "../Contexts/NavContext";
-import Chatbox from "./ChatBox";
-import { Outlet, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { SocketContext } from "../Contexts/SocketContext";
-import Convo from "../Components/ConvoBox/Convo";
 import RequestBox from "./RequestBox";
+import "./Requests.css";
+import norequestPicture from "../images/norequest.png";
 
 /**
  * This component is used to display the requests page of the chat application.
@@ -61,7 +61,7 @@ const Requests = () => {
         <div className="chatBoxContactHeader">
           <div className="chatBoxContactTitle">Requests</div>
         </div>
-        {navBar.requests?.length > 0 &&
+        {navBar.requests?.length > 0 ? (
           navBar.requests.map((request, index) => {
             return (
               <RequestBox
@@ -73,7 +73,24 @@ const Requests = () => {
                 request={request}
               />
             );
-          })}
+          })
+        ) : (
+          <div className="noConversations">
+            <img src={norequestPicture} alt="no request" />
+            <h3>No Message Requests</h3>
+            <h6>
+              {"You're all caught up!"}
+              <br />
+              {
+                "Why not check in with your friends or explore new conversations?"
+              }
+              <br />
+              {"Unless if you don't have friends, then why not make some?"}
+              <br />
+              {"If you can't then go cry in a corner."}
+            </h6>
+          </div>
+        )}
       </div>
     </div>
   );
