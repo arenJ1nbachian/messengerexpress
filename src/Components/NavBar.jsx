@@ -35,7 +35,7 @@ const NavBar = () => {
     const getRequests = async () => {
       try {
         const requests = await fetch(
-          "http://localhost:5000/api/conversations/getRequests/" +
+          "http://localhost:5000/api/conversations/getRequestCount/" +
             sessionStorage.getItem("userId"),
           {
             method: "GET",
@@ -44,9 +44,8 @@ const NavBar = () => {
 
         if (requests.ok) {
           const result = await requests.json();
-          if (result.requests.length > 0) {
-            navBar.setRequests(result.requests);
-            navBar.setRequestCount(result.requests.length);
+          if (result.count > 0) {
+            navBar.setRequestCount(result.count);
           }
         }
       } catch (e) {
@@ -60,11 +59,17 @@ const NavBar = () => {
   useEffect(() => {
     if (socket) {
       socket.on("updateRequestsNumber", (num) => {
+        console.log("Update request number", num);
         num === -1
           ? navBar.setRequestCount((prev) => prev - 1)
           : navBar.setRequestCount((prev) => prev + 1);
       });
     }
+    return () => {
+      if (socket) {
+        socket.off("updateRequestsNumber");
+      }
+    };
   }, [socket]);
 
   /**

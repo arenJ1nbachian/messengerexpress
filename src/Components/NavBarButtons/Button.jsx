@@ -59,9 +59,6 @@ const Button = ({ value, index, buttonText }) => {
           break;
         case false:
           navigate(`people`);
-          if (navBar.displayedConversations.length > 0) {
-            navBar.setDisplayedConversations([]);
-          }
           break;
         default:
           break;
@@ -74,9 +71,6 @@ const Button = ({ value, index, buttonText }) => {
           break;
         case false:
           navigate(`requests/`);
-          if (navBar.displayedConversations.length > 0) {
-            navBar.setDisplayedConversations([]);
-          }
           break;
         default:
           break;
@@ -89,9 +83,6 @@ const Button = ({ value, index, buttonText }) => {
           break;
         case false:
           navigate(`archived/`);
-          if (navBar.displayedConversations.length > 0) {
-            navBar.setDisplayedConversations([]);
-          }
           break;
         default:
           break;
@@ -135,6 +126,7 @@ const Button = ({ value, index, buttonText }) => {
           break;
       }
       navBar.setSelectedRequest(null);
+      sessionStorage.removeItem("selectedRequest");
     }
   };
 
@@ -169,13 +161,13 @@ const Button = ({ value, index, buttonText }) => {
         onClick={() => handleNavButtonClick(index)}
       >
         {index === 2 && !navBar.navExpanded && navBar.requestCount !== 0 && (
-          <div className="reqNum">1</div>
+          <div className="reqNum">{navBar.requestCount}</div>
         )}
         <Category img={value} />
       </div>
       {navBar.navExpanded && <div className="btnText">{buttonText[index]}</div>}
       {index === 2 && navBar.navExpanded && navBar.requestCount !== 0 && (
-        <div className="reqNumExpanded">1</div>
+        <div className="reqNumExpanded">{navBar.requestCount}</div>
       )}
     </div>
   );

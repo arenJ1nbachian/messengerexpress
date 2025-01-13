@@ -17,6 +17,7 @@ import { UserContext } from "./Contexts/UserContext.js";
 
 import { SocketContext } from "./Contexts/SocketContext.js";
 import io from "socket.io-client";
+import { markConversationAsRead } from "./utils/markConversationAsRead.js";
 
 const router = createBrowserRouter([
   {
@@ -76,8 +77,6 @@ const App = () => {
     JSON.parse(sessionStorage.getItem("navExpanded")) || false
   );
 
-  const convoOverride = useRef({ status: false, _id: "" });
-
   const displayedConversationsRef = useRef(null);
 
   /**
@@ -102,34 +101,29 @@ const App = () => {
     JSON.parse(sessionStorage.getItem("selected")) || 0
   );
 
-  /**
-   * The ref to the conversation container
-   */
-  const conversationRef = useRef(null);
-
-  /**
-   * The state to keep track of which chat is currently being displayed
-   */
-  const [selectedChat, setSelectedChat] = useState(
-    JSON.parse(sessionStorage.getItem("selectedChat")) || 0
+  const [selectedConversation, setSelectedConversation] = useState(
+    sessionStorage.getItem("selectedConversation") || null
   );
 
-  const selectedChatDetails = useRef(
-    JSON.parse(sessionStorage.getItem("selectedChatDetails")) || null
+  const selectedConversationRef = useRef(
+    sessionStorage.getItem("selectedConversation") || null
   );
-
-  const composedMessage = useRef(false);
 
   /**
    * The state to keep track of the conversations that are displayed
    */
-  const [displayedConversations, setDisplayedConversations] = useState([]);
+  const [displayedConversations, setDisplayedConversations] = useState(
+    sessionStorage.getItem("displayedConversations")
+      ? new Map(JSON.parse(sessionStorage.getItem("displayedConversations")))
+      : new Map()
+  );
 
-  /**
-   * The state to keep track of the pictures that are displayed
-   */
-  const [displayedPictures, setDisplayedPictures] = useState(
-    sessionStorage.getItem("displayedPictures") || []
+  const typingTimeoutsRef = useRef(new Map());
+
+  const [usersTyping, setUsersTyping] = useState(
+    sessionStorage.getItem("usersTyping")
+      ? new Set(JSON.parse(sessionStorage.getItem("usersTyping")))
+      : new Set()
   );
 
   /**
@@ -145,11 +139,28 @@ const App = () => {
    */
   const [compose, setCompose] = useState(false);
 
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState(
+    sessionStorage.getItem("requests")
+      ? new Map(JSON.parse(sessionStorage.getItem("requests")))
+      : new Map()
+  );
 
   const [requestCount, setRequestCount] = useState(0);
 
-  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [selectedRequest, setSelectedRequest] = useState(
+    sessionStorage.getItem("selectedRequest") || null
+  );
+
+  const [isConvosFullyLoaded, setIsConvosFullyLoaded] = useState(false);
+
+  const [isOnlineUsersFullyLoaded, setIsOnlineUsersFullyLoaded] =
+    useState(false);
+
+  const [activeContacts, setActiveContacts] = useState(
+    sessionStorage.getItem("activeContacts")
+      ? JSON.parse(sessionStorage.getItem("activeContacts"))
+      : []
+  );
 
   /**
    * The state to keep track of which element is selected
@@ -170,6 +181,119 @@ const App = () => {
    * The state to keep track of the socket
    */
   const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("newRequest", (request) => {
+        console.log("RECEIVED NEW REQUEST", request);
+        setRequests((prev) => {
+          const requestMap = new Map(prev);
+          requestMap.set(request._id, request);
+
+          const sortedRequests = new Map(
+            [...requestMap.entries()].sort((a, b) => {
+              return new Date(b[1].updatedAt) - new Date(a[1].updatedAt);
+            })
+          );
+
+          return sortedRequests;
+        });
+      });
+      socket.on("removeFromRequests", (convoID) => {
+        setRequests((prev) => {
+          const requestMap = new Map(prev);
+          requestMap.delete(convoID);
+          return requestMap;
+        });
+        setRequestCount((prev) => prev - 1);
+      });
+      socket.on("updateConversationHeader", (convo) => {
+        if (convo.convoReceiver._id === selectedConversationRef.current) {
+          markConversationAsRead(convo.convoReceiver._id);
+          convo.convoReceiver.read = true;
+        }
+
+        setDisplayedConversations((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(convo.convoReceiver._id, convo.convoReceiver);
+          const newMapSorted = new Map(
+            [...newMap.entries()].sort(
+              (a, b) =>
+                new Date(b[1].updatedAt).getTime() -
+                new Date(a[1].updatedAt).getTime()
+            )
+          );
+          sessionStorage.setItem(
+            "displayedConversations",
+            JSON.stringify(Array.from(newMapSorted.entries()))
+          );
+          return newMapSorted;
+        });
+      });
+      socket.on("userOffline", (data) => {
+        setActiveContacts((prev) => {
+          let activeContactsMap = new Map(prev.map((c) => [c.userId, c]));
+          activeContactsMap.delete(data);
+          return Array.from(activeContactsMap.values());
+        });
+      });
+      socket.on("userOnline", (data) => {
+        setActiveContacts((prev) => {
+          let activeContactsMap = new Map(prev.map((c) => [c.userId, c]));
+          activeContactsMap.set(data.userId, data);
+          return Array.from(activeContactsMap.values());
+        });
+      });
+      socket.on("userTyping", (typingInfo) => {
+        console.log("USER TYPING", typingInfo);
+        if (typingInfo.isTyping) {
+          setUsersTyping((prev) => {
+            const usersTypingSet = new Set(prev);
+            usersTypingSet.add(typingInfo.convoId);
+
+            return usersTypingSet;
+          });
+
+          if (typingTimeoutsRef.current.has(typingInfo.convoId)) {
+            clearTimeout(typingTimeoutsRef.current.get(typingInfo.convoId));
+          }
+        } else {
+          const timeout = setTimeout(() => {
+            setUsersTyping((prev) => {
+              const typingMap = new Set(prev);
+              typingMap.delete(typingInfo.convoId);
+
+              return typingMap;
+            });
+            typingTimeoutsRef.current.delete(typingInfo.convoId);
+          }, 2000);
+
+          typingTimeoutsRef.current.set(typingInfo.convoId, timeout);
+        }
+      });
+      socket.on("restoredTyping", (convos) => {
+        console.log("RESTORED TYPING", convos);
+        setUsersTyping((prev) => {
+          const typingMap = new Set(prev);
+          convos.forEach((convoId) => {
+            typingMap.add(convoId);
+          });
+          return typingMap;
+        });
+      });
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("newRequest");
+        socket.off("updateConversationHeader");
+        socket.off("userOffline");
+        socket.off("userOnline");
+        socket.off("userTyping");
+        socket.off("restoredTyping");
+      }
+    };
+  }, [socket]);
 
   /**
    * The effect to set the socket when the user logs in
@@ -218,29 +342,17 @@ const App = () => {
     setToken(null);
     setUserId(null);
     setSelected(0);
-    setSelectedChat(0);
+    setSelectedConversation(null);
+    setSelectedRequest(null);
     setSelectedElement(null);
     setNavExpanded(false);
     sessionStorage.clear();
-    selectedChatDetails.current = null;
     setCompose(false);
     setRequests([]);
-    setRequestCount(null);
+    setRequestCount(0);
+    setIsConvosFullyLoaded(false);
+    setDisplayedConversations([]);
   }, []);
-
-  /**
-   * The effect to clear the selected chat when it is changed
-   */
-  useEffect(() => {
-    console.log("SELECTED CHAT HAS BEEN CHANGED", selectedChat);
-    if (selectedChat !== 0 && displayedConversations.length > 0) {
-      selectedChatDetails.current = displayedConversations[selectedChat - 1];
-      sessionStorage.setItem(
-        "selectedChatDetails",
-        JSON.stringify(selectedChatDetails.current)
-      );
-    }
-  }, [selectedChat, displayedConversations]);
 
   /**
    * The callback to handle the nav expand button being clicked
@@ -292,11 +404,8 @@ const App = () => {
             showSettings,
             setShowSettings: handleShowSettings,
             settingsRef,
-            selectedChat,
-            setSelectedChat,
             displayedConversations,
             setDisplayedConversations,
-            displayedPictures,
             compose,
             setCompose: composeOff,
             selectedElement: selectedElement,
@@ -304,17 +413,21 @@ const App = () => {
             showsearchField,
             setShowsearchField,
             searchFieldRef,
-            conversationRef,
-            selectedChatDetails,
-            composedMessage,
-            convoOverride,
-            displayedConversationsRef,
             requests,
             setRequests,
             requestCount,
             setRequestCount,
             selectedRequest,
             setSelectedRequest,
+            isConvosFullyLoaded,
+            setIsConvosFullyLoaded,
+            activeContacts,
+            setActiveContacts,
+            selectedConversation,
+            setSelectedConversation,
+            selectedConversationRef,
+            usersTyping,
+            setUsersTyping,
           }}
         >
           <RouterProvider

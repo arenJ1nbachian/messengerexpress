@@ -1,4 +1,3 @@
-const { mongoose, get } = require("mongoose");
 const Convo = require("../models/conversation");
 const Message = require("../models/message");
 const Users = require("../models/user");
@@ -16,13 +15,12 @@ const {
 const getConversations = async (req, res) => {
   // Extract the user ID from the request parameters.
   const uid = req.params.uid;
-  const result = [];
+  const result = new Map();
 
   try {
     // Retrieve all conversations where the user is a participant, sorted by the last update.
     const conversations = await Convo.find({
       participants: { $in: [uid] },
-      status: { $eq: "Accepted" },
     }).sort({ updatedAt: -1 });
 
     // If there are no conversations, return a 404 error.
@@ -51,11 +49,12 @@ const getConversations = async (req, res) => {
       );
 
       if (
-        (lastMessage.sender.toString() === uid && convo.status === "Pending") ||
+        (lastMessage.sender.toString() === uid &&
+          (convo.status === "Pending" || convo.status === "Rejected")) ||
         convo.status === "Accepted"
       ) {
         // Construct the result object for each conversation.
-        result.push({
+        result.set(convo._id.toString(), {
           userId: nameID, // The ID of the other participant.
           name: name.firstname + " " + name.lastname, // The full name of the other participant.
           lastMessage: lastMessage.content, // The content of the last message.
@@ -64,7 +63,7 @@ const getConversations = async (req, res) => {
             lastMessage.receiver.toString() === uid
               ? lastMessage.read
               : undefined, // Indicates if the last message is read.
-          _id: convo._id, // The ID of the conversation.
+          _id: convo._id.toString(), // The ID of the conversation.
           profilePicture:
             name.profilePicture === null
               ? ""
@@ -75,7 +74,7 @@ const getConversations = async (req, res) => {
     }
 
     // Respond with the list of conversations.
-    res.status(200).json({ result });
+    res.status(200).json(Array.from(result.values()));
   } catch (error) {
     // Log any errors and return a 500 error response.
     console.log(error);
@@ -129,20 +128,21 @@ const createConversation = async (participants, lastMessage) => {
 const emitnewRequestEvent = (io, newConvo, message, sender, receiverID) => {
   if (searchActiveUsers(receiverID)) {
     for (const socket of getSocketsByUserId(receiverID)) {
+      if (newConvo.status === "Rejected") {
+        io.to(socket).emit("updateRequestsNumber", 1);
+      }
       io.to(socket).emit("newRequest", {
-        convoReceiver: {
-          _id: newConvo._id.toString(),
-          lastMessage: message.content,
-          name: sender.firstname + " " + sender.lastname,
-          profilePicture:
-            sender.profilePicture === null
-              ? ""
-              : "http://localhost:5000/" + sender.profilePicture,
-          read: message.read,
-          updatedAt: newConvo.updatedAt,
-          userId: sender._id.toString(),
-          who: "",
-        },
+        _id: newConvo._id.toString(),
+        lastMessage: message.content,
+        name: sender.firstname + " " + sender.lastname,
+        profilePicture:
+          sender.profilePicture === null
+            ? ""
+            : "http://localhost:5000/" + sender.profilePicture,
+        read: message.read,
+        updatedAt: newConvo.updatedAt,
+        userId: sender._id.toString(),
+        who: "",
       });
     }
   } else {
@@ -212,11 +212,34 @@ const getRequests = async (req, res) => {
   } catch (error) {}
 };
 
+const getRequestCount = async (req, res) => {
+  const uid = req.params.uid;
+  let reqCount = 0;
+  try {
+    const requests = await Convo.find({
+      $and: [{ status: "Pending" }, { participants: { $in: [uid] } }],
+    }).sort({
+      updatedAt: -1,
+    });
+    for (const request of requests) {
+      const lastMessage = await Message.findById(request.lastMessage);
+
+      if (lastMessage.receiver.toString() === uid) {
+        reqCount++;
+      }
+    }
+    return res.status(200).json({ count: reqCount });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 // Accept a conversation request. This will update the status of the conversation to "Accepted"
 const acceptRequest = async (req, res) => {
-  const { convoID } = req.body;
+  const { convoId } = req.body;
+  console.log(convoId);
   try {
-    const convo = await Convo.findById(convoID);
+    const convo = await Convo.findById(convoId);
     if (convo) {
       convo.status = "Accepted";
       await convo.save();
@@ -232,9 +255,9 @@ const acceptRequest = async (req, res) => {
 
 // Reject a conversation request. This will update the status of the conversation to "Rejected"
 const rejectRequest = async (req, res) => {
-  const { convoID } = req.body;
+  const { convoId } = req.body;
   try {
-    const convo = await Convo.findById(convoID);
+    const convo = await Convo.findById(convoId);
     if (convo) {
       convo.status = "Rejected";
       await convo.save();
@@ -252,7 +275,6 @@ const emitRemoveFromRequestsEvent = (io, convoID, receiverID) => {
   if (searchActiveUsers(receiverID)) {
     for (const socket of getSocketsByUserId(receiverID)) {
       io.to(socket).emit("removeFromRequests", { convoID });
-      io.to(socket).emit("updateRequestsNumber", -1);
     }
   } else {
     console.log("User is offline, there's no need to emit the event");
@@ -292,6 +314,7 @@ const createConvo = async (req, res, io) => {
       // This will also change the status of the conversation to "Accepted" and will also emit
       // a realTimeEvent to remove the request from the other user's screen since it's being accepted
       if (convo.status === "Accepted") {
+        convo.updatedAt = Date.now();
         emitRealTimeEvent(
           io,
           convo,
@@ -304,7 +327,6 @@ const createConvo = async (req, res, io) => {
         lastMessage.receiver.equals(sender._id)
       ) {
         convo.status = "Accepted";
-        convo.save();
         emitRealTimeEvent(
           io,
           convo,
@@ -312,13 +334,13 @@ const createConvo = async (req, res, io) => {
           sender,
           receiver._id.toString()
         );
-        emitRemoveFromRequestsEvent(io, convo._id, receiver._id.toString());
+        emitRemoveFromRequestsEvent(io, convo._id, sender._id.toString());
       }
       // If the conversation is pending and the user who sent this current message was also
       // the same user who sent the last message, emit a newRequest event to the other user.
       // This will just change the information shown on the other user's screen
       else if (
-        convo.status === "Pending" &&
+        (convo.status === "Pending" || convo.status === "Rejected") &&
         lastMessage.sender.equals(sender._id)
       ) {
         emitnewRequestEvent(
@@ -352,13 +374,16 @@ const createConvo = async (req, res, io) => {
       emitnewRequestEvent(
         io,
         newConvo,
-        message,
+        newMessage,
         sender,
         receiver._id.toString()
       );
 
-      for (const socket of getSocketsByUserId(receiver._id)) {
-        io.to(socket).emit("updateRequestsNumber", 1);
+      if (searchActiveUsers(receiver._id.toString())) {
+        console.log("Updating requests number");
+        for (const socket of getSocketsByUserId(receiver._id.toString())) {
+          io.to(socket).emit("updateRequestsNumber", 1);
+        }
       }
 
       res.status(201).json({
@@ -449,3 +474,4 @@ exports.getMessageRead = getMessageRead;
 exports.getRequests = getRequests;
 exports.acceptRequest = acceptRequest;
 exports.rejectRequest = rejectRequest;
+exports.getRequestCount = getRequestCount;

@@ -6,8 +6,10 @@ import "./ChatBox.css";
 import ChatContent from "./ChatContent";
 import { SocketContext } from "../Contexts/SocketContext";
 import { NavContext } from "../Contexts/NavContext";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import noConvo from "../images/noConvoSelected.png";
+import { handleRequestChoice } from "../utils/handleRequestChoice";
+import { markConversationAsRead } from "../utils/markConversationAsRead";
 
 /**
  * The Chatbox component is responsible for rendering the chat content and
@@ -18,14 +20,11 @@ import noConvo from "../images/noConvoSelected.png";
 const Chatbox = ({ request = false }) => {
   const inputRef = useRef(null);
 
+  const navigate = useNavigate();
+
   const [inputValue, setInputValue] = useState("");
 
-  /**
-   * The isTyping state variable is used to keep track of whether the user is
-   * currently typing a message or not. It is used to emit the "typing" event to
-   * the server when the user starts typing a message.
-   */
-  const [isTyping, setIsTyping] = useState(false);
+  const isTyping = useRef(false);
 
   /**
    * The typingTimeoutRef is a reference to the timeout that is set when the
@@ -52,12 +51,31 @@ const Chatbox = ({ request = false }) => {
    */
   const { id } = useParams();
 
+  useEffect(
+    () => {
+      setInputValue("");
+      isTyping.current = false;
+      if (sessionStorage.getItem("typing") && socket) {
+        const previousTyping = JSON.parse(sessionStorage.getItem("typing"));
+        socket.emit("typing", {
+          isTyping: false,
+          conversationId: previousTyping.conversationId,
+          receiver: previousTyping.receiver,
+        });
+        sessionStorage.removeItem("typing");
+      }
+    },
+    nav.selectedConversation,
+    socket
+  );
+
   useEffect(() => {
     if (sessionStorage.getItem("typing") && socket) {
       socket.emit("typing", {
-        conversationId: id,
-        sender: sessionStorage.getItem("userId"),
         isTyping: false,
+        conversationId: id,
+        receiver: nav?.displayedConversations?.get(nav.selectedConversation)
+          .userId,
       });
     }
   }, [socket]);
@@ -73,65 +91,13 @@ const Chatbox = ({ request = false }) => {
   }, []);
 
   /**
-   * The useEffect hook is used to clear the timeout when the user navigates away
-   * from the conversation page.
-   */
-  useEffect(() => {
-    if (
-      nav?.displayedConversations &&
-      nav?.displayedConversations[nav.selectedChat - 1] !==
-        nav.conversationRef.current &&
-      isTyping
-    ) {
-      socket.emit("typing", {
-        conversationId: nav.conversationRef.current?._id,
-        sender: sessionStorage.getItem("userId"),
-        isTyping: false,
-      });
-      sessionStorage.removeItem("typing");
-      setInputValue("");
-      setIsTyping(false);
-      clearTimeout(typingTimeoutRef.current);
-      typingTimeoutRef.current = null;
-    }
-  }, [nav.selectedChat]);
-
-  /**
    * The handleClick function is used to handle the click event of the send
    * button. It sends the message to the server and clears the input field.
    * @param {Event} e - The click event.
    */
   const handleClick = async (e) => {
     e.preventDefault();
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-      typingTimeoutRef.current = null;
-    }
-    if (isTyping) {
-      socket.emit("typing", {
-        conversationId: id,
-        sender: sessionStorage.getItem("userId"),
-        isTyping: false,
-        submitted: true,
-      });
-    }
-    sessionStorage.removeItem("typing");
-    setIsTyping(false);
 
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-
-    typingTimeoutRef.current = setTimeout(() => {
-      if (isTyping) {
-        socket.emit("typing", {
-          conversationId: id,
-          sender: sessionStorage.getItem("userId"),
-          isTyping: false,
-        });
-      }
-      setIsTyping(false);
-    });
     if (inputValue.length > 0) {
       try {
         const res = await fetch(
@@ -143,10 +109,9 @@ const Chatbox = ({ request = false }) => {
             },
             body: JSON.stringify({
               userID1: sessionStorage.getItem("userId"),
-              userName2:
-                nav?.displayedConversations.length > 0
-                  ? nav?.displayedConversations[nav.selectedChat - 1].name
-                  : nav.selectedChatDetails.current.name,
+              userName2: nav.displayedConversations.get(
+                nav.selectedConversation
+              ).name,
               message: inputValue,
             }),
           }
@@ -155,23 +120,27 @@ const Chatbox = ({ request = false }) => {
           const conversation = await res.json();
           console.log("New conversation created");
           setInputValue("");
-          if (nav.selected === 0) {
-            let displayedConversations = [];
-            displayedConversations.push(conversation.convoSender);
-            for (let i = 0; i < nav.displayedConversations.length; i++) {
-              if (
-                conversation.convoSender._id !==
-                nav.displayedConversations[i]._id
-              ) {
-                displayedConversations.push(nav.displayedConversations[i]);
-              }
-            }
-            nav.setDisplayedConversations(displayedConversations);
-            nav.setSelectedChat(1);
-            sessionStorage.setItem("selectedChat", 1);
-          } else {
-            nav.composedMessage.current = true;
-          }
+
+          nav.setDisplayedConversations((prev) => {
+            const newConversations = new Map(prev);
+            newConversations.set(
+              conversation.convoSender._id,
+              conversation.convoSender
+            );
+
+            const sortedNewConversations = new Map(
+              [...newConversations.entries()].sort(
+                (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+              )
+            );
+
+            sessionStorage.setItem(
+              "displayedConversations",
+              JSON.stringify(Array.from(sortedNewConversations.entries()))
+            );
+
+            return sortedNewConversations;
+          });
         }
       } catch (error) {
         console.log(error);
@@ -180,12 +149,12 @@ const Chatbox = ({ request = false }) => {
   };
 
   /**
-   * The handleKeyDown function is used to handle the keydown event of the input
-   * field. It is used to detect when the user is typing a message and emits the
-   * "typing" event to the server.
-   * @param {Event} event - The keydown event.
+   * The handleChange function is used to handle the change event of the input
+   * field. It is used to update the inputValue state variable and to clear the
+   * typing timeout.
+   * @param {Event} event - The change event.
    */
-  const handleKeyDown = (event) => {
+  const handleChange = (event) => {
     const nonCharacterKeys = [
       "Backspace",
       "Tab",
@@ -208,44 +177,42 @@ const Chatbox = ({ request = false }) => {
       return;
     }
 
-    if (!isTyping && !isModifierKey) {
-      sessionStorage.setItem("typing", {
-        conversationId: id,
-        sender: sessionStorage.getItem("userId"),
-        isTyping: true,
-      });
-      socket.emit("typing", {
-        conversationId: id,
-        sender: sessionStorage.getItem("userId"),
-        isTyping: true,
-      });
-      setIsTyping(true);
-    }
-  };
-
-  /**
-   * The handleChange function is used to handle the change event of the input
-   * field. It is used to update the inputValue state variable and to clear the
-   * typing timeout.
-   * @param {Event} event - The change event.
-   */
-  const handleChange = (event) => {
-    setInputValue(event.target.value);
-
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
     }
 
+    if (!isTyping.current) {
+      socket.emit("typing", {
+        isTyping: true,
+        conversationId: id,
+        receiver: nav?.displayedConversations?.get(nav.selectedConversation)
+          .userId,
+      });
+    }
+
+    isTyping.current = true;
+    sessionStorage.setItem(
+      "typing",
+      JSON.stringify({
+        conversationId: id,
+        receiver: nav?.displayedConversations?.get(nav.selectedConversation)
+          .userId,
+      })
+    );
+
     typingTimeoutRef.current = setTimeout(() => {
-      if (isTyping) {
-        socket.emit("typing", {
-          conversationId: id,
-          sender: sessionStorage.getItem("userId"),
-          isTyping: false,
-        });
-      }
-      setIsTyping(false);
+      isTyping.current = false;
+      sessionStorage.removeItem("typing");
+      socket.emit("typing", {
+        isTyping: false,
+        conversationId: id,
+        receiver: nav?.displayedConversations?.get(nav.selectedConversation)
+          .userId,
+      });
     }, 3000);
+
+    setInputValue(event.target.value);
   };
 
   return (
@@ -253,20 +220,17 @@ const Chatbox = ({ request = false }) => {
       <div
         className={`chatConvoBox ${nav.navExpanded ? "expanded" : "default"}`}
       >
-        {(nav.selectedChatDetails.current || nav.selectedRequest) &&
-        !nav.compose ? (
+        {(nav.selectedConversation || nav.selectedRequest) && !nav.compose ? (
           <>
             <div className="recipient">
               <div className="uPicture">
                 <Category
                   img={
                     nav.selectedRequest
-                      ? nav.selectedRequest.profilePicture
-                      : (nav.displayedConversations &&
-                          nav?.displayedConversations?.[nav.selectedChat - 1]
-                            ?.profilePicture) ||
-                        nav.selectedChatDetails?.current.profilePicture ||
-                        defaultPicture
+                      ? nav.requests?.get(nav.selectedRequest).profilePicture
+                      : nav.displayedConversations?.get(
+                          nav.selectedConversation
+                        )?.profilePicture || defaultPicture
                   }
                   width="100%"
                   height="100%"
@@ -275,11 +239,10 @@ const Chatbox = ({ request = false }) => {
               <div className="uInfo">
                 <div className="uName">
                   {request
-                    ? nav.selectedRequest.name
-                    : (nav.displayedConversations &&
-                        nav?.displayedConversations?.[nav.selectedChat - 1]
-                          ?.name) ||
-                      nav.selectedChatDetails.current.name}
+                    ? nav?.requests?.get(nav.selectedRequest)?.name
+                    : nav.displayedConversations &&
+                      nav?.displayedConversations?.get(nav.selectedConversation)
+                        ?.name}
                 </div>
                 <div className="uActive">Active 10h ago</div>
               </div>
@@ -287,15 +250,20 @@ const Chatbox = ({ request = false }) => {
             <ChatContent />
             {request ? (
               <div className="requestBox">
-                <div>
+                <div className="requestInfoBox">
                   <div className="requestTitle">
-                    <strong> {nav.selectedRequest.name} </strong>wants to send
-                    you a message.
+                    <strong>
+                      {nav?.requests?.get(nav.selectedRequest)?.name}{" "}
+                    </strong>
+                    wants to send you a message.
                   </div>
                   <div className="requestQuestion">
                     Do you want to let{" "}
-                    <strong> {nav.selectedRequest.name} </strong> send you
-                    messages from now on?
+                    <strong>
+                      {" "}
+                      {nav?.requests?.get(nav.selectedRequest)?.name}{" "}
+                    </strong>{" "}
+                    send you messages from now on?
                   </div>
                   <div className="requestInfo">
                     They'll only know you've seen their request if you choose
@@ -303,8 +271,64 @@ const Chatbox = ({ request = false }) => {
                   </div>
                 </div>
                 <div className="answerRequest">
-                  <button className="btnChoice">Accept</button>
-                  <button className="btnChoice">Decline</button>
+                  <button
+                    onClick={async () => {
+                      handleRequestChoice("accept", nav.selectedRequest);
+                      nav.setRequestCount(nav.requestCount - 1);
+                      nav.setDisplayedConversations((prev) => {
+                        let newConversations = new Map(prev);
+                        nav.requests.get(nav.selectedRequest).read = true;
+                        newConversations.set(
+                          nav.selectedRequest,
+                          nav.requests.get(nav.selectedRequest)
+                        );
+
+                        const sortedConversations = new Map(
+                          [...newConversations.entries()].sort(
+                            (a, b) =>
+                              new Date(b[1].updatedAt) -
+                              new Date(a[1].updatedAt)
+                          )
+                        );
+                        sessionStorage.setItem(
+                          "displayedConversations",
+                          JSON.stringify(
+                            Array.from(sortedConversations.entries())
+                          )
+                        );
+                        return sortedConversations;
+                      });
+                      nav.setRequests((prev) => {
+                        let newRequests = new Map(prev);
+                        newRequests.delete(nav.selectedRequest);
+                        return newRequests;
+                      });
+                      nav.setSelectedConversation(nav.selectedRequest);
+                      nav.selectedConversationRef.current = nav.selectedRequest;
+                      await markConversationAsRead(nav.selectedRequest);
+                      nav.setSelectedRequest(null);
+                      navigate(`/requests/${nav.selectedConversation}`);
+                    }}
+                    className="btnChoice"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleRequestChoice("reject", nav.selectedRequest);
+                      nav.setRequests((prev) => {
+                        let newRequests = new Map(prev);
+                        newRequests.delete(nav.selectedRequest);
+                        return newRequests;
+                      });
+                      nav.setSelectedRequest(null);
+                      navigate("/requests/none");
+                      nav.setRequestCount(nav.requestCount - 1);
+                    }}
+                    className="btnChoice"
+                  >
+                    Decline
+                  </button>
                   <button className="btnChoice">Block</button>
                 </div>
               </div>
@@ -314,7 +338,6 @@ const Chatbox = ({ request = false }) => {
                   <input
                     ref={inputRef}
                     value={inputValue}
-                    onKeyDown={handleKeyDown}
                     onChange={handleChange}
                     type="text"
                     autoComplete="off"

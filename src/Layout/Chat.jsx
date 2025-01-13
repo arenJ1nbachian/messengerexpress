@@ -7,7 +7,7 @@ import "./Chat.css";
 import "../CSS/ScrollBar.css";
 import ConvoBox from "../Components/ConvoBox/ConvoBox";
 import { SocketContext } from "../Contexts/SocketContext";
-import { Outlet, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 /**
  * This component renders the chat page where all the user's conversations get displayed.
@@ -27,102 +27,20 @@ const Chat = () => {
    */
   const { socket } = useContext(SocketContext);
 
-  /**
-   * This effect is called when the component mounts and when the socket or the
-   * displayed conversations change.
-   * It sets up a listener for the "requestJoinConversation" event from the server.
-   * When the event is triggered, it joins the conversation and adds it to the displayed
-   * conversations.
-   */
   useEffect(() => {
-    if (socket) {
-      socket.on("requestJoinConversation", (data) => {
-        console.log("Recipient received join request", data);
-        socket.emit("joinConversation", data.conversationId);
-        navBar.setDisplayedConversations((prev) => {
-          if (prev.length === 0) {
-            return data.convo;
-          } else {
-            let convos = [];
-            convos.push(data.convo);
-            for (const convo of prev) {
-              convos.push(convo);
-            }
-            return convos;
-          }
-        });
-      });
+    if (navBar.selectedConversation === null && !navBar.compose) {
+      navigate("/chats/none");
+    } else if (navBar.compose) {
+      navigate("/chats/compose");
     } else {
-      console.log("Socket not found");
+      navigate(`/chats/${navBar.selectedConversation}`);
     }
-
-    return () => {
-      if (socket) {
-        socket.off("requestJoinConversation");
-      }
-    };
-  }, [socket]);
-
-  useEffect(() => {
-    // If the user is not composing a message and has not selected a conversation, navigate to the "none" chat.
-    if (
-      !navBar.compose &&
-      navBar.selectedChat === 0 &&
-      !navBar.convoOverride.current.status
-    ) {
-      navigate(`/chats/none`);
-      // If there are displayed conversations and the selected chat is not that of the compose button and the user's previously
-      // composed message was not sent outside of the chats page, navigate to the selected chat.
-    } else if (
-      navBar.selectedChat !== 0 &&
-      navBar.displayedConversations.length > 0 &&
-      !navBar.composedMessage.current &&
-      !navBar.convoOverride.current.status
-    ) {
-      if (
-        !navBar.displayedConversations[navBar.selectedChat - 1]._id ===
-        navBar.selectedChatDetails?.current?._id
-      ) {
-        const index = navBar.displayedConversations.findIndex(
-          (convo) => convo._id === navBar.selectedChatDetails.current._id
-        );
-        navBar.setSelectedChat(index + 1);
-      }
-
-      // Navigate to the selected chat from navBar.selectedChatDetails.
-      // Special case: when the user sends a message outside the chats page, avoid changing displayedConversations
-      // to prevent displaying the wrong profile picture or falling back to the default one.
-      // Use navBar.composedMessage to track that a message was composed outside the chats page.
-      // Note: The GetConversation HTTP request automatically sorts the latest messages,
-      // so we only need to setSelectedChat to the first conversation and disable composedMessage.
-    } else if (
-      navBar.composedMessage.current &&
-      !navBar.convoOverride.current.status
-    ) {
-      navBar.setSelectedChat(1);
-      navBar.composedMessage.current = false;
-      navigate(`/chats/${navBar.selectedChatDetails.current._id}`);
-    } else if (
-      navBar.convoOverride.current.status &&
-      navBar.displayedConversations.length > 0
-    ) {
-      const index =
-        navBar.displayedConversations.findIndex(
-          (convo) => convo._id === navBar.convoOverride.current._id
-        ) + 1;
-      navigate(`/chats/${navBar.convoOverride.current._id}`);
-      navBar.setSelectedChat(index);
-      sessionStorage.setItem("selectedChat", index);
-      navBar.convoOverride.current = { status: false, _id: "" };
-    }
-  }, [navBar.displayedConversations]);
-
-  /**
-   * This effect is called when the component mounts and when the displayed conversations
-   * change.
-   * It checks if the displayed conversations are empty and if the selected chat is 1, it
-   * navigates to the "none" chat.
-   */
+  }, [
+    navBar.compose,
+    navBar.displayedConversations,
+    navBar.selectedConversation,
+    navigate,
+  ]);
 
   return (
     <div style={{ display: "flex", height: "100%", width: "100%" }}>
@@ -132,9 +50,9 @@ const Chat = () => {
           <div
             onClick={(e) => {
               navBar.setCompose(true);
-              navBar.setSelectedChat(0);
-              sessionStorage.setItem("selectedChat", 0);
-              navigate("/chats/compose");
+              navBar.setSelectedConversation(null);
+              sessionStorage.removeItem("selectedConversation");
+              navBar.setShowsearchField(true);
               e.stopPropagation();
             }}
             className={`chatBoxCompose ${

@@ -8,16 +8,12 @@ const Archived = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (
-      navBar.selectedChatDetails?.current &&
-      !navBar.compose &&
-      navBar.selectedChat !== 0
-    ) {
-      navigate(`/archived/${navBar.selectedChatDetails?.current._id}`);
+    if (!navBar.compose && navBar.selectedConversation) {
+      navigate(`/archived/${navBar.selectedConversation}`);
     } else {
       navigate("/archived/none");
     }
-  }, []);
+  }, [navBar.compose, navBar.selectedConversation, navigate]);
   return (
     <div style={{ display: "flex", height: "100%", width: "100%" }}>
       <div className={`chatBox ${navBar.navExpanded ? "expanded" : "default"}`}>

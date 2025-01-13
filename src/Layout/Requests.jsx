@@ -29,31 +29,52 @@ const Requests = () => {
    */
   useEffect(() => {
     if (
-      navBar.selectedChatDetails?.current &&
       !navBar.compose &&
-      navBar.selectedChat !== 0
+      navBar.selectedConversation &&
+      !navBar.selectedRequest
     ) {
-      navigate(`/requests/${navBar.selectedChatDetails?.current._id}`);
+      navigate(`/requests/${navBar.selectedConversation}`);
+    } else if (navBar.selectedRequest) {
+      navigate(`/requests/${navBar.requests.get(navBar.selectedRequest)._id}`);
     } else {
       navigate("/requests/none");
     }
-  }, []);
+  }, [
+    navBar.compose,
+    navBar.requests,
+    navBar.selectedConversation,
+    navBar.selectedRequest,
+    navigate,
+  ]);
 
   useEffect(() => {
-    if (socket) {
-      socket.on("newRequest", (request) => {
-        console.log("NEW REQUEST", request);
-      });
-      socket.on("removeFromRequests", (request) => {});
-    }
-
-    return () => {
-      if (socket) {
-        socket.off("newRequest");
-        socket.off("removeFromRequests");
+    const getRequests = async () => {
+      try {
+        const requests = await fetch(
+          "http://localhost:5000/api/conversations/getRequests/" +
+            sessionStorage.getItem("userId"),
+          {
+            method: "GET",
+          }
+        );
+        if (requests.ok) {
+          const result = await requests.json();
+          if (result.requests.length > 0) {
+            navBar.setRequests(
+              new Map(
+                result.requests
+                  .map((r) => [r._id, r])
+                  .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+              )
+            );
+          }
+        }
+      } catch (e) {
+        console.log(e);
       }
     };
-  }, [socket]);
+    getRequests();
+  }, []);
 
   return (
     <div style={{ display: "flex", height: "100%", width: "100%" }}>
@@ -61,12 +82,12 @@ const Requests = () => {
         <div className="chatBoxContactHeader">
           <div className="chatBoxContactTitle">Requests</div>
         </div>
-        {navBar.requests?.length > 0 ? (
-          navBar.requests.map((request, index) => {
+        {navBar.requests.size > 0 ? (
+          Array.from(navBar.requests).map(([key, request]) => {
             return (
               <RequestBox
-                key={request._id}
-                index={index}
+                key={key}
+                id={key}
                 picture={request.profilePicture}
                 setConvoHovered={setConvoHovered}
                 convoHovered={convoHovered}

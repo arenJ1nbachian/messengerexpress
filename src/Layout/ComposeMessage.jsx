@@ -48,20 +48,29 @@ const ComposeMessage = () => {
           console.log(conversation);
           setMessageInput("");
           convoID = conversation.convoSender._id;
-          let displayedConversations = [];
-          displayedConversations.push(conversation.convoSender);
-          for (let i = 0; i < navContext.displayedConversations.length; i++) {
-            if (
-              conversation.convoSender._id !==
-              navContext.displayedConversations[i]._id
-            ) {
-              displayedConversations.push(navContext.displayedConversations[i]);
-            }
-          }
-          navContext.setDisplayedConversations(displayedConversations);
-          navContext.setSelectedChat(1);
-          sessionStorage.setItem("selectedChat", 1);
-          navContext.selectChatDetails = conversation.convoSender;
+          navContext.setDisplayedConversations((prev) => {
+            const updatedConversations = new Map(prev);
+            updatedConversations.set(convoID, conversation.convoSender);
+
+            const sortedConversations = new Map(
+              [...updatedConversations.entries()].sort(
+                (a, b) => new Date(b[1].updatedAt) - new Date(a[1].updatedAt)
+              )
+            );
+
+            sessionStorage.setItem(
+              "displayedConversations",
+              JSON.stringify(Array.from(sortedConversations.entries()))
+            );
+
+            navContext.setSelectedConversation(convoID);
+
+            navContext.selectedConversationRef.current = convoID;
+
+            sessionStorage.setItem("selectedConversation", convoID);
+
+            return sortedConversations;
+          });
         }
       } catch (error) {
         console.log(error);

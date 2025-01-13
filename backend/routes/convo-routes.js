@@ -17,5 +17,11 @@ module.exports = (io) => {
 
   router.get("/getRequests/:uid", convoController.getRequests);
 
+  router.get("/getRequestCount/:uid", convoController.getRequestCount);
+
+  router.patch("/acceptRequest", convoController.acceptRequest);
+
+  router.patch("/rejectRequest", convoController.rejectRequest);
+
   return router;
 };

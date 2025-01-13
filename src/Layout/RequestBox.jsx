@@ -4,24 +4,25 @@ import defaultPicture from "../images/default.svg";
 import { useNavigate } from "react-router";
 
 const RequestBox = ({
-  index,
+  id,
   picture,
   setConvoHovered,
   convoHovered,
   request,
+  setClickedRequest,
 }) => {
   const navContext = useContext(NavContext);
   const navigate = useNavigate();
   return (
     <div
-      className={`userConvo ${
-        navContext.selectedChat === index + 1 ? "clicked" : "default"
-      } ${convoHovered === index + 1 ? "hovered" : "default"}`}
-      onMouseEnter={() => setConvoHovered(index + 1)}
-      onMouseLeave={() => setConvoHovered(-1)}
+      className={`userConvo ${convoHovered === id ? "hovered" : "default"} ${
+        navContext.selectedRequest === id ? "clicked" : "default"
+      }`}
+      onMouseEnter={() => setConvoHovered(id)}
+      onMouseLeave={() => setConvoHovered(null)}
       onClick={() => {
         navigate("/requests/" + request._id);
-        navContext.setSelectedRequest(request);
+        navContext.setSelectedRequest(request._id);
       }}
     >
       <div id="pfPicture">

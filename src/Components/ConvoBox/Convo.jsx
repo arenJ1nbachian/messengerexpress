@@ -20,113 +20,41 @@ import { markConversationAsRead } from "../../utils/markConversationAsRead";
  * @param {string} props.unread - The unread icon URL.
  * @param {string} props.conversationId - The ID of the conversation.
  */
-const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
+const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
   const navContext = useContext(NavContext);
-  const [read, setRead] = useState(
-    navContext.displayedConversations[index].read
-  );
-  const [isTyping, setIsTyping] = useState(false);
-  const typingTimeoutRef = useRef(null);
+
   const navigate = useNavigate();
-  const { socket } = useContext(SocketContext);
 
   // Function to update the read status of the message
   const updateMessageRead = async () => {
-    markConversationAsRead(navContext.displayedConversations[index]._id);
-    navContext.selectedChatDetails.current.read = true;
-    sessionStorage.setItem(
-      "selectedChatDetails",
-      JSON.stringify(navContext.selectedChatDetails.current)
-    );
-    setRead(true);
-  };
-
-  useEffect(() => {
-    if (
-      navContext.selectedChat !== 0 &&
-      navContext.displayedConversations[navContext.selectedChat - 1]._id ===
-        navContext.displayedConversations[index]._id &&
-      !read &&
-      navContext.displayedConversations[index].userId ===
-        sessionStorage.getItem("userId")
-    ) {
-      updateMessageRead();
-    } else if (navContext.displayedConversations[index].read !== read) {
-      setRead(navContext.displayedConversations[index].read);
-      navContext.displayedConversationsRef.current[index].read =
-        navContext.displayedConversations[index].read;
-    }
-  }, [navContext.displayedConversations]);
-
-  // Effect to handle socket events for conversation updates and typing indicators
-  useEffect(() => {
-    if (socket) {
-      socket.on(
-        `typing_${navContext.displayedConversations[index]._id}`,
-        (data) => {
-          console.log("Received typing", data, navContext.selectedChat);
-          if (
-            data.sender !== sessionStorage.getItem("userId") &&
-            data.isTyping
-          ) {
-            clearTimeout(typingTimeoutRef.current);
-            typingTimeoutRef.current = null;
-            setIsTyping(true);
-          } else if (
-            data.sender !== sessionStorage.getItem("userId") &&
-            data.isTyping === false &&
-            !data.submitted
-          ) {
-            typingTimeoutRef.current = setTimeout(() => {
-              setIsTyping(false);
-              typingTimeoutRef.current = null;
-            }, 3000);
-          } else {
-            clearTimeout(typingTimeoutRef.current);
-            typingTimeoutRef.current = null;
-            setIsTyping(false);
-          }
-        }
+    await markConversationAsRead(id);
+    navContext.setDisplayedConversations((prev) => {
+      const updatedConversations = new Map(prev);
+      updatedConversations.get(id).read = true;
+      sessionStorage.setItem(
+        "displayedConversations",
+        JSON.stringify(Array.from(updatedConversations.entries()))
       );
-    }
-
-    return () => {
-      if (socket) {
-        socket.off(`typing_${navContext.displayedConversations[index]._id}`);
-      }
-    };
-  }, []);
+      return updatedConversations;
+    });
+  };
 
   return (
     <div
-      key={navContext.displayedConversations[index].userId}
+      key={id}
       className={`userConvo ${
-        navContext.selectedChat === index + 1 ? "clicked" : "default"
-      } ${convoHovered === index + 1 ? "hovered" : "default"}`}
-      onMouseEnter={() => setConvoHovered(index + 1)}
-      onMouseLeave={() => setConvoHovered(-1)}
+        navContext.selectedConversation === id ? "clicked" : "default"
+      } ${convoHovered === id ? "hovered" : "default"}`}
+      onMouseEnter={() => setConvoHovered(id)}
+      onMouseLeave={() => setConvoHovered(null)}
       onClick={() => {
-        if (navContext.selectedChat - 1 !== index) {
-          navContext.conversationRef.current =
-            navContext.displayedConversationsRef.current[
-              navContext.selectedChat - 1
-            ];
-          navContext.setSelectedChat(index + 1);
-          sessionStorage.setItem("selectedChat", index + 1);
-          navContext.setCompose(false);
-          navContext.setShowsearchField(true);
-          navContext.setSelectedElement(null);
-          navContext.selectedChatDetails.current =
-            navContext.displayedConversations[index];
-          sessionStorage.setItem(
-            "selectedChatDetails",
-            JSON.stringify(navContext.selectedChatDetails.current)
-          );
-          if (read === false) {
-            navContext.displayedConversationsRef.current[index].read = true;
-            updateMessageRead();
-          }
-          navigate(`/chats/${navContext.displayedConversations[index]._id}`);
+        navContext.setSelectedConversation(id);
+        navContext.selectedConversationRef.current = id;
+        navigate("/chats/" + id);
+        navContext.setCompose(false);
+        sessionStorage.setItem("selectedConversation", id);
+        if (!navContext.displayedConversations.get(id).read) {
+          updateMessageRead();
         }
       }}
     >
@@ -139,8 +67,10 @@ const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
       </div>
       <div className="convoInfo">
         <div id="idHeader">
-          <div id="flName">{`${navContext.displayedConversations[index].name} `}</div>
-          {isTyping && (
+          <div id="flName">{`${
+            navContext.displayedConversations.get(id).name
+          } `}</div>
+          {navContext.usersTyping.has(id) && (
             <div className="typing-indicator">
               <span className="dot">•</span>
               <span className="dot">•</span>
@@ -151,19 +81,19 @@ const Convo = ({ index, picture, setConvoHovered, convoHovered, unread }) => {
         <div
           id="latest-message"
           className={`${
-            read === false &&
-            navContext.displayedConversations[index].who.length === 0
+            !navContext.displayedConversations.get(id).read &&
+            navContext.displayedConversations.get(id).who.length === 0
               ? "unread"
               : ""
           }`}
-        >{`${navContext.displayedConversations[index].who} ${
-          navContext.displayedConversations[index].lastMessage === null
-            ? navContext.displayedConversations[index].lastMessage
-            : navContext.displayedConversations[index].lastMessage
+        >{`${navContext.displayedConversations.get(id).who} ${
+          navContext.displayedConversations.get(id).lastMessage === null
+            ? navContext.displayedConversations.get(id).lastMessage
+            : navContext.displayedConversations.get(id).lastMessage
         }`}</div>
       </div>
-      {read === false &&
-        navContext.displayedConversations[index].who.length === 0 && (
+      {!navContext.displayedConversations.get(id).read &&
+        navContext.displayedConversations.get(id).who.length === 0 && (
           <div className="unreadIcon">
             <Category img={unread} width="100%" height="100%" />
           </div>

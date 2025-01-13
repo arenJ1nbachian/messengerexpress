@@ -26,6 +26,11 @@ const {
   setOfflineNotificationTimeout,
   deleteActiveUser,
 } = require("./userOnlineStatus");
+const {
+  addTyping,
+  removeTyping,
+  getTypingConvos,
+} = require("./userConvoTyping");
 
 const io = new Server(server, {
   pingTimeout: 3000,
@@ -38,12 +43,13 @@ const io = new Server(server, {
   },
 });
 
-const usersTyping = {};
-
 app.use(express.json());
 
 io.on("connection", async (socket) => {
   const userId = socket.handshake.query.uid;
+
+  const storedTyping = getTypingConvos(userId);
+  console.log(getSocketsByUserId(userId));
 
   if (userId) {
     console.log(`User ${userId} connected with socket ${socket.id}`);
@@ -61,6 +67,10 @@ io.on("connection", async (socket) => {
       setNewUserSocket(userId);
     }
     addUserSocket(userId, socket.id); // Add the new socketId to the Set
+
+    if (storedTyping.length > 0 && getSocketsByUserId(userId).size > 0) {
+      socket.emit("restoredTyping", [...storedTyping]);
+    }
 
     // 3. Notify other users that this user is online
     // Only broadcast "userOnline" if the user is not already marked as online.
@@ -83,7 +93,10 @@ io.on("connection", async (socket) => {
         if (data?.length > 0) {
           console.log("DATA", data);
           data.forEach((onlineUser) => {
-            const recipientSockets = getSocketsByUserId(onlineUser.userId); // Get recipient socketIds
+            const recipientSockets = getSocketsByUserId(
+              onlineUser.userId.toString()
+            ); // Get recipient socketIds
+
             recipientSockets.forEach((recipientSocketId) => {
               socket.to(recipientSocketId).emit("userOnline", {
                 userId: userId,
@@ -145,46 +158,23 @@ io.on("connection", async (socket) => {
     }
   });
 
-  socket.on("joinConversation", (conversationId) => {
-    socket.join(conversationId);
-    if (usersTyping[conversationId]) {
-      usersTyping[conversationId].forEach((typingUserId) => {
-        if (typingUserId !== userId) {
-          socket.emit(`typing_${conversationId}`, {
-            conversationId,
-            isTyping: true,
-            sender: typingUserId,
-          });
-        }
-      });
-    }
-  });
-
-  socket.on("requestJoinConversation", (userId, conversationId, convo) => {
-    for (const socketId of getSocketsByUserId(userId)) {
-      socket
-        .to(socketId)
-        .emit("requestJoinConversation", { conversationId, convo });
-    }
-  });
-
   socket.on("typing", (data) => {
     console.log(data);
 
-    if (!usersTyping[data.conversationId]) {
-      usersTyping[data.conversationId] = new Set();
-    }
-
+    const recipientSockets = getSocketsByUserId(data.receiver);
     if (data.isTyping) {
-      usersTyping[data.conversationId].add(data.sender);
+      addTyping(data.conversationId, data.receiver);
     } else {
-      usersTyping[data.conversationId].delete(data.sender);
-      if (usersTyping[data.conversationId].length === 0) {
-        delete usersTyping[data.conversationId];
-      }
+      removeTyping(data.conversationId, data.receiver);
     }
-
-    socket.to(data.conversationId).emit(`typing_${data.conversationId}`, data);
+    if (recipientSockets) {
+      recipientSockets.forEach((recipientSocketId) => {
+        socket.to(recipientSocketId).emit("userTyping", {
+          convoId: data.conversationId,
+          isTyping: data.isTyping,
+        });
+      });
+    }
   });
 });
 

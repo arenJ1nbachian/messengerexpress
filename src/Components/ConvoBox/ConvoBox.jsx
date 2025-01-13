@@ -5,7 +5,6 @@ import { NavContext } from "../../Contexts/NavContext";
 import unread from "../../images/unread.svg";
 import Convo from "./Convo";
 import { SocketContext } from "../../Contexts/SocketContext";
-import { markConversationAsRead } from "../../utils/markConversationAsRead";
 
 /**
  * ConvoBox component.
@@ -19,7 +18,6 @@ const ConvoBox = () => {
   const [hovered, setHovered] = useState(-1);
   const [convoHovered, setConvoHovered] = useState(-1);
   const { socket } = useContext(SocketContext);
-  const selectedChat = useRef(null);
   const navContext = useContext(NavContext);
 
   /**
@@ -39,104 +37,23 @@ const ConvoBox = () => {
 
         if (conversations.ok) {
           const result = await conversations.json();
-          if (socket) {
-            result.result.forEach((conversation) => {
-              console.log("Joined", conversation._id);
-              socket.emit("joinConversation", conversation._id);
-            });
-          } else {
-            console.log("No socket");
-          }
-          if (
-            navContext.selectedChatDetails.current &&
-            navContext.selectedChat !== 0
-          ) {
-            const index = result.result.findIndex((conversation) => {
-              return (
-                conversation._id === navContext.selectedChatDetails.current._id
-              );
-            });
-            if (result.result[index].read === false) {
-              result.result[index].read = true;
-              markConversationAsRead(result.result[index]._id);
-            }
-            if (
-              result.result[index]._id !==
-              result.result[navContext.selectedChat - 1]._id
-            ) {
-              navContext.setSelectedChat(index + 1);
-            }
-          }
-          navContext.setDisplayedConversations(result.result);
-        } else {
-          navContext.setDisplayedConversations([]);
+
+          const convoMap = new Map(result.map((c) => [c._id, c]));
+
+          navContext.setDisplayedConversations(convoMap);
+          sessionStorage.setItem(
+            "displayedConversations",
+            JSON.stringify([...convoMap])
+          );
+          navContext.setIsConvosFullyLoaded(true);
         }
       } catch (error) {
         console.log(error);
       }
     };
-    displayConvo();
-  }, [socket]);
-
-  useEffect(() => {
-    navContext.displayedConversationsRef.current =
-      navContext.displayedConversations;
-  }, [navContext.displayedConversations]);
-
-  useEffect(() => {
-    selectedChat.current = navContext.selectedChat;
-  }, [navContext.selectedChat]);
-
-  useEffect(() => {
-    if (!socket) return; // Wait until socket is initialized
-    console.log("Subscribed to updateConversationHeader");
-    const handleUpdate = (data) => {
-      console.log("Received emit", data);
-      console.log(
-        "Displayed conversations:",
-        navContext.displayedConversationsRef.current
-      );
-      if (sessionStorage.getItem("userId") !== data.convoReceiver.userId) {
-        if (
-          selectedChat.current !== 0 &&
-          navContext.displayedConversationsRef.current[selectedChat.current - 1]
-            ._id === data.convoReceiver._id
-        ) {
-          data.convoReceiver.read = true;
-        }
-        const updatedConversations = [
-          data.convoReceiver,
-          ...navContext.displayedConversationsRef.current.filter(
-            (convo) => convo._id !== data.convoReceiver._id
-          ),
-        ];
-
-        console.log("Updated conversations:", updatedConversations);
-        if (selectedChat.current !== 0) {
-          const index =
-            updatedConversations.findIndex(
-              (conversation) =>
-                conversation._id ===
-                navContext.displayedConversationsRef.current[
-                  selectedChat.current - 1
-                ]._id
-            ) + 1;
-          navContext.setSelectedChat(index);
-          selectedChat.current = index;
-          sessionStorage.setItem("selectedChat", index);
-        }
-
-        navContext.setDisplayedConversations(updatedConversations);
-        navContext.displayedConversationsRef.current = updatedConversations;
-      }
-    };
-
-    socket.on("updateConversationHeader", handleUpdate);
-
-    return () => {
-      console.log("Unsubscribed from updateConversationHeader");
-      socket.off("updateConversationHeader", handleUpdate);
-    };
+    if (!navContext.isConvosFullyLoaded) {
+      displayConvo();
+    }
   }, [socket]);
 
   return (
@@ -152,9 +69,8 @@ const ConvoBox = () => {
           id="newConvo"
           key={0}
           className={`userConvo ${navContext.compose ? "show" : "hidden"} ${
-            navContext.selectedChat === 0 ? "clicked" : "default"
+            navContext.compose ? "clicked" : "default"
           } ${convoHovered === 0 ? "hovered" : "default"}`}
-          onChange={() => navContext.setSelectedChat(0)}
         >
           <div id="pfPicture">
             <img
@@ -175,19 +91,19 @@ const ConvoBox = () => {
             }`}</div>
           </div>
         </div>
-        {navContext.displayedConversations?.length > 0 &&
-          navContext.displayedConversations.map((conversation, index) => {
-            return (
+        {navContext.displayedConversations.size > 0 &&
+          Array.from(navContext.displayedConversations).map(
+            ([id, conversation], index) => (
               <Convo
-                key={conversation._id}
-                index={index}
+                key={id}
+                id={id}
                 picture={conversation.profilePicture}
                 setConvoHovered={setConvoHovered}
                 convoHovered={convoHovered}
                 unread={unread}
               />
-            );
-          })}
+            )
+          )}
       </div>
     </>
   );
