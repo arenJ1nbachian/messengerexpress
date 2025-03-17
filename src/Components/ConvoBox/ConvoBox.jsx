@@ -1,10 +1,10 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import defaultPicture from "../../images/default.svg";
 import "./ConvoBox.css";
-import { NavContext } from "../../Contexts/NavContext";
 import unread from "../../images/unread.svg";
 import Convo from "./Convo";
-import { SocketContext } from "../../Contexts/SocketContext";
+import { ConversationContext } from "../../Contexts/ConversationContext";
+import { ComposeContext } from "../../Contexts/ComposeContext";
 
 /**
  * ConvoBox component.
@@ -17,8 +17,8 @@ import { SocketContext } from "../../Contexts/SocketContext";
 const ConvoBox = () => {
   const [hovered, setHovered] = useState(-1);
   const [convoHovered, setConvoHovered] = useState(-1);
-  const { socket } = useContext(SocketContext);
-  const navContext = useContext(NavContext);
+  const convoContext = useContext(ConversationContext);
+  const composeContext = useContext(ComposeContext);
 
   /**
    * This effect is used to get the conversations of the user
@@ -27,6 +27,8 @@ const ConvoBox = () => {
   useEffect(() => {
     const displayConvo = async () => {
       try {
+        convoContext.isConvosFullyLoaded.current = true;
+        console.log("Getting conversations");
         const conversations = await fetch(
           "http://localhost:5000/api/conversations/getConvos/" +
             sessionStorage.getItem("userId"),
@@ -40,21 +42,20 @@ const ConvoBox = () => {
 
           const convoMap = new Map(result.map((c) => [c._id, c]));
 
-          navContext.setDisplayedConversations(convoMap);
+          convoContext.setDisplayedConversations(convoMap);
           sessionStorage.setItem(
             "displayedConversations",
             JSON.stringify([...convoMap])
           );
-          navContext.setIsConvosFullyLoaded(true);
         }
       } catch (error) {
         console.log(error);
       }
     };
-    if (!navContext.isConvosFullyLoaded) {
+    if (sessionStorage.getItem("displayedConversations") === null) {
       displayConvo();
     }
-  }, [socket]);
+  }, [convoContext]);
 
   return (
     <>
@@ -68,31 +69,31 @@ const ConvoBox = () => {
         <div
           id="newConvo"
           key={0}
-          className={`userConvo ${navContext.compose ? "show" : "hidden"} ${
-            navContext.compose ? "clicked" : "default"
+          className={`userConvo ${composeContext.compose ? "show" : "hidden"} ${
+            composeContext.compose ? "clicked" : "default"
           } ${convoHovered === 0 ? "hovered" : "default"}`}
         >
           <div id="pfPicture">
             <img
               className="convoPicture"
               src={
-                navContext.selectedElement === null
+                composeContext.selectedElement === null
                   ? defaultPicture
-                  : navContext.selectedElement.picture
+                  : composeContext.selectedElement.picture
               }
               alt="profilePic"
             />
           </div>
           <div className="convoInfo">
             <div id="flName">{`New message ${
-              navContext.selectedElement === null
+              composeContext.selectedElement === null
                 ? ""
-                : "to " + navContext.selectedElement.name
+                : "to " + composeContext.selectedElement.name
             }`}</div>
           </div>
         </div>
-        {navContext.displayedConversations.size > 0 &&
-          Array.from(navContext.displayedConversations).map(
+        {convoContext.displayedConversations.size > 0 &&
+          Array.from(convoContext.displayedConversations).map(
             ([id, conversation], index) => (
               <Convo
                 key={id}

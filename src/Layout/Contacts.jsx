@@ -1,10 +1,13 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { NavContext } from "../Contexts/NavContext";
 import "./Contacts.css";
 import defaultPicture from "../images/default.svg";
 import { SocketContext } from "../Contexts/SocketContext";
-import { Outlet, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { markConversationAsRead } from "../utils/markConversationAsRead";
+import { ActiveUsersContext } from "../Contexts/ActiveUsersContext";
+import { ConversationContext } from "../Contexts/ConversationContext";
+import { ComposeContext } from "../Contexts/ComposeContext";
 
 /**
  * Component that displays a list of active contacts in the chat box.
@@ -13,7 +16,10 @@ import { markConversationAsRead } from "../utils/markConversationAsRead";
 const Contacts = () => {
   // Get the socket and the navBar context.
   const { socket } = useContext(SocketContext);
-  const navBar = useContext(NavContext);
+  const activeUsersContext = useContext(ActiveUsersContext);
+  const convoContext = useContext(ConversationContext);
+  const composeContext = useContext(ComposeContext);
+  const navContext = useContext(NavContext);
 
   // State variables to keep track of the active contacts and which one is hovered.
 
@@ -42,7 +48,7 @@ const Contacts = () => {
 
           if (res.ok) {
             const data = await res.json();
-            navBar.setActiveContacts(data);
+            activeUsersContext.setActiveContacts(data);
           }
         } catch (error) {
           console.log(error);
@@ -54,22 +60,27 @@ const Contacts = () => {
 
   // Navigate to the selected chat when the selected chat changes.
   useEffect(() => {
-    if (!navBar.compose && navBar.selectedConversation) {
-      navigate(`/people/${navBar.selectedConversation}`);
+    if (
+      !composeContext.compose &&
+      convoContext.selectedConversationRef.current
+    ) {
+      navigate(`/people/${convoContext.selectedConversationRef.current}`);
     } else {
       navigate("/people/none");
     }
-  }, []);
+  }, [composeContext.compose, convoContext.selectedConversationRef, navigate]);
 
   return (
     <div style={{ display: "flex", height: "100%", width: "100%" }}>
-      <div className={`chatBox ${navBar.navExpanded ? "expanded" : "default"}`}>
+      <div
+        className={`chatBox ${navContext.navExpanded ? "expanded" : "default"}`}
+      >
         <div className="chatBoxContactHeader">
           <div className="chatBoxContactTitle">People</div>
         </div>
-        <div className="activeContacts">{`Active contacts (${navBar.activeContacts.length})`}</div>
-        {navBar.activeContacts &&
-          navBar.activeContacts.map((contact, index) => {
+        <div className="activeContacts">{`Active contacts (${activeUsersContext.activeContacts.length})`}</div>
+        {activeUsersContext.activeContacts &&
+          activeUsersContext.activeContacts.map((contact, index) => {
             return (
               <div
                 key={contact.convoId}
@@ -77,10 +88,11 @@ const Contacts = () => {
                 onMouseLeave={() => setConvoHovered(-1)}
                 onClick={async () => {
                   if (
-                    !navBar.displayedConversations.get(contact.convoId).read
+                    !convoContext.displayedConversations.get(contact.convoId)
+                      .read
                   ) {
                     await markConversationAsRead(contact.convoId);
-                    navBar.setDisplayedConversations((prev) => {
+                    convoContext.setDisplayedConversations((prev) => {
                       const newMap = new Map(prev);
                       newMap.get(contact.convoId).read = true;
                       sessionStorage.setItem(
@@ -91,13 +103,15 @@ const Contacts = () => {
                       return newMap;
                     });
                   }
-                  navBar.setSelectedConversation(contact.convoId);
-                  navBar.selectedConversationRef.current = contact.convoId;
+
+                  convoContext.selectedConversationRef.current =
+                    contact.convoId;
+                  convoContext.setSelectedConversation(contact.convoId);
                   sessionStorage.setItem(
                     "selectedConversation",
                     contact.convoId
                   );
-                  navBar.setSelected(0);
+                  navContext.setSelected(0);
                   navigate(`/chats`);
                 }}
                 className={`userConvo people ${

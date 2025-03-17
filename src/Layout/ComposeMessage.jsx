@@ -1,11 +1,13 @@
 import send from "../images/send.svg";
 import "./ComposeMessage.css";
 import { useContext, useEffect, useState } from "react";
-import { NavContext } from "../Contexts/NavContext";
 import defaultPicture from "../images/default.svg";
 import ChatContent from "./ChatContent";
-import { SocketContext } from "../Contexts/SocketContext";
-import { useNavigate } from "react-router";
+import { ComposeContext } from "../Contexts/ComposeContext";
+import { ConversationContext } from "../Contexts/ConversationContext";
+import { NavContext } from "../Contexts/NavContext";
+import { ChatCacheContext } from "../Contexts/ChatCacheContext";
+import { RequestContext } from "../Contexts/RequestContext";
 
 /**
  * ComposeMessage component allows users to search for other users, compose a message,
@@ -13,11 +15,13 @@ import { useNavigate } from "react-router";
  */
 const ComposeMessage = () => {
   const [usersFound, setUsersFound] = useState([]);
-  const navContext = useContext(NavContext);
   const [searchUserHovered, setSearchUserHovered] = useState(-1);
   const [messageInput, setMessageInput] = useState("");
-  const { socket } = useContext(SocketContext);
-  const navigate = useNavigate();
+  const composeContext = useContext(ComposeContext);
+  const convoContext = useContext(ConversationContext);
+  const chatCacheContext = useContext(ChatCacheContext);
+  const navContext = useContext(NavContext);
+  const requestContext = useContext(RequestContext);
 
   /**
    * Handles the click event to create or join a conversation.
@@ -26,7 +30,7 @@ const ComposeMessage = () => {
   const handleClick = async (e) => {
     let convoID = null;
     e.preventDefault();
-    if (messageInput.length > 0 && navContext.selectedElement !== null) {
+    if (messageInput.length > 0 && composeContext.selectedElement !== null) {
       try {
         const res = await fetch(
           "http://localhost:5000/api/conversations/createConvo",
@@ -37,7 +41,7 @@ const ComposeMessage = () => {
             },
             body: JSON.stringify({
               userID1: sessionStorage.getItem("userId"),
-              userName2: navContext.selectedElement.name,
+              userName2: composeContext.selectedElement.name,
               message: messageInput,
             }),
           }
@@ -48,7 +52,44 @@ const ComposeMessage = () => {
           console.log(conversation);
           setMessageInput("");
           convoID = conversation.convoSender._id;
-          navContext.setDisplayedConversations((prev) => {
+
+          const response = await fetch(
+            `http://localhost:5000/api/conversations/getRecentMessages/${convoID}`
+          );
+          const recentMessages = await response.json();
+
+          chatCacheContext.setChatCache((prevCache) => {
+            const newCache = new Map(prevCache);
+            let messages = newCache.get(convoID);
+            if (chatCacheContext.chatCache.get(convoID)) {
+              messages.unshift({
+                _id: conversation.convoSender.lastMessage._id,
+                content: conversation.convoSender.lastMessage.content,
+                sender: sessionStorage.getItem("userId"),
+                timestamp: conversation.convoSender.updatedAt,
+              });
+            } else {
+              messages = [...recentMessages];
+              requestContext.setRequests((prev) => {
+                let newRequests = new Map(prev);
+                newRequests.delete(convoID);
+                sessionStorage.setItem(
+                  "requests",
+                  JSON.stringify(Array.from(newRequests.entries()))
+                );
+                return newRequests;
+              });
+            }
+
+            newCache.set(convoID, messages);
+
+            const cacheArray = Array.from(newCache.entries());
+            sessionStorage.setItem("chatCache", JSON.stringify(cacheArray));
+
+            return newCache;
+          });
+
+          convoContext.setDisplayedConversations((prev) => {
             const updatedConversations = new Map(prev);
             updatedConversations.set(convoID, conversation.convoSender);
 
@@ -63,11 +104,13 @@ const ComposeMessage = () => {
               JSON.stringify(Array.from(sortedConversations.entries()))
             );
 
-            navContext.setSelectedConversation(convoID);
+            convoContext.setSelectedConversation(convoID);
 
-            navContext.selectedConversationRef.current = convoID;
+            convoContext.selectedConversationRef.current = convoID;
 
             sessionStorage.setItem("selectedConversation", convoID);
+
+            composeContext.setCompose(false);
 
             return sortedConversations;
           });
@@ -75,8 +118,6 @@ const ComposeMessage = () => {
       } catch (error) {
         console.log(error);
       }
-      navigate(`/chats/${convoID}`);
-      navContext.setCompose(false);
     }
   };
 
@@ -87,22 +128,17 @@ const ComposeMessage = () => {
     const handleClickOutside = (event) => {
       console.log("Clicked");
       if (
-        (navContext.searchFieldRef.current &&
-          !navContext.searchFieldRef.current.contains(event.target) &&
+        (composeContext.searchFieldRef.current &&
+          !composeContext.searchFieldRef.current.contains(event.target) &&
           !event.target.closest("#userSearch") &&
           !event.target.closest(".to")) ||
         event.target.closest("#icons")
       ) {
-        console.log(
-          "Is the search field open? ",
-          navContext.searchFieldRef.current
-        );
-
-        navContext.setShowsearchField(false);
+        composeContext.setShowsearchField(false);
       }
     };
 
-    if (navContext.showsearchField) {
+    if (composeContext.showsearchField) {
       document.addEventListener("click", handleClickOutside);
     } else {
       document.removeEventListener("click", handleClickOutside);
@@ -112,7 +148,7 @@ const ComposeMessage = () => {
       console.log("Cleaning up");
       document.removeEventListener("click", handleClickOutside);
     };
-  }, [navContext.showsearchField]);
+  }, [composeContext.showsearchField]);
 
   /**
    * Debounces a function by delaying its execution.
@@ -174,13 +210,14 @@ const ComposeMessage = () => {
         <div className="to">To:</div>
         <div
           className={`selectedUser ${
-            navContext?.selectedElement ? "" : "hide"
+            composeContext?.selectedElement ? "" : "hide"
           }`}
         >
-          {navContext?.selectedElement && navContext.selectedElement.name}
+          {composeContext?.selectedElement &&
+            composeContext.selectedElement.name}
         </div>
         <input
-          onClick={() => navContext.setShowsearchField(true)}
+          onClick={() => composeContext.setShowsearchField(true)}
           onChange={debouncedHandleChange}
           type="text"
           autoFocus
@@ -188,19 +225,19 @@ const ComposeMessage = () => {
           id="userSearch"
           placeholder=""
         />
-        {navContext.showsearchField && (
-          <div ref={navContext.searchFieldRef} className="searchBox">
+        {composeContext.showsearchField && (
+          <div ref={composeContext.searchFieldRef} className="searchBox">
             {usersFound.map((user, index) => (
               <div
                 onClick={(e) => {
-                  navContext.setSelectedElement({
+                  composeContext.setSelectedElement({
                     picture: !user.profilePicture.includes("null")
                       ? user.profilePicture
                       : defaultPicture,
                     name: user.firstname + " " + user.lastname,
                   });
                   document.getElementById("userSearch").value = "";
-                  navContext.setShowsearchField(false);
+                  composeContext.setShowsearchField(false);
                   document.getElementById("userSearch").style.display = "none";
                 }}
                 onMouseEnter={() => setSearchUserHovered(index)}
@@ -230,26 +267,32 @@ const ComposeMessage = () => {
         )}
       </div>
       <ChatContent />
-      <form className={navContext.selectedElement === null ? "disabled" : ""}>
+      <form
+        className={composeContext.selectedElement === null ? "disabled" : ""}
+      >
         <div className={"chatInput"}>
           <input
-            className={navContext.selectedElement === null ? "disabled" : ""}
+            className={
+              composeContext.selectedElement === null ? "disabled" : ""
+            }
             onChange={(e) => setMessageInput(e.target.value)}
             type="text"
             autoComplete="off"
             id="message"
             placeholder="Aa"
-            disabled={navContext.selectedElement === null ? true : false}
+            disabled={composeContext.selectedElement === null ? true : false}
           />
           <button
-            disabled={navContext.selectedElement === null ? true : false}
+            disabled={composeContext.selectedElement === null ? true : false}
             onClick={(e) => handleClick(e)}
             onSubmit={(e) => handleClick(e)}
             style={{
               marginLeft: "auto",
               marginRight: "1vw",
               cursor:
-                navContext.selectedElement === null ? "not-allowed" : "pointer",
+                composeContext.selectedElement === null
+                  ? "not-allowed"
+                  : "pointer",
               backgroundColor: "transparent",
               border: "none",
             }}

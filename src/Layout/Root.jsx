@@ -6,6 +6,7 @@ import { UserContext } from "../Contexts/UserContext";
 import Chatbox from "./ChatBox";
 import { NavContext } from "../Contexts/NavContext";
 import ComposeMessage from "./ComposeMessage";
+import { ComposeContext } from "../Contexts/ComposeContext";
 
 /**
  * Root component that conditionally renders the NavBar based on user's login status
@@ -14,6 +15,7 @@ import ComposeMessage from "./ComposeMessage";
 const Root = () => {
   // Access the user context to determine login status
   const userContext = useContext(UserContext);
+  const composeContext = useContext(ComposeContext);
   const navContext = useContext(NavContext);
 
   return (
@@ -34,13 +36,13 @@ const Root = () => {
         <Outlet />
       </main>
       {userContext.isLoggedIn ? (
-        navContext.compose ? (
+        composeContext.compose ? (
           <div className="composeContainer">
             <ComposeMessage />
           </div>
         ) : (
           <div className="chatContainer">
-            <Chatbox request={Boolean(navContext.selectedRequest)} />
+            <Chatbox />
           </div>
         )
       ) : null}

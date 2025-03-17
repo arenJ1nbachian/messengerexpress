@@ -23,5 +23,7 @@ module.exports = (io) => {
 
   router.patch("/rejectRequest", convoController.rejectRequest);
 
+  router.get("/getRecentMessages/:convoID", convoController.getRecentMessage);
+
   return router;
 };

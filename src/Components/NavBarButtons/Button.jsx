@@ -3,6 +3,9 @@ import { NavContext } from "../../Contexts/NavContext";
 import { useNavigate } from "react-router";
 import Category from "./Category";
 import "./Button.css";
+import { ConversationContext } from "../../Contexts/ConversationContext";
+import { ComposeContext } from "../../Contexts/ComposeContext";
+import { RequestContext } from "../../Contexts/RequestContext";
 
 /**
  * The Button component is used to display a button in the navigation bar.
@@ -29,8 +32,11 @@ import "./Button.css";
  * of `index`.
  */
 const Button = ({ value, index, buttonText }) => {
-  const navBar = useContext(NavContext);
   const navigate = useNavigate();
+  const convoContext = useContext(ConversationContext);
+  const composeContext = useContext(ComposeContext);
+  const navContext = useContext(NavContext);
+  const requestContext = useContext(RequestContext);
 
   /**
    * The handleNavigation function is used to navigate to the correct page
@@ -48,14 +54,14 @@ const Button = ({ value, index, buttonText }) => {
    */
   const handleNavigation = (destination) => {
     if (destination === "chats") {
-      navBar.selectedChatDetails?.current
-        ? navigate(`chats/${navBar.selectedChatDetails.current._id}`)
+      convoContext.selectedChatDetails?.current
+        ? navigate(`chats/${convoContext.selectedChatDetails.current._id}`)
         : navigate(`chats`);
     } else if (destination === "people") {
-      switch (navBar.compose) {
+      switch (composeContext.compose) {
         case true:
           navigate(`people/none`);
-          navBar.setCompose(false);
+          composeContext.setCompose(false);
           break;
         case false:
           navigate(`people`);
@@ -64,10 +70,10 @@ const Button = ({ value, index, buttonText }) => {
           break;
       }
     } else if (destination === "requests") {
-      switch (navBar.compose) {
+      switch (composeContext.compose) {
         case true:
           navigate(`requests/none`);
-          navBar.setCompose(false);
+          composeContext.setCompose(false);
           break;
         case false:
           navigate(`requests/`);
@@ -76,10 +82,10 @@ const Button = ({ value, index, buttonText }) => {
           break;
       }
     } else if (destination === "archived") {
-      switch (navBar.compose) {
+      switch (composeContext.compose) {
         case true:
           navigate(`archived/none`);
-          navBar.setCompose(false);
+          composeContext.setCompose(false);
           break;
         case false:
           navigate(`archived/`);
@@ -107,8 +113,8 @@ const Button = ({ value, index, buttonText }) => {
    * index to.
    */
   const handleNavButtonClick = (index) => {
-    if (index !== navBar.selected) {
-      navBar.setSelected(index);
+    if (index !== navContext.selected) {
+      navContext.setSelected(index);
       switch (index) {
         case 0:
           handleNavigation("chats");
@@ -125,7 +131,11 @@ const Button = ({ value, index, buttonText }) => {
         default:
           break;
       }
-      navBar.setSelectedRequest(null);
+
+      if (requestContext.selectedRequest) {
+        requestContext.setSelectedRequest(null);
+      }
+
       sessionStorage.removeItem("selectedRequest");
     }
   };
@@ -133,42 +143,50 @@ const Button = ({ value, index, buttonText }) => {
   return (
     <div
       className={`btnBox ${
-        navBar.navExpanded &&
-        (navBar.selected === index || navBar.hovered === index)
+        navContext.navExpanded &&
+        (navContext.selected === index || navContext.hovered === index)
           ? " hovClick"
           : "default"
       }`}
       onMouseEnter={() =>
-        navBar.navExpanded ? navBar.setHovered(index) : false
+        navContext.navExpanded ? navContext.setHovered(index) : false
       }
-      onMouseLeave={() => (navBar.navExpanded ? navBar.setHovered(-1) : false)}
+      onMouseLeave={() =>
+        navContext.navExpanded ? navContext.setHovered(-1) : false
+      }
       onClick={() => handleNavButtonClick(index)}
     >
       <div
         className={`btnIconBox ${
-          !navBar.navExpanded &&
-          (navBar.selected === index || navBar.hovered === index)
+          !navContext.navExpanded &&
+          (navContext.selected === index || navContext.hovered === index)
             ? " hovClick"
             : "default"
         }`}
         key={index}
         onMouseEnter={() =>
-          navBar.navExpanded ? false : navBar.setHovered(index)
+          navContext.navExpanded ? false : navContext.setHovered(index)
         }
         onMouseLeave={() =>
-          navBar.navExpanded ? false : navBar.setHovered(-1)
+          navContext.navExpanded ? false : navContext.setHovered(-1)
         }
         onClick={() => handleNavButtonClick(index)}
       >
-        {index === 2 && !navBar.navExpanded && navBar.requestCount !== 0 && (
-          <div className="reqNum">{navBar.requestCount}</div>
-        )}
+        {index === 2 &&
+          !navContext.navExpanded &&
+          requestContext.requestCount !== 0 && (
+            <div className="reqNum">{requestContext.requestCount}</div>
+          )}
         <Category img={value} />
       </div>
-      {navBar.navExpanded && <div className="btnText">{buttonText[index]}</div>}
-      {index === 2 && navBar.navExpanded && navBar.requestCount !== 0 && (
-        <div className="reqNumExpanded">{navBar.requestCount}</div>
+      {navContext.navExpanded && (
+        <div className="btnText">{buttonText[index]}</div>
       )}
+      {index === 2 &&
+        navContext.navExpanded &&
+        requestContext.requestCount !== 0 && (
+          <div className="reqNumExpanded">{requestContext.requestCount}</div>
+        )}
     </div>
   );
 };

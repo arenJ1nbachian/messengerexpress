@@ -10,6 +10,10 @@ import { useNavigate, useParams } from "react-router";
 import noConvo from "../images/noConvoSelected.png";
 import { handleRequestChoice } from "../utils/handleRequestChoice";
 import { markConversationAsRead } from "../utils/markConversationAsRead";
+import { ConversationContext } from "../Contexts/ConversationContext";
+import { RequestContext } from "../Contexts/RequestContext";
+import { ComposeContext } from "../Contexts/ComposeContext";
+import { ChatCacheContext } from "../Contexts/ChatCacheContext";
 
 /**
  * The Chatbox component is responsible for rendering the chat content and
@@ -17,7 +21,7 @@ import { markConversationAsRead } from "../utils/markConversationAsRead";
  * messages and displaying the recipient's information.
  * @returns {JSX.Element} The JSX element representing the chatbox.
  */
-const Chatbox = ({ request = false }) => {
+const Chatbox = () => {
   const inputRef = useRef(null);
 
   const navigate = useNavigate();
@@ -25,6 +29,8 @@ const Chatbox = ({ request = false }) => {
   const [inputValue, setInputValue] = useState("");
 
   const isTyping = useRef(false);
+
+  const chatCacheContext = useContext(ChatCacheContext);
 
   /**
    * The typingTimeoutRef is a reference to the timeout that is set when the
@@ -39,11 +45,10 @@ const Chatbox = ({ request = false }) => {
    */
   const { socket } = useContext(SocketContext);
 
-  /**
-   * The nav object is obtained from the NavContext and is used to access the
-   * currently selected conversation and the displayed conversations.
-   */
-  const nav = useContext(NavContext);
+  const convoContext = useContext(ConversationContext);
+  const requestContext = useContext(RequestContext);
+  const navContext = useContext(NavContext);
+  const composeContext = useContext(ComposeContext);
 
   /**
    * The id parameter is obtained from the useParams hook and is used to
@@ -51,31 +56,28 @@ const Chatbox = ({ request = false }) => {
    */
   const { id } = useParams();
 
-  useEffect(
-    () => {
-      setInputValue("");
-      isTyping.current = false;
-      if (sessionStorage.getItem("typing") && socket) {
-        const previousTyping = JSON.parse(sessionStorage.getItem("typing"));
-        socket.emit("typing", {
-          isTyping: false,
-          conversationId: previousTyping.conversationId,
-          receiver: previousTyping.receiver,
-        });
-        sessionStorage.removeItem("typing");
-      }
-    },
-    nav.selectedConversation,
-    socket
-  );
+  useEffect(() => {
+    setInputValue("");
+    isTyping.current = false;
+    if (sessionStorage.getItem("typing") && socket) {
+      const previousTyping = JSON.parse(sessionStorage.getItem("typing"));
+      socket.emit("typing", {
+        isTyping: false,
+        conversationId: previousTyping.conversationId,
+        receiver: previousTyping.receiver,
+      });
+      sessionStorage.removeItem("typing");
+    }
+  }, [socket]);
 
   useEffect(() => {
     if (sessionStorage.getItem("typing") && socket) {
       socket.emit("typing", {
         isTyping: false,
         conversationId: id,
-        receiver: nav?.displayedConversations?.get(nav.selectedConversation)
-          .userId,
+        receiver: convoContext?.displayedConversations?.get(
+          convoContext.selectedConversationRef.current
+        ).userId,
       });
     }
   }, [socket]);
@@ -109,8 +111,8 @@ const Chatbox = ({ request = false }) => {
             },
             body: JSON.stringify({
               userID1: sessionStorage.getItem("userId"),
-              userName2: nav.displayedConversations.get(
-                nav.selectedConversation
+              userName2: convoContext.displayedConversations.get(
+                convoContext.selectedConversationRef.current
               ).name,
               message: inputValue,
             }),
@@ -121,7 +123,25 @@ const Chatbox = ({ request = false }) => {
           console.log("New conversation created");
           setInputValue("");
 
-          nav.setDisplayedConversations((prev) => {
+          chatCacheContext.setChatCache((prevCache) => {
+            const newCache = new Map(prevCache);
+            const messages = newCache.get(conversation.convoSender._id);
+            messages.unshift({
+              _id: conversation.convoSender.lastMessage._id,
+              content: conversation.convoSender.lastMessage.content,
+              sender: sessionStorage.getItem("userId"),
+              timestamp: conversation.convoSender.updatedAt,
+            });
+
+            newCache.set(conversation.convoSender._id, messages);
+
+            const cacheArray = Array.from(newCache.entries());
+            sessionStorage.setItem("chatCache", JSON.stringify(cacheArray));
+
+            return newCache;
+          });
+
+          convoContext.setDisplayedConversations((prev) => {
             const newConversations = new Map(prev);
             newConversations.set(
               conversation.convoSender._id,
@@ -186,8 +206,9 @@ const Chatbox = ({ request = false }) => {
       socket.emit("typing", {
         isTyping: true,
         conversationId: id,
-        receiver: nav?.displayedConversations?.get(nav.selectedConversation)
-          .userId,
+        receiver: convoContext?.displayedConversations?.get(
+          convoContext.selectedConversationRef.current
+        ).userId,
       });
     }
 
@@ -196,8 +217,9 @@ const Chatbox = ({ request = false }) => {
       "typing",
       JSON.stringify({
         conversationId: id,
-        receiver: nav?.displayedConversations?.get(nav.selectedConversation)
-          .userId,
+        receiver: convoContext?.displayedConversations?.get(
+          convoContext.selectedConversationRef.current
+        ).userId,
       })
     );
 
@@ -207,8 +229,9 @@ const Chatbox = ({ request = false }) => {
       socket.emit("typing", {
         isTyping: false,
         conversationId: id,
-        receiver: nav?.displayedConversations?.get(nav.selectedConversation)
-          .userId,
+        receiver: convoContext?.displayedConversations?.get(
+          convoContext.selectedConversationRef.current
+        ).userId,
       });
     }, 3000);
 
@@ -218,18 +241,24 @@ const Chatbox = ({ request = false }) => {
   return (
     <>
       <div
-        className={`chatConvoBox ${nav.navExpanded ? "expanded" : "default"}`}
+        className={`chatConvoBox ${
+          navContext.navExpanded ? "expanded" : "default"
+        }`}
       >
-        {(nav.selectedConversation || nav.selectedRequest) && !nav.compose ? (
+        {(convoContext.selectedConversation ||
+          requestContext.selectedRequest) &&
+        !composeContext.compose ? (
           <>
             <div className="recipient">
               <div className="uPicture">
                 <Category
                   img={
-                    nav.selectedRequest
-                      ? nav.requests?.get(nav.selectedRequest).profilePicture
-                      : nav.displayedConversations?.get(
-                          nav.selectedConversation
+                    requestContext.selectedRequest
+                      ? requestContext.requests?.get(
+                          requestContext.selectedRequest
+                        )?.profilePicture || defaultPicture
+                      : convoContext.displayedConversations?.get(
+                          convoContext.selectedConversation
                         )?.profilePicture || defaultPicture
                   }
                   width="100%"
@@ -238,30 +267,40 @@ const Chatbox = ({ request = false }) => {
               </div>
               <div className="uInfo">
                 <div className="uName">
-                  {request
-                    ? nav?.requests?.get(nav.selectedRequest)?.name
-                    : nav.displayedConversations &&
-                      nav?.displayedConversations?.get(nav.selectedConversation)
-                        ?.name}
+                  {requestContext.selectedRequest
+                    ? requestContext?.requests?.get(
+                        requestContext.selectedRequest
+                      )?.name
+                    : convoContext.displayedConversations &&
+                      convoContext?.displayedConversations?.get(
+                        convoContext.selectedConversation
+                      )?.name}
                 </div>
                 <div className="uActive">Active 10h ago</div>
               </div>
             </div>
-            <ChatContent />
-            {request ? (
+            <ChatContent request={!!requestContext.selectedRequest} />
+            {!!requestContext.selectedRequest ? (
               <div className="requestBox">
                 <div className="requestInfoBox">
                   <div className="requestTitle">
                     <strong>
-                      {nav?.requests?.get(nav.selectedRequest)?.name}{" "}
-                    </strong>
+                      {
+                        requestContext?.requests?.get(
+                          requestContext.selectedRequest
+                        )?.name
+                      }
+                    </strong>{" "}
                     wants to send you a message.
                   </div>
                   <div className="requestQuestion">
                     Do you want to let{" "}
                     <strong>
-                      {" "}
-                      {nav?.requests?.get(nav.selectedRequest)?.name}{" "}
+                      {
+                        requestContext?.requests?.get(
+                          requestContext.selectedRequest
+                        )?.name
+                      }
                     </strong>{" "}
                     send you messages from now on?
                   </div>
@@ -273,14 +312,43 @@ const Chatbox = ({ request = false }) => {
                 <div className="answerRequest">
                   <button
                     onClick={async () => {
-                      handleRequestChoice("accept", nav.selectedRequest);
-                      nav.setRequestCount(nav.requestCount - 1);
-                      nav.setDisplayedConversations((prev) => {
+                      await handleRequestChoice(
+                        "accept",
+                        requestContext.selectedRequest
+                      );
+
+                      chatCacheContext.setChatCache((prev) => {
+                        const newCache = new Map(prev);
+
+                        newCache.set(
+                          requestContext.selectedRequest,
+                          requestContext.requests.get(
+                            requestContext.selectedRequest
+                          ).messages
+                        );
+
+                        sessionStorage.setItem(
+                          "chatCache",
+                          JSON.stringify(Array.from(newCache.entries()))
+                        );
+
+                        return newCache;
+                      });
+
+                      requestContext.setRequestCount((prev) => {
+                        sessionStorage.setItem("requestCount", prev - 1);
+                        return prev - 1;
+                      });
+                      convoContext.setDisplayedConversations((prev) => {
                         let newConversations = new Map(prev);
-                        nav.requests.get(nav.selectedRequest).read = true;
+                        requestContext.requests.get(
+                          requestContext.selectedRequest
+                        ).read = true;
                         newConversations.set(
-                          nav.selectedRequest,
-                          nav.requests.get(nav.selectedRequest)
+                          requestContext.selectedRequest,
+                          requestContext.requests.get(
+                            requestContext.selectedRequest
+                          )
                         );
 
                         const sortedConversations = new Map(
@@ -298,16 +366,31 @@ const Chatbox = ({ request = false }) => {
                         );
                         return sortedConversations;
                       });
-                      nav.setRequests((prev) => {
+                      requestContext.setRequests((prev) => {
                         let newRequests = new Map(prev);
-                        newRequests.delete(nav.selectedRequest);
+                        newRequests.delete(requestContext.selectedRequest);
+                        sessionStorage.setItem(
+                          "requests",
+                          JSON.stringify(Array.from(newRequests.entries()))
+                        );
                         return newRequests;
                       });
-                      nav.setSelectedConversation(nav.selectedRequest);
-                      nav.selectedConversationRef.current = nav.selectedRequest;
-                      await markConversationAsRead(nav.selectedRequest);
-                      nav.setSelectedRequest(null);
-                      navigate(`/requests/${nav.selectedConversation}`);
+                      navContext.setSelected(0);
+                      convoContext.setSelectedConversation(
+                        requestContext.selectedRequest
+                      );
+                      sessionStorage.setItem(
+                        "selectedConversation",
+                        requestContext.selectedRequest
+                      );
+                      requestContext.setSelectedRequest(null);
+                      navigate("/chats/none");
+                      convoContext.selectedConversationRef.current =
+                        requestContext.selectedRequestRef.current;
+                      requestContext.selectedRequestRef.current = null;
+                      await markConversationAsRead(
+                        convoContext.selectedConversationRef.current
+                      );
                     }}
                     className="btnChoice"
                   >
@@ -315,15 +398,25 @@ const Chatbox = ({ request = false }) => {
                   </button>
                   <button
                     onClick={() => {
-                      handleRequestChoice("reject", nav.selectedRequest);
-                      nav.setRequests((prev) => {
+                      handleRequestChoice(
+                        "reject",
+                        requestContext.selectedRequestRef.current
+                      );
+                      requestContext.setRequests((prev) => {
                         let newRequests = new Map(prev);
-                        newRequests.delete(nav.selectedRequest);
+                        newRequests.delete(requestContext.selectedRequest);
+                        sessionStorage.setItem(
+                          "requests",
+                          JSON.stringify(Array.from(newRequests.entries()))
+                        );
                         return newRequests;
                       });
-                      nav.setSelectedRequest(null);
+                      requestContext.setSelectedRequest(null);
                       navigate("/requests/none");
-                      nav.setRequestCount(nav.requestCount - 1);
+                      requestContext.setRequestCount((prev) => {
+                        sessionStorage.setItem("requestCount", prev - 1);
+                        return requestContext.requestCount - 1;
+                      });
                     }}
                     className="btnChoice"
                   >

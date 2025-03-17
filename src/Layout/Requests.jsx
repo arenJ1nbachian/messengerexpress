@@ -5,6 +5,9 @@ import { SocketContext } from "../Contexts/SocketContext";
 import RequestBox from "./RequestBox";
 import "./Requests.css";
 import norequestPicture from "../images/norequest.png";
+import { ComposeContext } from "../Contexts/ComposeContext";
+import { ConversationContext } from "../Contexts/ConversationContext";
+import { RequestContext } from "../Contexts/RequestContext";
 
 /**
  * This component is used to display the requests page of the chat application.
@@ -15,10 +18,13 @@ import norequestPicture from "../images/norequest.png";
  * @returns {JSX.Element} The JSX element representing the requests page.
  */
 const Requests = () => {
-  const navBar = useContext(NavContext);
   const navigate = useNavigate();
-  const { socket } = useContext(SocketContext);
+  useContext(SocketContext);
   const [convoHovered, setConvoHovered] = useState(-1);
+  const composeContext = useContext(ComposeContext);
+  const convoContext = useContext(ConversationContext);
+  const requestContext = useContext(RequestContext);
+  const navContext = useContext(NavContext);
 
   /**
    * This effect is used to navigate to the correct conversation page when the
@@ -29,21 +35,28 @@ const Requests = () => {
    */
   useEffect(() => {
     if (
-      !navBar.compose &&
-      navBar.selectedConversation &&
-      !navBar.selectedRequest
+      !composeContext.compose &&
+      convoContext.selectedConversationRef.current &&
+      !requestContext.selectedRequest
     ) {
-      navigate(`/requests/${navBar.selectedConversation}`);
-    } else if (navBar.selectedRequest) {
-      navigate(`/requests/${navBar.requests.get(navBar.selectedRequest)._id}`);
+      navigate(`/requests/${convoContext.selectedConversationRef.current}`);
+    } else if (
+      requestContext.selectedRequest &&
+      requestContext.requests.has(requestContext.selectedRequest)
+    ) {
+      navigate(
+        `/requests/${
+          requestContext.requests.get(requestContext.selectedRequest)._id
+        }`
+      );
     } else {
       navigate("/requests/none");
     }
   }, [
-    navBar.compose,
-    navBar.requests,
-    navBar.selectedConversation,
-    navBar.selectedRequest,
+    composeContext.compose,
+    requestContext.requests,
+    requestContext.selectedConversationRef,
+    requestContext.selectedRequest,
     navigate,
   ]);
 
@@ -60,12 +73,15 @@ const Requests = () => {
         if (requests.ok) {
           const result = await requests.json();
           if (result.requests.length > 0) {
-            navBar.setRequests(
-              new Map(
-                result.requests
-                  .map((r) => [r._id, r])
-                  .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-              )
+            const requests = new Map(
+              result.requests
+                .map((r) => [r._id, r])
+                .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+            );
+            requestContext.setRequests(requests);
+            sessionStorage.setItem(
+              "requests",
+              JSON.stringify(Array.from(requests.entries()))
             );
           }
         }
@@ -73,21 +89,25 @@ const Requests = () => {
         console.log(e);
       }
     };
-    getRequests();
+    if (requestContext.requestCount !== 0) {
+      getRequests();
+    }
   }, []);
 
   return (
     <div style={{ display: "flex", height: "100%", width: "100%" }}>
-      <div className={`chatBox ${navBar.navExpanded ? "expanded" : "default"}`}>
+      <div
+        className={`chatBox ${navContext.navExpanded ? "expanded" : "default"}`}
+      >
         <div className="chatBoxContactHeader">
           <div className="chatBoxContactTitle">Requests</div>
         </div>
-        {navBar.requests.size > 0 ? (
-          Array.from(navBar.requests).map(([key, request]) => {
+        {requestContext.requests.size > 0 ? (
+          Array.from(requestContext.requests).map(([key, request]) => {
             return (
               <RequestBox
                 key={key}
-                id={key}
+                id={request._id}
                 picture={request.profilePicture}
                 setConvoHovered={setConvoHovered}
                 convoHovered={convoHovered}

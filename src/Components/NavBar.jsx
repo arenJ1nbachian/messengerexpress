@@ -10,6 +10,8 @@ import AccButton from "./NavBarButtons/AccButton";
 import Chevron from "./NavBarButtons/Chevron";
 import "./NavBar.css";
 import { SocketContext } from "../Contexts/SocketContext";
+import { RequestContext } from "../Contexts/RequestContext";
+import { UserContext } from "../Contexts/UserContext";
 
 /**
  * A navigation bar component that displays the current user's
@@ -26,10 +28,10 @@ import { SocketContext } from "../Contexts/SocketContext";
  */
 const NavBar = () => {
   const navBar = useContext(NavContext);
+  const requestContext = useContext(RequestContext);
+  const userContext = useContext(UserContext);
   const { socket } = useContext(SocketContext);
   const buttonText = ["Chats", "People", "Requests", "Archive"];
-  const [profilePictureUrl, setProfilePictureUrl] = useState(null);
-  const [name, setName] = useState(null);
 
   useEffect(() => {
     const getRequests = async () => {
@@ -45,15 +47,17 @@ const NavBar = () => {
         if (requests.ok) {
           const result = await requests.json();
           if (result.count > 0) {
-            navBar.setRequestCount(result.count);
+            requestContext.setRequestCount(result.count);
+            sessionStorage.setItem("requestCount", result.count);
           }
         }
       } catch (e) {
         console.log(e);
       }
     };
-
-    getRequests();
+    if (sessionStorage.getItem("requestCount") === null) {
+      getRequests();
+    }
   }, []);
 
   useEffect(() => {
@@ -61,8 +65,14 @@ const NavBar = () => {
       socket.on("updateRequestsNumber", (num) => {
         console.log("Update request number", num);
         num === -1
-          ? navBar.setRequestCount((prev) => prev - 1)
-          : navBar.setRequestCount((prev) => prev + 1);
+          ? requestContext.setRequestCount((prev) => {
+              sessionStorage.setItem("requestCount", prev - 1);
+              return prev - 1;
+            })
+          : requestContext.setRequestCount((prev) => {
+              sessionStorage.setItem("requestCount", prev + 1);
+              return prev + 1;
+            });
       });
     }
     return () => {
@@ -85,9 +95,17 @@ const NavBar = () => {
         }
       );
       if (res.ok) {
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          sessionStorage.setItem("profilePicture", reader.result);
+        };
+
         const blob = await res.blob();
         const imageUrl = URL.createObjectURL(blob);
-        setProfilePictureUrl(imageUrl);
+
+        userContext.setProfilePicture(imageUrl);
+        reader.readAsDataURL(blob);
       }
     } catch (error) {
       console.log(error);
@@ -108,7 +126,12 @@ const NavBar = () => {
       );
       if (res.ok) {
         const result = await res.json();
-        setName(
+
+        userContext.setName(
+          result.userDetails.firstname + " " + result.userDetails.lastname
+        );
+        sessionStorage.setItem(
+          "name",
           result.userDetails.firstname + " " + result.userDetails.lastname
         );
       }
@@ -119,8 +142,12 @@ const NavBar = () => {
 
   useEffect(() => {
     const uid = sessionStorage.getItem("userId");
-    fetchProfilePicture(uid);
-    fetchName(uid);
+    if (userContext.profilePicture === null) {
+      fetchProfilePicture(uid);
+    }
+    if (userContext.name === null) {
+      fetchName(uid);
+    }
   }, []);
 
   return (
@@ -140,7 +167,10 @@ const NavBar = () => {
         ))}
         <div className="acc">
           <div className={navBar.navExpanded ? "accBtn expanded" : "accBtn"}>
-            <AccButton account={profilePictureUrl} loggedName={name} />
+            <AccButton
+              account={userContext.profilePicture}
+              loggedName={userContext.name}
+            />
           </div>
           {!navBar.navExpanded && <Chevron />}
         </div>

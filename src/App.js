@@ -18,6 +18,13 @@ import { UserContext } from "./Contexts/UserContext.js";
 import { SocketContext } from "./Contexts/SocketContext.js";
 import io from "socket.io-client";
 import { markConversationAsRead } from "./utils/markConversationAsRead.js";
+import { logOff } from "./utils/logOff.js";
+import { ConversationContext } from "./Contexts/ConversationContext.js";
+import { ComposeContext } from "./Contexts/ComposeContext.js";
+import { RequestContext } from "./Contexts/RequestContext.js";
+import { ChatCacheContext } from "./Contexts/ChatCacheContext.js";
+import { ActiveUsersContext } from "./Contexts/ActiveUsersContext.js";
+import { UserTypingContext } from "./Contexts/UserTypingContext.js";
 
 const router = createBrowserRouter([
   {
@@ -75,6 +82,12 @@ const App = () => {
    */
   const [navExpanded, setNavExpanded] = useState(
     JSON.parse(sessionStorage.getItem("navExpanded")) || false
+  );
+
+  const [name, setName] = useState(sessionStorage.getItem("name") || null);
+
+  const [profilePicture, setProfilePicture] = useState(
+    sessionStorage.getItem("profilePicture") || null
   );
 
   const displayedConversationsRef = useRef(null);
@@ -145,16 +158,25 @@ const App = () => {
       : new Map()
   );
 
-  const [requestCount, setRequestCount] = useState(0);
+  const [requestCount, setRequestCount] = useState(
+    JSON.parse(sessionStorage.getItem("requestCount")) || 0
+  );
 
   const [selectedRequest, setSelectedRequest] = useState(
     sessionStorage.getItem("selectedRequest") || null
   );
 
-  const [isConvosFullyLoaded, setIsConvosFullyLoaded] = useState(false);
+  const selectedRequestRef = useRef(
+    sessionStorage.getItem("selectedRequest") || null
+  );
 
-  const [isOnlineUsersFullyLoaded, setIsOnlineUsersFullyLoaded] =
-    useState(false);
+  const [chatCache, setChatCache] = useState(
+    sessionStorage
+      ? new Map(JSON.parse(sessionStorage.getItem("chatCache")))
+      : new Map()
+  );
+
+  const isConvosFullyLoaded = useRef(false);
 
   const [activeContacts, setActiveContacts] = useState(
     sessionStorage.getItem("activeContacts")
@@ -196,6 +218,11 @@ const App = () => {
             })
           );
 
+          sessionStorage.setItem(
+            "requests",
+            JSON.stringify(Array.from(sortedRequests.entries()))
+          );
+
           return sortedRequests;
         });
       });
@@ -203,9 +230,17 @@ const App = () => {
         setRequests((prev) => {
           const requestMap = new Map(prev);
           requestMap.delete(convoID);
+          sessionStorage.setItem(
+            "requests",
+            JSON.stringify(Array.from(requestMap.entries()))
+          );
           return requestMap;
         });
-        setRequestCount((prev) => prev - 1);
+        setRequestCount((prev) => {
+          const count = prev - 1;
+          sessionStorage.setItem("requestCount", count);
+          return count;
+        });
       });
       socket.on("updateConversationHeader", (convo) => {
         if (convo.convoReceiver._id === selectedConversationRef.current) {
@@ -223,11 +258,34 @@ const App = () => {
                 new Date(a[1].updatedAt).getTime()
             )
           );
+
           sessionStorage.setItem(
             "displayedConversations",
             JSON.stringify(Array.from(newMapSorted.entries()))
           );
           return newMapSorted;
+        });
+
+        setChatCache((prev) => {
+          const newChatCache = new Map(prev);
+          const oldMessages = newChatCache.get(convo.convoReceiver._id);
+          const newMessages = [
+            {
+              _id: convo.convoReceiver.lastMessage._id,
+              content: convo.convoReceiver.lastMessage.content,
+              sender: convo.convoReceiver.userId,
+              timestamp: convo.convoReceiver.updatedAt,
+            },
+            ...oldMessages,
+          ];
+          newChatCache.set(convo.convoReceiver._id, newMessages);
+
+          sessionStorage.setItem(
+            "chatCache",
+            JSON.stringify(Array.from(newChatCache.entries()))
+          );
+
+          return newChatCache;
         });
       });
       socket.on("userOffline", (data) => {
@@ -339,19 +397,21 @@ const App = () => {
    * The callback to log the user out
    */
   const logout = useCallback(() => {
-    setToken(null);
-    setUserId(null);
-    setSelected(0);
-    setSelectedConversation(null);
-    setSelectedRequest(null);
-    setSelectedElement(null);
-    setNavExpanded(false);
-    sessionStorage.clear();
-    setCompose(false);
-    setRequests([]);
-    setRequestCount(0);
-    setIsConvosFullyLoaded(false);
-    setDisplayedConversations([]);
+    logOff(
+      setToken,
+      setUserId,
+      setSelected,
+      setSelectedConversation,
+      setSelectedRequest,
+      setSelectedElement,
+      setNavExpanded,
+      setCompose,
+      setRequests,
+      setRequestCount,
+      isConvosFullyLoaded,
+      setDisplayedConversations,
+      selectedConversationRef
+    );
   }, []);
 
   /**
@@ -391,7 +451,17 @@ const App = () => {
   return (
     <SocketContext.Provider value={{ socket, setSocket }}>
       <UserContext.Provider
-        value={{ isLoggedIn: !!token, token, userId, login, logout }}
+        value={{
+          isLoggedIn: !!token,
+          token,
+          userId,
+          login,
+          logout,
+          name,
+          setName,
+          profilePicture,
+          setProfilePicture,
+        }}
       >
         <NavContext.Provider
           value={{
@@ -404,35 +474,59 @@ const App = () => {
             showSettings,
             setShowSettings: handleShowSettings,
             settingsRef,
-            displayedConversations,
-            setDisplayedConversations,
-            compose,
-            setCompose: composeOff,
-            selectedElement: selectedElement,
-            setSelectedElement: setSelectedElement,
-            showsearchField,
-            setShowsearchField,
-            searchFieldRef,
-            requests,
-            setRequests,
-            requestCount,
-            setRequestCount,
-            selectedRequest,
-            setSelectedRequest,
-            isConvosFullyLoaded,
-            setIsConvosFullyLoaded,
-            activeContacts,
-            setActiveContacts,
-            selectedConversation,
-            setSelectedConversation,
-            selectedConversationRef,
-            usersTyping,
-            setUsersTyping,
           }}
         >
-          <RouterProvider
-            router={!!token && !!userId ? loggedInRouter : router}
-          />
+          <ComposeContext.Provider
+            value={{
+              compose,
+              setCompose: composeOff,
+              selectedElement,
+              setSelectedElement,
+              showsearchField,
+              setShowsearchField,
+              searchFieldRef,
+            }}
+          >
+            <ConversationContext.Provider
+              value={{
+                selectedConversation,
+                setSelectedConversation,
+                selectedConversationRef,
+                displayedConversations,
+                displayedConversationsRef,
+                setDisplayedConversations,
+                isConvosFullyLoaded,
+              }}
+            >
+              <UserTypingContext.Provider
+                value={{ usersTyping, setUsersTyping }}
+              >
+                <RequestContext.Provider
+                  value={{
+                    requests,
+                    setRequests,
+                    requestCount,
+                    setRequestCount,
+                    selectedRequest,
+                    setSelectedRequest,
+                    selectedRequestRef,
+                  }}
+                >
+                  <ActiveUsersContext.Provider
+                    value={{ activeContacts, setActiveContacts }}
+                  >
+                    <ChatCacheContext.Provider
+                      value={{ chatCache, setChatCache }}
+                    >
+                      <RouterProvider
+                        router={!!token && !!userId ? loggedInRouter : router}
+                      />
+                    </ChatCacheContext.Provider>
+                  </ActiveUsersContext.Provider>
+                </RequestContext.Provider>
+              </UserTypingContext.Provider>
+            </ConversationContext.Provider>
+          </ComposeContext.Provider>
         </NavContext.Provider>
       </UserContext.Provider>
     </SocketContext.Provider>

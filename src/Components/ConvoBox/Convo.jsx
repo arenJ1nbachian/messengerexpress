@@ -1,12 +1,13 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext } from "react";
 import Category from "../NavBarButtons/Category";
-import { SocketContext } from "../../Contexts/SocketContext";
 import defaultPicture from "../../images/default.svg";
 import "./Convo.css";
 import { useNavigate } from "react-router";
-import { NavContext } from "../../Contexts/NavContext";
-import NavBar from "../NavBar";
 import { markConversationAsRead } from "../../utils/markConversationAsRead";
+import { ConversationContext } from "../../Contexts/ConversationContext";
+import { ChatCacheContext } from "../../Contexts/ChatCacheContext";
+import { ComposeContext } from "../../Contexts/ComposeContext";
+import { UserTypingContext } from "../../Contexts/UserTypingContext";
 
 /**
  * Convo component represents a conversation in the chat list.
@@ -21,14 +22,17 @@ import { markConversationAsRead } from "../../utils/markConversationAsRead";
  * @param {string} props.conversationId - The ID of the conversation.
  */
 const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
-  const navContext = useContext(NavContext);
+  const convoContext = useContext(ConversationContext);
+  const chatCacheContext = useContext(ChatCacheContext);
+  const composeContext = useContext(ComposeContext);
+  const userTypingContext = useContext(UserTypingContext);
 
   const navigate = useNavigate();
 
   // Function to update the read status of the message
   const updateMessageRead = async () => {
     await markConversationAsRead(id);
-    navContext.setDisplayedConversations((prev) => {
+    convoContext.setDisplayedConversations((prev) => {
       const updatedConversations = new Map(prev);
       updatedConversations.get(id).read = true;
       sessionStorage.setItem(
@@ -43,17 +47,46 @@ const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
     <div
       key={id}
       className={`userConvo ${
-        navContext.selectedConversation === id ? "clicked" : "default"
+        convoContext.selectedConversation === id ? "clicked" : "default"
       } ${convoHovered === id ? "hovered" : "default"}`}
       onMouseEnter={() => setConvoHovered(id)}
       onMouseLeave={() => setConvoHovered(null)}
       onClick={() => {
-        navContext.setSelectedConversation(id);
-        navContext.selectedConversationRef.current = id;
+        const getRecentMessages = async () => {
+          try {
+            const response = await fetch(
+              `http://localhost:5000/api/conversations/getRecentMessages/${id}`
+            );
+            const data = await response.json();
+
+            chatCacheContext.setChatCache((prevCache) => {
+              const newCache = new Map(prevCache);
+              newCache.set(convoContext.selectedConversationRef.current, data);
+
+              if (newCache.size > 10) {
+                const oldestKey = newCache.keys().next().value;
+                newCache.delete(oldestKey);
+              }
+
+              const cacheArray = Array.from(newCache.entries());
+              sessionStorage.setItem("chatCache", JSON.stringify(cacheArray));
+
+              return newCache;
+            });
+          } catch (err) {
+            console.log(err);
+          }
+        };
+        if (!chatCacheContext.chatCache.has(id)) {
+          getRecentMessages();
+        }
+
+        convoContext.setSelectedConversation(id);
+        convoContext.selectedConversationRef.current = id;
         navigate("/chats/" + id);
-        navContext.setCompose(false);
+        composeContext.setCompose(false);
         sessionStorage.setItem("selectedConversation", id);
-        if (!navContext.displayedConversations.get(id).read) {
+        if (!convoContext.displayedConversations.get(id).read) {
           updateMessageRead();
         }
       }}
@@ -68,9 +101,9 @@ const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
       <div className="convoInfo">
         <div id="idHeader">
           <div id="flName">{`${
-            navContext.displayedConversations.get(id).name
+            convoContext.displayedConversations.get(id).name
           } `}</div>
-          {navContext.usersTyping.has(id) && (
+          {userTypingContext.usersTyping.has(id) && (
             <div className="typing-indicator">
               <span className="dot">•</span>
               <span className="dot">•</span>
@@ -81,19 +114,17 @@ const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
         <div
           id="latest-message"
           className={`${
-            !navContext.displayedConversations.get(id).read &&
-            navContext.displayedConversations.get(id).who.length === 0
+            !convoContext.displayedConversations.get(id).read &&
+            convoContext.displayedConversations.get(id).who.length === 0
               ? "unread"
               : ""
           }`}
-        >{`${navContext.displayedConversations.get(id).who} ${
-          navContext.displayedConversations.get(id).lastMessage === null
-            ? navContext.displayedConversations.get(id).lastMessage
-            : navContext.displayedConversations.get(id).lastMessage
+        >{`${convoContext.displayedConversations.get(id).who} ${
+          convoContext.displayedConversations.get(id).lastMessage.content
         }`}</div>
       </div>
-      {!navContext.displayedConversations.get(id).read &&
-        navContext.displayedConversations.get(id).who.length === 0 && (
+      {!convoContext.displayedConversations.get(id).read &&
+        convoContext.displayedConversations.get(id).who.length === 0 && (
           <div className="unreadIcon">
             <Category img={unread} width="100%" height="100%" />
           </div>

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const conversation = require("./conversation");
 
 const messageSchema = new mongoose.Schema({
   sender: {
@@ -14,6 +15,7 @@ const messageSchema = new mongoose.Schema({
   content: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
   read: { type: Boolean, default: false },
+  conversation: { type: mongoose.Schema.Types.ObjectId, ref: "Conversations" },
 });
 
 module.exports = mongoose.model("Messages", messageSchema);

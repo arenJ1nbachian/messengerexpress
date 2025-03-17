@@ -57,7 +57,10 @@ const getConversations = async (req, res) => {
         result.set(convo._id.toString(), {
           userId: nameID, // The ID of the other participant.
           name: name.firstname + " " + name.lastname, // The full name of the other participant.
-          lastMessage: lastMessage.content, // The content of the last message.
+          lastMessage: {
+            content: lastMessage.content,
+            _id: lastMessage._id.toString(),
+          }, // The content of the last message.
           who: lastMessage.sender.toString() === uid ? "You:" : "", // Indicates if the user is the sender.
           read:
             lastMessage.receiver.toString() === uid
@@ -96,15 +99,16 @@ const updateConversation = async (convo, newMessage) => {
   }
 };
 
-const createMessage = async (message, senderId, receiverId) => {
+const createMessage = async (message, senderId, receiverId, convoId) => {
   try {
     const newMessage = new Message({
       sender: senderId,
       receiver: receiverId,
       content: message,
       read: false,
+      conversation: convoId,
     });
-    await newMessage.save();
+
     return newMessage;
   } catch (error) {
     console.log(error);
@@ -125,15 +129,30 @@ const createConversation = async (participants, lastMessage) => {
   }
 };
 
-const emitnewRequestEvent = (io, newConvo, message, sender, receiverID) => {
+const emitnewRequestEvent = async (
+  io,
+  newConvo,
+  message,
+  sender,
+  receiverID
+) => {
   if (searchActiveUsers(receiverID)) {
     for (const socket of getSocketsByUserId(receiverID)) {
       if (newConvo.status === "Rejected") {
+        console.log("Convo was rejected so upping to number");
         io.to(socket).emit("updateRequestsNumber", 1);
       }
+      const messages = await Message.find({ conversation: newConvo._id })
+        .sort({ timestamp: -1 })
+        .limit(20)
+        .select("content timestamp _id sender");
       io.to(socket).emit("newRequest", {
         _id: newConvo._id.toString(),
-        lastMessage: message.content,
+        lastMessage: {
+          content: message.content,
+          _id: message._id.toString(),
+        },
+        messages: messages,
         name: sender.firstname + " " + sender.lastname,
         profilePicture:
           sender.profilePicture === null
@@ -157,7 +176,10 @@ const emitRealTimeEvent = (io, convo, newMessage, sender, receiverID) => {
       io.to(socket).emit(`updateConversationHeader`, {
         convoReceiver: {
           _id: convo._id.toString(),
-          lastMessage: newMessage.content,
+          lastMessage: {
+            content: newMessage.content,
+            _id: newMessage._id.toString(),
+          },
           name: sender.firstname + " " + sender.lastname,
           profilePicture:
             sender.profilePicture === null
@@ -189,9 +211,17 @@ const getRequests = async (req, res) => {
 
         if (lastMessage.receiver.toString() === uid) {
           const sender = await Users.findById(lastMessage.sender);
+          const messages = await Message.find({ conversation: request._id })
+            .sort({ timestamp: -1 })
+            .limit(20)
+            .select("content timestamp _id sender");
           requestsList.push({
             _id: request._id,
-            lastMessage: lastMessage.content,
+            lastMessage: {
+              content: lastMessage.content,
+              _id: lastMessage._id.toString(),
+            },
+            messages: messages,
             name: sender.firstname + " " + sender.lastname,
             profilePicture:
               sender.profilePicture === null
@@ -307,6 +337,7 @@ const createConvo = async (req, res, io) => {
 
     if (convo) {
       const lastMessage = await Message.findById(convo.lastMessage);
+      newMessage.conversation = convo._id;
 
       // If the conversation already exists, emit a real-time event
       // Or if the conversation is pending and the user who sent this current message was also
@@ -357,7 +388,10 @@ const createConvo = async (req, res, io) => {
       res.status(201).json({
         convoSender: {
           _id: convo._id.toString(),
-          lastMessage: newMessage.content,
+          lastMessage: {
+            content: newMessage.content,
+            _id: newMessage._id.toString(),
+          },
           name: receiver.firstname + " " + receiver.lastname,
           profilePicture:
             receiver.profilePicture === null
@@ -370,6 +404,8 @@ const createConvo = async (req, res, io) => {
       });
     } else {
       const newConvo = await createConversation(participants, newMessage._id);
+
+      newMessage.conversation = newConvo._id;
 
       emitnewRequestEvent(
         io,
@@ -389,7 +425,10 @@ const createConvo = async (req, res, io) => {
       res.status(201).json({
         convoSender: {
           _id: newConvo._id.toString(),
-          lastMessage: newMessage.content,
+          lastMessage: {
+            content: newMessage.content,
+            _id: newMessage._id.toString(),
+          },
           name: receiver.firstname + " " + receiver.lastname,
           profilePicture:
             receiver.profilePicture === null
@@ -402,6 +441,7 @@ const createConvo = async (req, res, io) => {
         },
       });
     }
+    await newMessage.save();
   } catch (error) {
     console.log(error);
   }
@@ -466,6 +506,42 @@ const getMessageRead = async (req, res) => {
   }
 };
 
+const getRecentMessage = async (req, res) => {
+  const { convoID } = req.params;
+  const limit = 20;
+  try {
+    const messages = await Message.find({ conversation: convoID })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .select("content timestamp _id sender");
+
+    res.status(200).json(messages.reverse());
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+};
+
+const getOlderMessages = async (req, res) => {
+  const { convoID, lastMessageId } = req.query;
+
+  const limit = 20;
+
+  try {
+    const messages = await Message.find({
+      conversation: convoID,
+      _id: { $lt: lastMessageId },
+    })
+      .sort({ createdAt: -1 })
+      .limit(limit);
+
+    res.status(200).json(messages.reverse());
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+};
+
 exports.getConversations = getConversations;
 exports.createConvo = createConvo;
 exports.getConvo = getConvo;
@@ -475,3 +551,5 @@ exports.getRequests = getRequests;
 exports.acceptRequest = acceptRequest;
 exports.rejectRequest = rejectRequest;
 exports.getRequestCount = getRequestCount;
+exports.getRecentMessage = getRecentMessage;
+exports.getOlderMessages = getOlderMessages;

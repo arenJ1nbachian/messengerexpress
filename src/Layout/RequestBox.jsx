@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { NavContext } from "../Contexts/NavContext";
 import defaultPicture from "../images/default.svg";
 import { useNavigate } from "react-router";
+import { RequestContext } from "../Contexts/RequestContext";
 
 const RequestBox = ({
   id,
@@ -9,20 +10,19 @@ const RequestBox = ({
   setConvoHovered,
   convoHovered,
   request,
-  setClickedRequest,
 }) => {
-  const navContext = useContext(NavContext);
-  const navigate = useNavigate();
+  const requestContext = useContext(RequestContext);
+
   return (
     <div
       className={`userConvo ${convoHovered === id ? "hovered" : "default"} ${
-        navContext.selectedRequest === id ? "clicked" : "default"
+        requestContext.selectedRequest === id ? "clicked" : "default"
       }`}
       onMouseEnter={() => setConvoHovered(id)}
       onMouseLeave={() => setConvoHovered(null)}
       onClick={() => {
-        navigate("/requests/" + request._id);
-        navContext.setSelectedRequest(request._id);
+        requestContext.setSelectedRequest(id);
+        requestContext.selectedRequestRef.current = id;
       }}
     >
       <div id="pfPicture">
@@ -42,11 +42,7 @@ const RequestBox = ({
         <div
           id="latest-message"
           style={{ fontWeight: "bold", color: "white" }}
-        >{`${request.who} ${
-          request.lastMessage === null
-            ? request.lastMessage
-            : request.lastMessage
-        }`}</div>
+        >{`${request.who} ${request.lastMessage.content}`}</div>
       </div>
     </div>
   );

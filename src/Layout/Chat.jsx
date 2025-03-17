@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { NavContext } from "../Contexts/NavContext";
 import compose from "../images/compose.svg";
 import search from "../images/search.svg";
@@ -6,8 +6,10 @@ import Category from "../Components/NavBarButtons/Category";
 import "./Chat.css";
 import "../CSS/ScrollBar.css";
 import ConvoBox from "../Components/ConvoBox/ConvoBox";
-import { SocketContext } from "../Contexts/SocketContext";
+
 import { useNavigate } from "react-router";
+import { ConversationContext } from "../Contexts/ConversationContext";
+import { ComposeContext } from "../Contexts/ComposeContext";
 
 /**
  * This component renders the chat page where all the user's conversations get displayed.
@@ -16,43 +18,42 @@ const Chat = () => {
   const [hovered, setHovered] = useState(false);
   const [composeHover, setComposeHover] = useState(false);
   const navigate = useNavigate();
+  const convoContext = useContext(ConversationContext);
+  const composeContext = useContext(ComposeContext);
+  const navContext = useContext(NavContext);
 
   /**
    * This context contains the state of the sidebar navigation.
    */
-  const navBar = useContext(NavContext);
 
-  /**
-   * This context contains the socket to communicate with the server.
-   */
-  const { socket } = useContext(SocketContext);
-
+  // After the component mounts, navigate to the appropriate route
   useEffect(() => {
-    if (navBar.selectedConversation === null && !navBar.compose) {
+    if (
+      convoContext.selectedConversationRef.current === null &&
+      !composeContext.compose
+    ) {
       navigate("/chats/none");
-    } else if (navBar.compose) {
+    } else if (composeContext.compose) {
       navigate("/chats/compose");
     } else {
-      navigate(`/chats/${navBar.selectedConversation}`);
+      navigate(`/chats/${convoContext.selectedConversationRef.current}`);
     }
-  }, [
-    navBar.compose,
-    navBar.displayedConversations,
-    navBar.selectedConversation,
-    navigate,
-  ]);
+  }, [composeContext.compose, convoContext.selectedConversationRef, navigate]);
 
   return (
     <div style={{ display: "flex", height: "100%", width: "100%" }}>
-      <div className={`chatBox ${navBar.navExpanded ? "expanded" : "default"}`}>
+      <div
+        className={`chatBox ${navContext.navExpanded ? "expanded" : "default"}`}
+      >
         <div className="chatBoxHeader">
           <div className="chatBoxTitle">Chats</div>
           <div
             onClick={(e) => {
-              navBar.setCompose(true);
-              navBar.setSelectedConversation(null);
+              composeContext.setCompose(true);
+              convoContext.setSelectedConversation(null);
+              convoContext.selectedConversationRef.current = null;
               sessionStorage.removeItem("selectedConversation");
-              navBar.setShowsearchField(true);
+              composeContext.setShowsearchField(true);
               e.stopPropagation();
             }}
             className={`chatBoxCompose ${
@@ -74,7 +75,7 @@ const Chat = () => {
         </div>
         <div
           className={`chatBoxSearch ${
-            navBar.navExpanded ? "expanded" : "default"
+            navContext.navExpanded ? "expanded" : "default"
           }`}
         >
           <div>

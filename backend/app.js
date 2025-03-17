@@ -49,7 +49,7 @@ io.on("connection", async (socket) => {
   const userId = socket.handshake.query.uid;
 
   const storedTyping = getTypingConvos(userId);
-  console.log(getSocketsByUserId(userId));
+
 
   if (userId) {
     console.log(`User ${userId} connected with socket ${socket.id}`);
@@ -76,7 +76,6 @@ io.on("connection", async (socket) => {
     // Only broadcast "userOnline" if the user is not already marked as online.
     if (!searchActiveUsers(userId)) {
       addActiveUser(userId); // Add the user to the active users Set
-      console.log(`Marking ${userId} as online`);
 
       try {
         // Update the user's status in the database
@@ -91,21 +90,22 @@ io.on("connection", async (socket) => {
 
         // Notify relevant users (those who share conversations with this user)
         if (data?.length > 0) {
-          console.log("DATA", data);
           data.forEach((onlineUser) => {
             const recipientSockets = getSocketsByUserId(
               onlineUser.userId.toString()
             ); // Get recipient socketIds
-
-            recipientSockets.forEach((recipientSocketId) => {
-              socket.to(recipientSocketId).emit("userOnline", {
-                userId: userId,
-                convoId: onlineUser.convoId,
-                firstname: userOnline.firstname,
-                lastname: userOnline.lastname,
-                profilePicture: userProfilePicture,
-              });
-            });
+if(recipientSockets){
+  recipientSockets.forEach((recipientSocketId) => {
+    socket.to(recipientSocketId).emit("userOnline", {
+      userId: userId,
+      convoId: onlineUser.convoId,
+      firstname: userOnline.firstname,
+      lastname: userOnline.lastname,
+      profilePicture: userProfilePicture,
+    });
+  });
+}
+           
           });
         }
       } catch (err) {
@@ -116,8 +116,6 @@ io.on("connection", async (socket) => {
 
   // Handle Socket.IO 'disconnect' event
   socket.on("disconnect", () => {
-    console.log(`User ${userId} disconnected with socket ${socket.id}`);
-
     // Remove the socketId from the user's Set of active sockets
     if (getSocketsByUserId(userId)) {
       removeUserSocket(userId, socket.id);
@@ -143,9 +141,10 @@ io.on("connection", async (socket) => {
                   const recipientSockets = getSocketsByUserId(
                     onlineUser.userId
                   );
+                  if(recipientSockets){
                   recipientSockets.forEach((recipientSocketId) => {
                     socket.to(recipientSocketId).emit("userOffline", userId);
-                  });
+                  })};
                 });
               }
             } catch (err) {

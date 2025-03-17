@@ -1,0 +1,11 @@
+.chat {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+  height: 100%;
+  padding-left: 16px;
+  padding-right: 16px;
+  overflow-y: auto;
+  border-radius: 8px;
+  
+}
