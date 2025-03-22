@@ -139,7 +139,6 @@ const emitnewRequestEvent = async (
   if (searchActiveUsers(receiverID)) {
     for (const socket of getSocketsByUserId(receiverID)) {
       if (newConvo.status === "Rejected") {
-        console.log("Convo was rejected so upping to number");
         io.to(socket).emit("updateRequestsNumber", 1);
       }
       const messages = await Message.find({ conversation: newConvo._id })
@@ -338,7 +337,7 @@ const createConvo = async (req, res, io) => {
     if (convo) {
       const lastMessage = await Message.findById(convo.lastMessage);
       newMessage.conversation = convo._id;
-
+      await newMessage.save();
       // If the conversation already exists, emit a real-time event
       // Or if the conversation is pending and the user who sent this current message was also
       // the same user who received the last message, emit a realTimeEvent.
@@ -407,6 +406,8 @@ const createConvo = async (req, res, io) => {
 
       newMessage.conversation = newConvo._id;
 
+      await newMessage.save();
+
       emitnewRequestEvent(
         io,
         newConvo,
@@ -441,7 +442,6 @@ const createConvo = async (req, res, io) => {
         },
       });
     }
-    await newMessage.save();
   } catch (error) {
     console.log(error);
   }

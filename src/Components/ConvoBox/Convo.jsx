@@ -8,6 +8,7 @@ import { ConversationContext } from "../../Contexts/ConversationContext";
 import { ChatCacheContext } from "../../Contexts/ChatCacheContext";
 import { ComposeContext } from "../../Contexts/ComposeContext";
 import { UserTypingContext } from "../../Contexts/UserTypingContext";
+import { NavContext } from "../../Contexts/NavContext";
 
 /**
  * Convo component represents a conversation in the chat list.
@@ -26,6 +27,7 @@ const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
   const chatCacheContext = useContext(ChatCacheContext);
   const composeContext = useContext(ComposeContext);
   const userTypingContext = useContext(UserTypingContext);
+  const navContext = useContext(NavContext);
 
   const navigate = useNavigate();
 
@@ -121,6 +123,11 @@ const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
           }`}
         >{`${convoContext.displayedConversations.get(id).who} ${
           convoContext.displayedConversations.get(id).lastMessage.content
+            .length > 35 && !navContext.navExpanded
+            ? convoContext.displayedConversations
+                .get(id)
+                .lastMessage.content.slice(0, 50) + "..."
+            : convoContext.displayedConversations.get(id).lastMessage.content
         }`}</div>
       </div>
       {!convoContext.displayedConversations.get(id).read &&
