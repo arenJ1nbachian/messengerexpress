@@ -8,7 +8,7 @@
 /backend/uploads
 
 # testing
-/coverage
+/backend/coverage
 
 # production
 /build
