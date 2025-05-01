@@ -11,10 +11,8 @@ import Requests from "./Layout/Requests.jsx";
 import Archived from "./Layout/Archived.jsx";
 import { NavContext } from "./Contexts/NavContext.js";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Login from "./Layout/Login.jsx";
-import Register from "./Layout/Register.jsx";
+import Login from "./Layout/Login&Register.jsx";
 import { UserContext } from "./Contexts/UserContext.js";
-
 import { SocketContext } from "./Contexts/SocketContext.js";
 import io from "socket.io-client";
 import { markConversationAsRead } from "./utils/markConversationAsRead.js";
@@ -33,7 +31,7 @@ const router = createBrowserRouter([
     children: [
       { path: "/", element: <Navigate to="/login" replace /> },
       { path: "login", element: <Login /> },
-      { path: "register", element: <Register /> },
+      { path: "register", element: <Login /> },
     ],
   },
 ]);

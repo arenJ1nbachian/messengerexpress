@@ -31,10 +31,14 @@ const Root = () => {
         </div>
       )}
 
-      <main className={userContext.isLoggedIn ? "main" : ""}>
-        {/* Outlet for rendering child routes */}
+      {userContext.isLoggedIn ? (
+        <main className={userContext.isLoggedIn ? "main" : ""}>
+          {/* Outlet for rendering child routes */}
+          <Outlet />
+        </main>
+      ) : (
         <Outlet />
-      </main>
+      )}
       {userContext.isLoggedIn ? (
         composeContext.compose ? (
           <div className="composeContainer">
