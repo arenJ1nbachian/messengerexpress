@@ -105,12 +105,44 @@
   outline: none;
 }
 
-.left-side img {
+.left-side #logo {
   width: 150px;
   height: 150px;
   margin-bottom: 15px;
   animation: rotate 15s infinite linear;
   border-radius: 50%;
+}
+
+@keyframes wiggle {
+  0% {
+    transform: rotate(0deg) translateX(0);
+  }
+  25% {
+    transform: rotate(5deg) translateX(5px);
+  }
+  50% {
+    transform: rotate(-5deg) translateX(-5px);
+  }
+  75% {
+    transform: rotate(5deg) translateX(5px);
+  }
+  100% {
+    transform: rotate(0deg) translateX(0);
+  }
+}
+
+#pfp {
+  border-radius: 50%;
+  width: 150px;
+  height: 150px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: scale 0.3s ease;
+  animation: wiggle 2s infinite linear;
+}
+
+#pfp:hover {
+  scale: 1.05;
 }
 
 .btn-login {
@@ -124,10 +156,11 @@
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  transition: scale 0.3s ease;
 }
 
 .btn-login:hover {
-  background-color: #357abd;
+  scale: 1.05;
 }
 
 .right-side {
@@ -180,7 +213,7 @@
   color: #4a90e2;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1000px) {
   .left-side,
   .right-side {
     flex: none;

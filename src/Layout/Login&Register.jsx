@@ -39,13 +39,17 @@ const Login = () => {
   useEffect(() => {
     const handleResize = () => {
       console.log(window.innerWidth);
-      if (window.innerWidth <= 768) {
+      if (
+        window.innerWidth <= 1000 ||
+        (window.innerHeight < 800 && mode === "Register") ||
+        (window.innerHeight < 505 && mode === "Login")
+      ) {
         console.log("SMALL SCREEN");
         container.current.style.flexDirection = "column";
-      } else if (window.innerWidth > 768 && mode === "Login") {
+      } else if (window.innerWidth > 1000 && mode === "Login") {
         console.log("BIG SCREEN LOGIN MODE");
         container.current.style.flexDirection = "row";
-      } else if (window.innerWidth > 768 && mode === "Register") {
+      } else if (window.innerWidth > 1000 && mode === "Register") {
         console.log("BIG SCREEN REGISTER MODE");
         container.current.style.flexDirection = "row-reverse";
       }
@@ -158,12 +162,14 @@ const Login = () => {
 
   const resetForm = () => {
     setTimeout(() => {
+      setPfpPreview(pfp);
       setFormData({
-        firstName: "",
-        lastName: "",
+        firstname: "",
+        lastname: "",
         email: "",
         password: "",
         confirmPassword: "",
+        file: null,
       });
     }, 500);
 
@@ -186,7 +192,7 @@ const Login = () => {
   const handleRegisterLoginClick = () => {
     resetForm();
     if (mode === "Login") {
-      if (window.innerWidth > 768) {
+      if (window.innerWidth > 1000) {
         leftSide.current.style.opacity = "0";
         rightSide.current.style.opacity = "0";
         setTimeout(() => {
@@ -207,7 +213,7 @@ const Login = () => {
         }, 500);
       }
     } else {
-      if (window.innerWidth > 768) {
+      if (window.innerWidth > 1000) {
         leftSide.current.style.opacity = "0";
         rightSide.current.style.opacity = "0";
         setTimeout(() => {
@@ -284,7 +290,7 @@ const Login = () => {
       <div ref={container} className="container">
         <div ref={leftSide} className="left-side">
           {mode === "Login" ? (
-            <img src={logo} alt="login" />
+            <img src={logo} alt="login" id="logo" />
           ) : (
             <div>
               <img
@@ -327,11 +333,17 @@ const Login = () => {
               className="login-form"
             >
               <div className="input-group">
-                <label for="firstName">
+                <label for="firstname">
                   <i className="fas fa-user"></i> First Name
                 </label>
                 <input
                   ref={firstNameInputRef}
+                  onFocus={() => {
+                    firstNameInputRef.current.style.borderColor = "#4a90e2";
+                  }}
+                  onBlur={() => {
+                    firstNameInputRef.current.style.borderColor = "#ccc";
+                  }}
                   onChange={(e) =>
                     setFormData((prevData) => ({
                       ...prevData,
@@ -346,11 +358,17 @@ const Login = () => {
                 />
               </div>
               <div className="input-group">
-                <label for="lastName">
+                <label for="lastname">
                   <i className="fas fa-user"></i> Last Name
                 </label>
                 <input
                   ref={lastNameInputRef}
+                  onFocus={() => {
+                    lastNameInputRef.current.style.borderColor = "#4a90e2";
+                  }}
+                  onBlur={() => {
+                    lastNameInputRef.current.style.borderColor = "#ccc";
+                  }}
                   onChange={(e) =>
                     setFormData((prevData) => ({
                       ...prevData,
@@ -370,6 +388,12 @@ const Login = () => {
                 </label>
                 <input
                   ref={emailInputRef}
+                  onFocus={() => {
+                    emailInputRef.current.style.borderColor = "#4a90e2";
+                  }}
+                  onBlur={() => {
+                    emailInputRef.current.style.borderColor = "#ccc";
+                  }}
                   onChange={(e) =>
                     setFormData((prevData) => ({
                       ...prevData,
@@ -389,6 +413,12 @@ const Login = () => {
                 </label>
                 <input
                   ref={passwordInputRef}
+                  onFocus={() => {
+                    passwordInputRef.current.style.borderColor = "#4a90e2";
+                  }}
+                  onBlur={() => {
+                    passwordInputRef.current.style.borderColor = "#ccc";
+                  }}
                   onChange={(e) =>
                     setFormData((prevData) => ({
                       ...prevData,
@@ -408,6 +438,13 @@ const Login = () => {
                 </label>
                 <input
                   ref={confirmPasswordInputRef}
+                  onFocus={() => {
+                    confirmPasswordInputRef.current.style.borderColor =
+                      "#4a90e2";
+                  }}
+                  onBlur={() => {
+                    confirmPasswordInputRef.current.style.borderColor = "#ccc";
+                  }}
                   onChange={(e) =>
                     setFormData((prevData) => ({
                       ...prevData,
