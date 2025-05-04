@@ -100,11 +100,6 @@
   transition: border-color 0.3s ease;
 }
 
-.input-group input:focus {
-  border-color: #4a90e2;
-  outline: none;
-}
-
 .left-side #logo {
   width: 150px;
   height: 150px;

@@ -173,10 +173,10 @@ const Login = () => {
       });
     }, 500);
 
-    if (mode === "Login") {
-      emailInputRef.current.style.borderColor = "#ccc";
-      passwordInputRef.current.style.borderColor = "#ccc";
-    } else {
+    emailInputRef.current.style.borderColor = "#ccc";
+    passwordInputRef.current.style.borderColor = "#ccc";
+
+    if (mode === "Register") {
       firstNameInputRef.current.style.borderColor = "#ccc";
       lastNameInputRef.current.style.borderColor = "#ccc";
       emailInputRef.current.style.borderColor = "#ccc";
@@ -474,6 +474,12 @@ const Login = () => {
                 </label>
                 <input
                   ref={emailInputRef}
+                  onFocus={() => {
+                    emailInputRef.current.style.borderColor = "#4a90e2";
+                  }}
+                  onBlur={() => {
+                    emailInputRef.current.style.borderColor = "#ccc";
+                  }}
                   onChange={(e) =>
                     setFormData((prevData) => ({
                       ...prevData,
@@ -493,6 +499,12 @@ const Login = () => {
                 </label>
                 <input
                   ref={passwordInputRef}
+                  onFocus={() => {
+                    passwordInputRef.current.style.borderColor = "#4a90e2";
+                  }}
+                  onBlur={() => {
+                    passwordInputRef.current.style.borderColor = "#ccc";
+                  }}
                   onChange={(e) =>
                     setFormData((prevData) => ({
                       ...prevData,
