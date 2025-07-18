@@ -1,47 +1,40 @@
 #root {
+  display: flex;
   width: 100%;
   height: 100%;
 }
 
 .navBar {
-  margin-left: 15px;
-  margin-top: 2%;
-  height: 95%;
-  width: 5%;
+  width: 44px;
+  position: relative;
 }
 
 .navBar.expanded {
-  width: 20%;
+  width: 240px;
 }
 
 .main {
-  margin-left: 15px;
-  margin-top: auto;
-  margin-bottom: auto;
-  height: 95%;
-  width: 30%;
+  margin-left: 16px;
+  width: 480px;
 }
 
 .chatContainer {
-  margin-left: 15px;
-  margin-right: 15px;
-  margin-top: auto;
-  margin-bottom: auto;
   display: flex;
+  margin-left: 16px;
   flex-direction: row;
   align-items: center;
-  height: 95%;
-  width: 62%;
+  width: 1157px;
+  flex: 1;
 }
 
 .composeContainer {
-  margin-left: 15px;
-  margin-right: 15px;
   margin-top: auto;
   margin-bottom: auto;
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: 95%;
-  width: 62%;
+  height: 100%;
+  margin-left: 16px;
+  width: 1157px;
+  flex: 1;
 }

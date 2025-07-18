@@ -4,6 +4,7 @@ import Chat from "./Layout/Chat.jsx";
 import {
   createBrowserRouter,
   Navigate,
+  Outlet,
   RouterProvider,
 } from "react-router-dom";
 import Root from "./Layout/Root.jsx";
@@ -27,7 +28,7 @@ import { UserTypingContext } from "./Contexts/UserTypingContext.js";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root />,
+    element: <Outlet />,
     children: [
       { path: "/", element: <Navigate to="/login" replace /> },
       { path: "login", element: <Login /> },
@@ -167,6 +168,10 @@ const App = () => {
   const selectedRequestRef = useRef(
     sessionStorage.getItem("selectedRequest") || null
   );
+
+  const chatContainerRef = useRef(null);
+
+  const mainRef = useRef(null);
 
   const [chatCache, setChatCache] = useState(
     sessionStorage
@@ -367,6 +372,63 @@ const App = () => {
     }
   }, [userId, token]);
 
+  useEffect(() => {
+    if (token && userId) {
+      document.getElementById("root").style.padding = "16px";
+    } else {
+      document.getElementById("root").style.padding = "0px";
+    }
+  }, [token, userId]);
+
+  useEffect(() => {
+    if (
+      userId &&
+      token &&
+      navExpanded &&
+      window.innerWidth <= 1200 &&
+      chatContainerRef.current.style.display !== "none"
+    ) {
+      chatContainerRef.current.style.display = "none";
+      mainRef.current.style.flex = "1";
+    } else if (
+      userId &&
+      token &&
+      !navExpanded &&
+      window.innerWidth <= 1200 &&
+      chatContainerRef.current.style.display !== "flex"
+    ) {
+      chatContainerRef.current.style.display = "flex";
+    }
+    const handleResize = () => {
+      if (
+        userId &&
+        token &&
+        window.innerWidth <= 1200 &&
+        navExpanded &&
+        (chatContainerRef.current.style.display === "flex" ||
+          chatContainerRef.current.style.display === "")
+      ) {
+        console.log("SMALL SCREEN");
+        setNavExpanded(false);
+        sessionStorage.setItem("navExpanded", false);
+      } else if (
+        userId &&
+        token &&
+        window.innerWidth > 1200 &&
+        navExpanded &&
+        chatContainerRef.current.style.display === "none"
+      ) {
+        chatContainerRef.current.style.display = "flex";
+        mainRef.current.style.flex = "unset";
+      }
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [navExpanded, selectedConversation]);
+
   /**
    * The callback to turn the compose button on or off
    * @param {boolean} bool - whether the compose button should be on or off
@@ -463,6 +525,8 @@ const App = () => {
       >
         <NavContext.Provider
           value={{
+            chatContainerRef,
+            mainRef,
             navExpanded: navExpanded,
             setNavExpanded: handleNavExpand,
             selected,

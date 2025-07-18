@@ -125,7 +125,10 @@ const Contacts = () => {
                   <img
                     className="convoPicture"
                     src={
-                      contact.profilePicture !== ""
+                      contact.profilePicture.substring(
+                        contact.profilePicture.length - 4,
+                        contact.profilePicture.length
+                      ) !== "null"
                         ? contact.profilePicture
                         : defaultPicture
                     }

@@ -143,26 +143,16 @@ const Button = ({ value, index, buttonText }) => {
   return (
     <div
       className={`btnBox ${
-        navContext.navExpanded &&
-        (navContext.selected === index || navContext.hovered === index)
+        navContext.selected === index || navContext.hovered === index
           ? " hovClick"
           : "default"
-      }`}
-      onMouseEnter={() =>
-        navContext.navExpanded ? navContext.setHovered(index) : false
-      }
-      onMouseLeave={() =>
-        navContext.navExpanded ? navContext.setHovered(-1) : false
-      }
+      } ${navContext.navExpanded && "Expanded"}`}
+      onMouseEnter={() => navContext.setHovered(index)}
+      onMouseLeave={() => navContext.setHovered(-1)}
       onClick={() => handleNavButtonClick(index)}
     >
       <div
-        className={`btnIconBox ${
-          !navContext.navExpanded &&
-          (navContext.selected === index || navContext.hovered === index)
-            ? " hovClick"
-            : "default"
-        }`}
+        className={`btnIconBox`}
         key={index}
         onMouseEnter={() =>
           navContext.navExpanded ? false : navContext.setHovered(index)

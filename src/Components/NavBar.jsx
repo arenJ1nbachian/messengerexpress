@@ -127,13 +127,8 @@ const NavBar = () => {
       if (res.ok) {
         const result = await res.json();
 
-        userContext.setName(
-          result.userDetails.firstname + " " + result.userDetails.lastname
-        );
-        sessionStorage.setItem(
-          "name",
-          result.userDetails.firstname + " " + result.userDetails.lastname
-        );
+        userContext.setName(result.userDetails.firstname);
+        sessionStorage.setItem("name", result.userDetails.firstname);
       }
     } catch (error) {
       console.log(error);

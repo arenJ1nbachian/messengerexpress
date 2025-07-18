@@ -68,8 +68,8 @@ const Chat = () => {
           >
             <Category
               img={compose}
-              width={composeHover === true ? "55%" : ""}
-              height={composeHover === true ? "55%" : ""}
+              width={composeHover === true ? "55%" : "25px"}
+              height={composeHover === true ? "55%" : "25px"}
             />
           </div>
         </div>

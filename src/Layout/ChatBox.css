@@ -2,12 +2,13 @@
   padding-top: 1%;
   padding-bottom: 1%;
   padding-left: 1vw;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   width: auto;
-  height: 7%;
+  height: 75px;
   background-color: transparent;
+  flex-shrink: 0;
 }
 
 .uPicture {
@@ -31,7 +32,7 @@
 }
 
 .uName {
-  color: white;
+  color: black;
   font-weight: bold;
   font-size: 18px;
 }
@@ -53,7 +54,6 @@
   width: 95%;
   display: flex;
   align-items: center;
-  border: 2px solid rgb(58, 59, 60);
   background-color: rgb(58, 59, 60);
   border-radius: 75px;
   height: 4vh;
@@ -64,7 +64,7 @@
   outline: none;
   border: none;
   background-color: transparent;
-  color: white;
+  color: black;
   font-size: 1.2rem;
 }
 .noConversationSelected {
@@ -73,14 +73,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
+  color: black;
   flex-direction: column;
 }
 
 .noConversationSelected p {
   font-size: 1.5rem;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
-  color: rgb(167, 170, 174);
+  color: black;
+  font-weight: bold;
   margin-top: 1vh;
 }
 
@@ -101,9 +102,9 @@
 .btnChoice {
   border-radius: 15px;
   height: 50%;
-  background-color: rgb(47, 43, 49);
+  background-color: rgba(0, 0, 0, 0.1);
   border: none;
-  color: white;
+  color: black;
   font-weight: bold;
   font-size: 1.5rem;
   display: flex;
@@ -115,7 +116,7 @@
 
 .requestTitle {
   display: inline;
-  color: white;
+  color: black;
   font-size: 1.75rem;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
   text-align: center;
@@ -123,13 +124,13 @@
 }
 
 .requestQuestion {
-  color: white;
+  color: black;
   font-size: 1rem;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
 .requestInfo {
-  color: white;
+  color: black;
   font-size: 1rem;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
 }

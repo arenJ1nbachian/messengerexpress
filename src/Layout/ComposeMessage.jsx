@@ -244,7 +244,7 @@ const ComposeMessage = () => {
                 onMouseLeave={() => setSearchUserHovered(-1)}
                 key={index}
                 className={`userSearch 
-              } ${searchUserHovered === index ? "hovered" : "default"}`}
+               ${searchUserHovered === index ? "hovered" : ""}`}
               >
                 <div id="pfPicture">
                   <img
@@ -297,7 +297,7 @@ const ComposeMessage = () => {
               border: "none",
             }}
           >
-            <img src={send} width="100%" height="100%" alt="send" />
+            <img src={send} width="25px" height="100%" alt="send" />
           </button>
         </div>
       </form>

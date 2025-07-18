@@ -2,7 +2,7 @@
   font-weight: 800;
   font-size: 30px;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
-  color: white;
+  color: black;
 }
 
 .chatBoxContactHeader {
@@ -16,7 +16,7 @@
 .activeContacts {
   margin-left: 1.5vw;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
-  color: white;
+  color: black;
   margin-bottom: 2vh;
 }
 
@@ -44,7 +44,7 @@
 .userConvo.people #flName {
   font-size: 25px;
   font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
-  color: white;
+  color: black;
   margin-left: 0.5vw;
 }
 .status-indicator {
@@ -55,7 +55,7 @@
   position: absolute;
   bottom: 5px;
   right: 5px;
-  border: 2px solid white;
+  border: 2px solid black;
 }
 
 .userConvo.people .convoPicture {

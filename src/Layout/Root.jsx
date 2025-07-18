@@ -20,7 +20,6 @@ const Root = () => {
 
   return (
     <>
-      {/* Render NavBar if the user is logged in */}
       {userContext.isLoggedIn && (
         <div
           className={`navBar ${
@@ -31,25 +30,24 @@ const Root = () => {
         </div>
       )}
 
-      {userContext.isLoggedIn ? (
-        <main className={userContext.isLoggedIn ? "main" : ""}>
-          {/* Outlet for rendering child routes */}
+      {userContext.isLoggedIn && (
+        <main
+          ref={navContext.mainRef}
+          className={userContext.isLoggedIn ? "main" : ""}
+        >
           <Outlet />
         </main>
-      ) : (
-        <Outlet />
       )}
-      {userContext.isLoggedIn ? (
-        composeContext.compose ? (
-          <div className="composeContainer">
+      {userContext.isLoggedIn &&
+        (composeContext.compose ? (
+          <div ref={navContext.chatContainerRef} className="composeContainer">
             <ComposeMessage />
           </div>
         ) : (
-          <div className="chatContainer">
+          <div ref={navContext.chatContainerRef} className="chatContainer">
             <Chatbox />
           </div>
-        )
-      ) : null}
+        ))}
     </>
   );
 };

@@ -16,3 +16,8 @@
 .App-link {
   color: #61dafb;
 }
+
+body,
+html {
+  height: 100vh;
+}

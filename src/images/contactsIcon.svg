@@ -1,1 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M185-80q-17 0-29.5-12.5T143-122v-105q0-90 56-159t144-88q-40 28-62 70.5T259-312v190q0 11 3 22t10 20h-87Zm147 0q-17 0-29.5-12.5T290-122v-190q0-70 49.5-119T459-480h189q70 0 119 49t49 119v64q0 70-49 119T648-80H332Zm148-484q-66 0-112-46t-46-112q0-66 46-112t112-46q66 0 112 46t46 112q0 66-46 112t-112 46Z"/></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1080" height="1080" viewBox="0 0 1080 1080" xml:space="preserve">
+<desc>Created with Fabric.js 5.2.4</desc>
+<defs>
+</defs>
+<rect x="0" y="0" width="100%" height="100%" fill="transparent"></rect>
+<g transform="matrix(1 0 0 1 540 540)" id="bdee173c-fdbc-4008-be7b-14fe5526d0a9"  >
+<rect style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1; visibility: hidden;" vector-effect="non-scaling-stroke"  x="-540" y="-540" rx="0" ry="0" width="1080" height="1080" />
+</g>
+<g transform="matrix(1 0 0 1 540 540)" id="9d21b5aa-0158-407e-a506-fcb85b578ff6"  >
+</g>
+<g transform="matrix(1 0 0 1 540 540)" id="c320229e-d707-4516-845f-433e7a13839d"  >
+<path style="stroke: rgb(0,0,0); stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(58,57,237); fill-rule: nonzero; opacity: 1;" vector-effect="non-scaling-stroke"  transform=" translate(-479.5, 480)" d="M 185 -80 Q 168 -80 155.5 -92.5 Q 143 -105 143 -122 L 143 -227 Q 143 -317 199 -386 Q 255 -455 343 -474 Q 303 -446 281 -403.5 Q 259 -361 259 -312 L 259 -122 Q 259 -111 262 -100 Q 265 -89 272 -80 L 185 -80 Z M 332 -80 Q 315 -80 302.5 -92.5 Q 290 -105 290 -122 L 290 -312 Q 290 -382 339.5 -431 Q 389 -480 459 -480 L 648 -480 Q 718 -480 767 -431 Q 816 -382 816 -312 L 816 -248 Q 816 -178 767 -129 Q 718 -80 648 -80 L 332 -80 Z M 480 -564 Q 414 -564 368 -610 Q 322 -656 322 -722 Q 322 -788 368 -834 Q 414 -880 480 -880 Q 546 -880 592 -834 Q 638 -788 638 -722 Q 638 -656 592 -610 Q 546 -564 480 -564 Z" stroke-linecap="round" />
+</g>
+<g transform="matrix(NaN NaN NaN NaN 0 0)"  >
+<g style=""   >
+</g>
+</g>
+</svg>

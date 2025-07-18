@@ -1,20 +1,22 @@
 .settingsBox {
-  background-color: rgb(45, 45, 45);
+  background-color: white;
+  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.25);
   border-radius: 15px;
   width: 19vw;
   height: 50vh;
   display: flex;
   flex-direction: column;
-  color: white;
+  color: black;
   overflow-y: hidden;
 }
 
 .settingsBox.hovered {
   overflow-y: scroll;
+   
 }
 
 .optionBox {
-  width: 85%;
+  width: 90%;
   min-height: 7vh;
   border-radius: 10px;
   margin-left: 1vw;
@@ -35,11 +37,13 @@
 }
 
 .optionBox.optionHovered {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.06);
 }
 
 hr {
-  width: 80%;
-  color: white;
-  border: 1px solid rgb(62, 64, 66);
+  width: 90%;
+  align-self: center;
+  color: black;
+  margin: 5px 0px;
+  border: 1px solid black;
 }

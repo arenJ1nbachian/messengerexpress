@@ -54,9 +54,9 @@ const AccButton = ({ account, loggedName }) => {
   return (
     <>
       <div
-        className={`accBtnBox ${navBar.hovered === 4 ? "Hovered" : "default"} ${
-          navBar.navExpanded ? "Expanded" : "default"
-        }`}
+        className={`accBtnBox ${
+          navBar.navExpanded && navBar.hovered === 4 ? "Hovered" : "default"
+        } ${navBar.navExpanded ? "Expanded" : "default"}`}
         onMouseEnter={() => (navBar.navExpanded ? navBar.setHovered(4) : false)}
         onMouseLeave={() =>
           navBar.navExpanded ? navBar.setHovered(-1) : false
@@ -77,8 +77,8 @@ const AccButton = ({ account, loggedName }) => {
           {account !== null ? (
             <img
               src={account}
-              width="95%"
-              height="95%"
+              width="32px"
+              height="32px"
               alt="icons"
               style={{ borderRadius: "50%" }}
             />

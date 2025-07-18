@@ -7,7 +7,7 @@
  * @param {string} [props.height="50%"] - The height of the image.
  * @returns {JSX.Element} The rendered image component.
  */
-const Category = ({ img, width = "50%", height = "50%" }) => {
+const Category = ({ img, width = "100%", height = "100%" }) => {
   return (
     <>
       {/* Render an image element with the given source, width, and height */}

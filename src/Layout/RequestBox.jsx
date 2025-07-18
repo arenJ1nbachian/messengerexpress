@@ -36,12 +36,12 @@ const RequestBox = ({
         <div id="idHeader">
           <div
             id="flName"
-            style={{ fontWeight: "bolder", color: "white" }}
+            style={{ fontWeight: "bolder", color: "black" }}
           >{`${request.name} `}</div>
         </div>
         <div
           id="latest-message"
-          style={{ fontWeight: "bold", color: "white" }}
+          style={{ fontWeight: "bold", color: "black" }}
         >{`${request.who} ${request.lastMessage.content}`}</div>
       </div>
     </div>

@@ -36,9 +36,7 @@ const Chevron = () => {
         onMouseLeave={() => navBar.setHovered(-1)} // Reset hovered state on mouse leave
         onClick={handleExpanded} // Toggle expanded state on click
       >
-        <Category
-          img={navBar.navExpanded === true ? chevronLeft : chevronRight} // Change image based on expanded state
-        />
+        <Category img={chevronRight} width="28px" height="28px" />
       </div>
     </>
   );

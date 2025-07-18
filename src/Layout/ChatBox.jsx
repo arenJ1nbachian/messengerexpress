@@ -449,7 +449,7 @@ const Chatbox = () => {
                       border: "none",
                     }}
                   >
-                    <img src={send} width="100%" height="100%" alt="send" />
+                    <img src={send} width="25px" height="100%" alt="send" />
                   </button>
                 </div>
               </form>
@@ -457,7 +457,7 @@ const Chatbox = () => {
           </>
         ) : (
           <div className="noConversationSelected">
-            <img src={noConvo} width="20%" height="25%" alt="no convo" />
+            <img src={noConvo} width="250px" height="250px" alt="no convo" />
             <p>No conversation selected</p>
           </div>
         )}

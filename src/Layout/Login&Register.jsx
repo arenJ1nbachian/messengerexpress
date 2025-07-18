@@ -333,7 +333,7 @@ const Login = () => {
               className="login-form"
             >
               <div className="input-group">
-                <label for="firstname">
+                <label htmlFor="firstname">
                   <i className="fas fa-user"></i> First Name
                 </label>
                 <input
@@ -358,7 +358,7 @@ const Login = () => {
                 />
               </div>
               <div className="input-group">
-                <label for="lastname">
+                <label htmlFor="lastname">
                   <i className="fas fa-user"></i> Last Name
                 </label>
                 <input
@@ -383,7 +383,7 @@ const Login = () => {
                 />
               </div>
               <div className="input-group">
-                <label for="email">
+                <label htmlFor="email">
                   <i className="fas fa-user"></i> Email
                 </label>
                 <input
@@ -408,7 +408,7 @@ const Login = () => {
                 />
               </div>
               <div className="input-group">
-                <label for="password">
+                <label htmlFor="password">
                   <i className="fas fa-lock"></i> Password
                 </label>
                 <input
@@ -433,7 +433,7 @@ const Login = () => {
                 />
               </div>
               <div className="input-group">
-                <label for="password">
+                <label htmlFor="password">
                   <i className="fas fa-lock"></i> Confirm Password
                 </label>
                 <input
@@ -469,7 +469,7 @@ const Login = () => {
               className="login-form"
             >
               <div className="input-group">
-                <label for="email">
+                <label htmlFor="email">
                   <i className="fas fa-user"></i> Email
                 </label>
                 <input
@@ -494,7 +494,7 @@ const Login = () => {
                 />
               </div>
               <div className="input-group">
-                <label for="password">
+                <label htmlFor="password">
                   <i className="fas fa-lock"></i> Password
                 </label>
                 <input

@@ -66,7 +66,7 @@ const getUserPicture = async (req, res, userId) => {
     const user = await Users.findById(uid);
 
     // If the user does not have a profile picture, return a 404 error
-    if (user.profilePicture === null) {
+    if (user.profilePicture === null && res) {
       res.status(404).json({ error: "Profile picture not found" });
     } else {
       // If the user has a profile picture, send the profile picture as a response

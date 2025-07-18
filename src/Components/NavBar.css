@@ -1,10 +1,9 @@
 .navigationBtn {
-  margin-left: 3%;
-  gap: 1vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 100%;
+  gap: 5px;
 }
 
 .navigationBtn.expanded {
@@ -13,19 +12,21 @@
 
 .accBtn {
   justify-content: center;
-  width: 100%;
+  width: 40px;
   display: flex;
   flex-direction: row;
 }
 
 .accBtn.expanded {
   justify-content: normal;
+  width: 100%;
 }
 
 .acc {
   width: 100%;
+  height: 40px;
   display: flex;
-  margin-top: auto;
+  justify-content: flex-end;
+  flex: 1;
   flex-direction: column;
-  align-items: center;
 }
