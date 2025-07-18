@@ -1,8 +1,8 @@
-import { useContext } from "react";
-import { NavContext } from "../Contexts/NavContext";
+import { useContext, useEffect } from "react";
 import defaultPicture from "../images/default.svg";
-import { useNavigate } from "react-router";
 import { RequestContext } from "../Contexts/RequestContext";
+import { ConversationContext } from "../Contexts/ConversationContext";
+import { useNavigate } from "react-router";
 
 const RequestBox = ({
   id,
@@ -12,6 +12,8 @@ const RequestBox = ({
   request,
 }) => {
   const requestContext = useContext(RequestContext);
+  const conversationContext = useContext(ConversationContext);
+  const navigate = useNavigate();
 
   return (
     <div
@@ -23,6 +25,11 @@ const RequestBox = ({
       onClick={() => {
         requestContext.setSelectedRequest(id);
         requestContext.selectedRequestRef.current = id;
+        conversationContext.setSelectedConversation(null);
+        conversationContext.selectedConversationRef.current = null;
+        sessionStorage.removeItem("selectedConversation");
+        sessionStorage.setItem("selectedRequest", id);
+        navigate(`/requests/${id}`);
       }}
     >
       <div id="pfPicture">

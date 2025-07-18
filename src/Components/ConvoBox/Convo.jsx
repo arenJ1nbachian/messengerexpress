@@ -29,8 +29,6 @@ const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
   const userTypingContext = useContext(UserTypingContext);
   const navContext = useContext(NavContext);
 
-  const navigate = useNavigate();
-
   // Function to update the read status of the message
   const updateMessageRead = async () => {
     await markConversationAsRead(id);
@@ -54,40 +52,9 @@ const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
       onMouseEnter={() => setConvoHovered(id)}
       onMouseLeave={() => setConvoHovered(null)}
       onClick={() => {
-        const getRecentMessages = async () => {
-          try {
-            const response = await fetch(
-              `http://localhost:5000/api/conversations/getRecentMessages/${id}`
-            );
-            const data = await response.json();
-
-            chatCacheContext.setChatCache((prevCache) => {
-              const newCache = new Map(prevCache);
-              newCache.set(convoContext.selectedConversationRef.current, data);
-
-              if (newCache.size > 10) {
-                const oldestKey = newCache.keys().next().value;
-                newCache.delete(oldestKey);
-              }
-
-              const cacheArray = Array.from(newCache.entries());
-              sessionStorage.setItem("chatCache", JSON.stringify(cacheArray));
-
-              return newCache;
-            });
-          } catch (err) {
-            console.log(err);
-          }
-        };
-        if (!chatCacheContext.chatCache.has(id)) {
-          getRecentMessages();
-        }
-
+        if(convoContext.selectedConversation === id ) return
         convoContext.setSelectedConversation(id);
-        convoContext.selectedConversationRef.current = id;
-        navigate("/chats/" + id);
         composeContext.setCompose(false);
-        sessionStorage.setItem("selectedConversation", id);
         if (!convoContext.displayedConversations.get(id).read) {
           updateMessageRead();
         }

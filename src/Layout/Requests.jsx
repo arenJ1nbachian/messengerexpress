@@ -18,47 +18,11 @@ import { RequestContext } from "../Contexts/RequestContext";
  * @returns {JSX.Element} The JSX element representing the requests page.
  */
 const Requests = () => {
-  const navigate = useNavigate();
   useContext(SocketContext);
   const [convoHovered, setConvoHovered] = useState(-1);
-  const composeContext = useContext(ComposeContext);
-  const convoContext = useContext(ConversationContext);
   const requestContext = useContext(RequestContext);
   const navContext = useContext(NavContext);
-
-  /**
-   * This effect is used to navigate to the correct conversation page when the
-   * user navigates to the requests page.
-   *
-   * If the user has selected a conversation, navigate to the conversation page
-   * with the corresponding ID. Otherwise, navigate to the "none" page.
-   */
-  useEffect(() => {
-    if (
-      !composeContext.compose &&
-      convoContext.selectedConversationRef.current &&
-      !requestContext.selectedRequest
-    ) {
-      navigate(`/requests/${convoContext.selectedConversationRef.current}`);
-    } else if (
-      requestContext.selectedRequest &&
-      requestContext.requests.has(requestContext.selectedRequest)
-    ) {
-      navigate(
-        `/requests/${
-          requestContext.requests.get(requestContext.selectedRequest)._id
-        }`
-      );
-    } else {
-      navigate("/requests/none");
-    }
-  }, [
-    composeContext.compose,
-    requestContext.requests,
-    requestContext.selectedConversationRef,
-    requestContext.selectedRequest,
-    navigate,
-  ]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getRequests = async () => {

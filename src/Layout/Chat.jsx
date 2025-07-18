@@ -10,6 +10,9 @@ import ConvoBox from "../Components/ConvoBox/ConvoBox";
 import { useNavigate } from "react-router";
 import { ConversationContext } from "../Contexts/ConversationContext";
 import { ComposeContext } from "../Contexts/ComposeContext";
+import { ChatCacheContext } from "../Contexts/ChatCacheContext";
+import { handleConversationChange } from "../utils/handleConversationChange";
+import { RequestContext } from "../Contexts/RequestContext";
 
 /**
  * This component renders the chat page where all the user's conversations get displayed.
@@ -21,24 +24,18 @@ const Chat = () => {
   const convoContext = useContext(ConversationContext);
   const composeContext = useContext(ComposeContext);
   const navContext = useContext(NavContext);
+  const chatCacheContext = useContext(ChatCacheContext);
+  const requestContext = useContext(RequestContext);
 
-  /**
-   * This context contains the state of the sidebar navigation.
-   */
-
-  // After the component mounts, navigate to the appropriate route
   useEffect(() => {
-    if (
-      convoContext.selectedConversationRef.current === null &&
-      !composeContext.compose
-    ) {
-      navigate("/chats/none");
-    } else if (composeContext.compose) {
-      navigate("/chats/compose");
-    } else {
-      navigate(`/chats/${convoContext.selectedConversationRef.current}`);
-    }
-  }, [composeContext.compose, convoContext.selectedConversationRef, navigate]);
+    handleConversationChange(
+      chatCacheContext,
+      convoContext,
+      composeContext,
+      navigate,
+      requestContext
+    );
+  }, [convoContext.selectedConversation, composeContext.compose]);
 
   return (
     <div style={{ display: "flex", height: "100%", width: "100%" }}>

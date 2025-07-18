@@ -47,6 +47,9 @@ const ConvoBox = () => {
             "displayedConversations",
             JSON.stringify([...convoMap])
           );
+         convoContext.setSelectedConversation(result[0]._id ? result[0]._id : null);
+          convoContext.selectedConversationRef.current = result[0]._id ? result[0]._id : null;
+          sessionStorage.setItem("selectedConversation", result[0]._id ? result[0]._id : null);
         }
       } catch (error) {
         console.log(error);

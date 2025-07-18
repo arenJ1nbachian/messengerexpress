@@ -6,6 +6,7 @@ import "./Button.css";
 import { ConversationContext } from "../../Contexts/ConversationContext";
 import { ComposeContext } from "../../Contexts/ComposeContext";
 import { RequestContext } from "../../Contexts/RequestContext";
+import { handleNavButtonChange } from "../../utils/handleNavButtonChange";
 
 /**
  * The Button component is used to display a button in the navigation bar.
@@ -52,49 +53,6 @@ const Button = ({ value, index, buttonText }) => {
    *
    * @param {string} destination The value of the destination to navigate to.
    */
-  const handleNavigation = (destination) => {
-    if (destination === "chats") {
-      convoContext.selectedChatDetails?.current
-        ? navigate(`chats/${convoContext.selectedChatDetails.current._id}`)
-        : navigate(`chats`);
-    } else if (destination === "people") {
-      switch (composeContext.compose) {
-        case true:
-          navigate(`people/none`);
-          composeContext.setCompose(false);
-          break;
-        case false:
-          navigate(`people`);
-          break;
-        default:
-          break;
-      }
-    } else if (destination === "requests") {
-      switch (composeContext.compose) {
-        case true:
-          navigate(`requests/none`);
-          composeContext.setCompose(false);
-          break;
-        case false:
-          navigate(`requests/`);
-          break;
-        default:
-          break;
-      }
-    } else if (destination === "archived") {
-      switch (composeContext.compose) {
-        case true:
-          navigate(`archived/none`);
-          composeContext.setCompose(false);
-          break;
-        case false:
-          navigate(`archived/`);
-          break;
-        default:
-          break;
-      }
-    }
-  };
 
   /**
    * The handleNavButtonClick function is used to set the selected button index
@@ -117,26 +75,44 @@ const Button = ({ value, index, buttonText }) => {
       navContext.setSelected(index);
       switch (index) {
         case 0:
-          handleNavigation("chats");
+          handleNavButtonChange(
+            "chats",
+            navigate,
+            composeContext,
+            convoContext,
+            requestContext
+          );
           break;
         case 1:
-          handleNavigation("people");
+          handleNavButtonChange(
+            "people",
+            navigate,
+            composeContext,
+            convoContext,
+            requestContext
+          );
           break;
         case 2:
-          handleNavigation("requests");
+          handleNavButtonChange(
+            "requests",
+            navigate,
+            composeContext,
+            convoContext,
+            requestContext
+          );
           break;
         case 3:
-          handleNavigation("archived");
+          handleNavButtonChange(
+            "archived",
+            navigate,
+            composeContext,
+            convoContext,
+            requestContext
+          );
           break;
         default:
           break;
       }
-
-      if (requestContext.selectedRequest) {
-        requestContext.setSelectedRequest(null);
-      }
-
-      sessionStorage.removeItem("selectedRequest");
     }
   };
 

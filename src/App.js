@@ -114,11 +114,11 @@ const App = () => {
   );
 
   const [selectedConversation, setSelectedConversation] = useState(
-    sessionStorage.getItem("selectedConversation") || null
+    sessionStorage.getItem("selectedConversation") 
   );
 
   const selectedConversationRef = useRef(
-    sessionStorage.getItem("selectedConversation") || null
+    sessionStorage.getItem("selectedConversation") 
   );
 
   /**
@@ -149,7 +149,7 @@ const App = () => {
   /**
    * The state to keep track of whether the compose button is shown or not
    */
-  const [compose, setCompose] = useState(false);
+  const [compose, setCompose] = useState(sessionStorage.getItem("compose") === "true" || false);
 
   const [requests, setRequests] = useState(
     sessionStorage.getItem("requests")
@@ -206,6 +206,8 @@ const App = () => {
    * The state to keep track of the socket
    */
   const [socket, setSocket] = useState(null);
+
+  
 
   useEffect(() => {
     if (socket) {
@@ -360,7 +362,7 @@ const App = () => {
    * The effect to set the socket when the user logs in
    */
   useEffect(() => {
-    if ((token, userId)) {
+    if ((token && userId)) {
       setSocket(
         io("http://localhost:5000", {
           query: { uid: userId },

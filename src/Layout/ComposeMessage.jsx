@@ -145,7 +145,6 @@ const ComposeMessage = () => {
     }
 
     return () => {
-      console.log("Cleaning up");
       document.removeEventListener("click", handleClickOutside);
     };
   }, [composeContext.showsearchField]);

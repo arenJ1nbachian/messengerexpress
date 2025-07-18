@@ -58,18 +58,6 @@ const Contacts = () => {
     }
   }, [socket]);
 
-  // Navigate to the selected chat when the selected chat changes.
-  useEffect(() => {
-    if (
-      !composeContext.compose &&
-      convoContext.selectedConversationRef.current
-    ) {
-      navigate(`/people/${convoContext.selectedConversationRef.current}`);
-    } else {
-      navigate("/people/none");
-    }
-  }, [composeContext.compose, convoContext.selectedConversationRef, navigate]);
-
   return (
     <div style={{ display: "flex", height: "100%", width: "100%" }}>
       <div
