@@ -16,7 +16,6 @@ import { RequestContext } from "../Contexts/RequestContext";
 const ComposeMessage = () => {
   const [usersFound, setUsersFound] = useState([]);
   const [searchUserHovered, setSearchUserHovered] = useState(-1);
-  const [messageInput, setMessageInput] = useState("");
   const composeContext = useContext(ComposeContext);
   const convoContext = useContext(ConversationContext);
   const chatCacheContext = useContext(ChatCacheContext);
@@ -28,9 +27,13 @@ const ComposeMessage = () => {
    * @param {Event} e - The click event.
    */
   const handleClick = async (e) => {
+    console.log("HANDLE CLICK FOR SENDING NEW MESSAGE TRIGGERED");
     let convoID = null;
     e.preventDefault();
-    if (messageInput.length > 0 && composeContext.selectedElement !== null) {
+    if (
+      composeContext.inputDraft.length > 0 &&
+      composeContext.selectedElement !== null
+    ) {
       try {
         const res = await fetch(
           "http://localhost:5000/api/conversations/createConvo",
@@ -42,7 +45,7 @@ const ComposeMessage = () => {
             body: JSON.stringify({
               userID1: sessionStorage.getItem("userId"),
               userName2: composeContext.selectedElement.name,
-              message: messageInput,
+              message: composeContext.inputDraft,
             }),
           }
         );
@@ -50,42 +53,26 @@ const ComposeMessage = () => {
           const conversation = await res.json();
           console.log("New conversation created");
           console.log(conversation);
-          setMessageInput("");
+          composeContext.setInputDraft("");
           convoID = conversation.convoSender._id;
-
-          const response = await fetch(
-            `http://localhost:5000/api/conversations/getRecentMessages/${convoID}`
-          );
-          const recentMessages = await response.json();
 
           chatCacheContext.setChatCache((prevCache) => {
             const newCache = new Map(prevCache);
-            let messages = newCache.get(convoID);
-            if (chatCacheContext.chatCache.get(convoID)) {
-              messages.unshift({
-                _id: conversation.convoSender.lastMessage._id,
-                content: conversation.convoSender.lastMessage.content,
-                sender: sessionStorage.getItem("userId"),
-                timestamp: conversation.convoSender.updatedAt,
-              });
-            } else {
-              messages = [...recentMessages];
-              requestContext.setRequests((prev) => {
-                let newRequests = new Map(prev);
-                newRequests.delete(convoID);
-                sessionStorage.setItem(
-                  "requests",
-                  JSON.stringify(Array.from(newRequests.entries()))
-                );
-                return newRequests;
-              });
-            }
+            const oldMsgs = prevCache.get(convoID) || [];
 
-            newCache.set(convoID, messages);
+            const newMsg = {
+              _id: conversation.convoSender.lastMessage._id,
+              content: conversation.convoSender.lastMessage.content,
+              sender: sessionStorage.getItem("userId"),
+              timestamp: conversation.convoSender.updatedAt,
+            };
+
+            const merged = [newMsg, ...oldMsgs];
+
+            newCache.set(convoID, merged);
 
             const cacheArray = Array.from(newCache.entries());
             sessionStorage.setItem("chatCache", JSON.stringify(cacheArray));
-
             return newCache;
           });
 
@@ -105,6 +92,8 @@ const ComposeMessage = () => {
             );
 
             convoContext.setSelectedConversation(convoID);
+
+            composeContext.setSelectedElement(null);
 
             convoContext.selectedConversationRef.current = convoID;
 
@@ -223,6 +212,7 @@ const ComposeMessage = () => {
           autoComplete="off"
           id="userSearch"
           placeholder=""
+          disabled={composeContext.selectedElement}
         />
         {composeContext.showsearchField && (
           <div ref={composeContext.searchFieldRef} className="searchBox">
@@ -234,6 +224,8 @@ const ComposeMessage = () => {
                       ? user.profilePicture
                       : defaultPicture,
                     name: user.firstname + " " + user.lastname,
+                    id: user._id,
+                    convoId: user.convo,
                   });
                   document.getElementById("userSearch").value = "";
                   composeContext.setShowsearchField(false);
@@ -267,6 +259,7 @@ const ComposeMessage = () => {
       </div>
       <ChatContent />
       <form
+        onSubmit={(e) => handleClick(e)}
         className={composeContext.selectedElement === null ? "disabled" : ""}
       >
         <div className={"chatInput"}>
@@ -274,7 +267,11 @@ const ComposeMessage = () => {
             className={
               composeContext.selectedElement === null ? "disabled" : ""
             }
-            onChange={(e) => setMessageInput(e.target.value)}
+            onChange={(e) => {
+              composeContext.setInputDraft(e.target.value);
+              sessionStorage.setItem("inputDraft", e.target.value);
+            }}
+            value={composeContext.inputDraft}
             type="text"
             autoComplete="off"
             id="message"
@@ -283,8 +280,7 @@ const ComposeMessage = () => {
           />
           <button
             disabled={composeContext.selectedElement === null ? true : false}
-            onClick={(e) => handleClick(e)}
-            onSubmit={(e) => handleClick(e)}
+            type="submit"
             style={{
               marginLeft: "auto",
               marginRight: "1vw",

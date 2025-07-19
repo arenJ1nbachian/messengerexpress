@@ -24,7 +24,6 @@ import { NavContext } from "../../Contexts/NavContext";
  */
 const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
   const convoContext = useContext(ConversationContext);
-  const chatCacheContext = useContext(ChatCacheContext);
   const composeContext = useContext(ComposeContext);
   const userTypingContext = useContext(UserTypingContext);
   const navContext = useContext(NavContext);

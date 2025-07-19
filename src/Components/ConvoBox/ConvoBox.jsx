@@ -47,9 +47,16 @@ const ConvoBox = () => {
             "displayedConversations",
             JSON.stringify([...convoMap])
           );
-         convoContext.setSelectedConversation(result[0]._id ? result[0]._id : null);
-          convoContext.selectedConversationRef.current = result[0]._id ? result[0]._id : null;
-          sessionStorage.setItem("selectedConversation", result[0]._id ? result[0]._id : null);
+          convoContext.setSelectedConversation(
+            result[0]._id ? result[0]._id : null
+          );
+          convoContext.selectedConversationRef.current = result[0]._id
+            ? result[0]._id
+            : null;
+          sessionStorage.setItem(
+            "selectedConversation",
+            result[0]._id ? result[0]._id : null
+          );
         }
       } catch (error) {
         console.log(error);
@@ -72,9 +79,21 @@ const ConvoBox = () => {
         <div
           id="newConvo"
           key={0}
-          className={`userConvo ${composeContext.compose ? "show" : "hidden"} ${
-            composeContext.compose ? "clicked" : "default"
-          } ${convoHovered === 0 ? "hovered" : "default"}`}
+          onMouseEnter={() => setConvoHovered(0)}
+          onMouseLeave={() => setConvoHovered(-1)}
+          onClick={() => {
+            composeContext.setCompose(true);
+            convoContext.setSelectedConversation(null);
+            convoContext.selectedConversationRef.current = null;
+            sessionStorage.removeItem("selectedConversation");
+          }}
+          className={`userConvo ${
+            composeContext.compose || composeContext.selectedElement
+              ? "show"
+              : "hidden"
+          } ${composeContext.compose ? "clicked" : "default"} ${
+            convoHovered === 0 ? "hovered" : "default"
+          }`}
         >
           <div id="pfPicture">
             <img
@@ -97,7 +116,7 @@ const ConvoBox = () => {
         </div>
         {convoContext.displayedConversations.size > 0 &&
           Array.from(convoContext.displayedConversations).map(
-            ([id, conversation], index) => (
+            ([id, conversation]) => (
               <Convo
                 key={id}
                 id={id}

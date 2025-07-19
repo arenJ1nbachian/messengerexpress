@@ -125,19 +125,21 @@ const Chatbox = () => {
 
           chatCacheContext.setChatCache((prevCache) => {
             const newCache = new Map(prevCache);
-            const messages = newCache.get(conversation.convoSender._id);
-            messages.unshift({
+            const oldMsgs = prevCache.get(conversation.convoSender._id) || [];
+
+            const newMsg = {
               _id: conversation.convoSender.lastMessage._id,
               content: conversation.convoSender.lastMessage.content,
               sender: sessionStorage.getItem("userId"),
               timestamp: conversation.convoSender.updatedAt,
-            });
+            };
 
-            newCache.set(conversation.convoSender._id, messages);
+            const merged = [newMsg, ...oldMsgs];
+
+            newCache.set(conversation.convoSender._id, merged);
 
             const cacheArray = Array.from(newCache.entries());
             sessionStorage.setItem("chatCache", JSON.stringify(cacheArray));
-
             return newCache;
           });
 
@@ -225,14 +227,12 @@ const Chatbox = () => {
 
     typingTimeoutRef.current = setTimeout(() => {
       isTyping.current = false;
-      sessionStorage.removeItem("typing");
       socket.emit("typing", {
         isTyping: false,
         conversationId: id,
-        receiver: convoContext?.displayedConversations?.get(
-          convoContext.selectedConversationRef.current
-        ).userId,
+        receiver: sessionStorage.getItem("typing").receiver,
       });
+      sessionStorage.removeItem("typing");
     }, 3000);
 
     setInputValue(event.target.value);

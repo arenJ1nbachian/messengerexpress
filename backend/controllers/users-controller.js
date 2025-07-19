@@ -195,19 +195,26 @@ const searchUsers = async (req, res) => {
       ),
   }).select("_id firstname lastname profilePicture");
 
-  console.log(users);
-
   /**
    * Filter out the user who is performing the search and map the result to
    * the desired format.
    */
-  const result = users
-    .filter((user) => user._id.toString() !== userId)
-    .map((user) => ({
-      firstname: user.firstname,
-      lastname: user.lastname,
-      profilePicture: "http://localhost:5000/" + user.profilePicture,
-    }));
+  const result = await Promise.all(
+    users
+      .filter((user) => user._id.toString() !== userId)
+      .map(async (user) => {
+        const convo = await Convo.findOne({
+          participants: { $all: [userId, user._id.toString()] },
+        });
+        return {
+          convo: convo ? convo._id : null,
+          _id: user._id,
+          firstname: user.firstname,
+          lastname: user.lastname,
+          profilePicture: "http://localhost:5000/" + user.profilePicture,
+        };
+      })
+  );
 
   res.status(200).json({ result });
 };

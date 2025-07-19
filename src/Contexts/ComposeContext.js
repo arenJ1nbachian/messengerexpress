@@ -8,4 +8,6 @@ export const ComposeContext = createContext({
   showsearchField: true,
   setShowsearchField: () => {},
   searchFieldRef: null,
+  inputDraft: null,
+  setInputDraft: () => {},
 });

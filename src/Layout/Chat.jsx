@@ -50,7 +50,9 @@ const Chat = () => {
               convoContext.setSelectedConversation(null);
               convoContext.selectedConversationRef.current = null;
               sessionStorage.removeItem("selectedConversation");
-              composeContext.setShowsearchField(true);
+              if (!composeContext.selectedElement) {
+                composeContext.setShowsearchField(true);
+              }
               e.stopPropagation();
             }}
             className={`chatBoxCompose ${

@@ -27,6 +27,19 @@ const ChatContent = ({ request }) => {
           />
         ))}
     </div>
+  ) : composeContext.compose && composeContext.selectedElement ? (
+    <div className="chat scrollBar">
+      {chatCacheContext.chatCache.size > 0 &&
+        chatCacheContext.chatCache
+          ?.get(composeContext.selectedElement.convoId)
+          ?.map((message) => (
+            <BubbleMessage
+              key={message._id}
+              content={message.content}
+              isSentByUser={message.sender === userContext.userId}
+            />
+          ))}
+    </div>
   ) : (
     <div className="chat scrollBar">
       {chatCacheContext.chatCache.size > 0 &&

@@ -72,47 +72,14 @@ const Button = ({ value, index, buttonText }) => {
    */
   const handleNavButtonClick = (index) => {
     if (index !== navContext.selected) {
-      navContext.setSelected(index);
-      switch (index) {
-        case 0:
-          handleNavButtonChange(
-            "chats",
-            navigate,
-            composeContext,
-            convoContext,
-            requestContext
-          );
-          break;
-        case 1:
-          handleNavButtonChange(
-            "people",
-            navigate,
-            composeContext,
-            convoContext,
-            requestContext
-          );
-          break;
-        case 2:
-          handleNavButtonChange(
-            "requests",
-            navigate,
-            composeContext,
-            convoContext,
-            requestContext
-          );
-          break;
-        case 3:
-          handleNavButtonChange(
-            "archived",
-            navigate,
-            composeContext,
-            convoContext,
-            requestContext
-          );
-          break;
-        default:
-          break;
-      }
+      handleNavButtonChange(
+        index,
+        navigate,
+        composeContext,
+        convoContext,
+        requestContext,
+        navContext
+      );
     }
   };
 
