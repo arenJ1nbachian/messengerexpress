@@ -30,18 +30,6 @@ const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
   const navContext = useContext(NavContext);
 
   // Function to update the read status of the message
-  const updateMessageRead = async () => {
-    await markConversationAsRead(id);
-    convoContext.setDisplayedConversations((prev) => {
-      const updatedConversations = new Map(prev);
-      updatedConversations.get(id).read = true;
-      sessionStorage.setItem(
-        "displayedConversations",
-        JSON.stringify(Array.from(updatedConversations.entries()))
-      );
-      return updatedConversations;
-    });
-  };
 
   return (
     <div
@@ -52,12 +40,9 @@ const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
       onMouseEnter={() => setConvoHovered(id)}
       onMouseLeave={() => setConvoHovered(null)}
       onClick={() => {
-        if(convoContext.selectedConversation === id ) return
+        if (convoContext.selectedConversation === id) return;
         convoContext.setSelectedConversation(id);
         composeContext.setCompose(false);
-        if (!convoContext.displayedConversations.get(id).read) {
-          updateMessageRead();
-        }
       }}
     >
       <div id="pfPicture">

@@ -384,6 +384,7 @@ const Chatbox = () => {
                         requestContext.selectedRequest
                       );
                       requestContext.setSelectedRequest(null);
+                      sessionStorage.removeItem("selectedRequest");
                       navigate("/chats/none");
                       convoContext.selectedConversationRef.current =
                         requestContext.selectedRequestRef.current;

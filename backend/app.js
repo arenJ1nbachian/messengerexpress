@@ -50,7 +50,6 @@ io.on("connection", async (socket) => {
 
   const storedTyping = getTypingConvos(userId);
 
-
   if (userId) {
     console.log(`User ${userId} connected with socket ${socket.id}`);
 
@@ -94,18 +93,17 @@ io.on("connection", async (socket) => {
             const recipientSockets = getSocketsByUserId(
               onlineUser.userId.toString()
             ); // Get recipient socketIds
-if(recipientSockets){
-  recipientSockets.forEach((recipientSocketId) => {
-    socket.to(recipientSocketId).emit("userOnline", {
-      userId: userId,
-      convoId: onlineUser.convoId,
-      firstname: userOnline.firstname,
-      lastname: userOnline.lastname,
-      profilePicture: userProfilePicture,
-    });
-  });
-}
-           
+            if (recipientSockets) {
+              recipientSockets.forEach((recipientSocketId) => {
+                socket.to(recipientSocketId).emit("userOnline", {
+                  userId: userId,
+                  convoId: onlineUser.convoId,
+                  firstname: userOnline.firstname,
+                  lastname: userOnline.lastname,
+                  profilePicture: userProfilePicture,
+                });
+              });
+            }
           });
         }
       } catch (err) {
@@ -141,10 +139,11 @@ if(recipientSockets){
                   const recipientSockets = getSocketsByUserId(
                     onlineUser.userId
                   );
-                  if(recipientSockets){
-                  recipientSockets.forEach((recipientSocketId) => {
-                    socket.to(recipientSocketId).emit("userOffline", userId);
-                  })};
+                  if (recipientSockets) {
+                    recipientSockets.forEach((recipientSocketId) => {
+                      socket.to(recipientSocketId).emit("userOffline", userId);
+                    });
+                  }
                 });
               }
             } catch (err) {
