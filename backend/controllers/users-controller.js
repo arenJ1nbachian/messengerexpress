@@ -5,6 +5,7 @@ const path = require("path");
 const jwt = require("jsonwebtoken");
 const Convo = require("../models/conversation");
 const message = require("../models/message");
+const bcrypt = require("bcrypt");
 
 /**
  * Creates a new user in the database.
@@ -14,7 +15,7 @@ const message = require("../models/message");
  *
  * @returns {Object} - Returns the created user or an error message
  */
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     // If the request has errors, log them and return the error messages
@@ -24,6 +25,9 @@ const createUser = async (req, res) => {
 
   // Extract the user details from the request body
   const { firstname, lastname, email, password } = req.body;
+
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   // If the request has a file, use the path as the profile picture
   let profilePicture = null;
@@ -38,16 +42,15 @@ const createUser = async (req, res) => {
       firstname,
       lastname,
       email,
-      password,
+      password: hashedPassword,
       profilePicture,
     });
     await user.save();
     // Return the created user
     res.status(201).json({ user });
   } catch (error) {
-    // If there is an error, log it and return an error message
-    console.log(error);
-    res.status(500).json({ error });
+    // Pass error to the error handling middleware
+    next(error);
   }
 };
 
@@ -58,7 +61,7 @@ const createUser = async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The function does not return anything.
  */
-const getUserPicture = async (req, res, userId) => {
+const getUserPicture = async (req, res, next, userId) => {
   const uid = req ? req.params.uid : userId;
 
   try {
@@ -77,9 +80,8 @@ const getUserPicture = async (req, res, userId) => {
       }
     }
   } catch (error) {
-    // If there is an error, log it and return an error message
-    console.log(error);
-    res.status(500).json({ error });
+    // Pass error to the error handling middleware
+    next(error);
   }
 };
 
@@ -90,7 +92,7 @@ const getUserPicture = async (req, res, userId) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The function does not return anything.
  */
-const getUserInfo = async (req, res, userId) => {
+const getUserInfo = async (req, res, next, userId) => {
   try {
     const uid = req ? req.params.uid : userId;
 
@@ -104,9 +106,8 @@ const getUserInfo = async (req, res, userId) => {
     }
     // Send the user details as a successful response
   } catch (error) {
-    // If there is an error, log it and send an error response
-    console.log(error);
-    res.status(500).json({ error });
+    // Pass error to the error handling middleware
+    next(error);
   }
 };
 
@@ -117,7 +118,7 @@ const getUserInfo = async (req, res, userId) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The function does not return anything.
  */
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
@@ -130,7 +131,9 @@ const loginUser = async (req, res) => {
     }
 
     // If the password is invalid, return a 401 error
-    if (user.password !== password) {
+    // Compare the password with the hashed password in the database
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
@@ -147,9 +150,8 @@ const loginUser = async (req, res) => {
     // Return the token and the user ID as a successful response
     res.status(200).json({ token, userId: user._id });
   } catch (error) {
-    // If there is an error, log it and return an error message
-    console.log(error);
-    res.status(500).json({ error });
+    // Pass error to the error handling middleware
+    next(error);
   }
 };
 
@@ -160,7 +162,8 @@ const logoutUser = async (userId) => {
       onlineStatus: { status: false, lastSeen: Date.now() },
     });
   } catch (error) {
-    console.log(error);
+    console.error('Logout error:', error);
+    // Don't throw here as this is called from socket disconnect
   }
 };
 

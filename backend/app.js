@@ -31,6 +31,7 @@ const {
   removeTyping,
   getTypingConvos,
 } = require("./userConvoTyping");
+const errorHandler = require("./middleware/errorHandler");
 
 const io = new Server(server, {
   pingTimeout: 3000,
@@ -179,18 +180,22 @@ io.on("connection", async (socket) => {
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
   res.setHeader(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
   next();
 });
 
 app.use("/api/users", usersRoutes);
 app.use("/api/messages", messagesRoutes);
 app.use("/api/conversations", convoRoutes(io));
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
 
 mongoose
   .connect("mongodb://localhost:27017/")
