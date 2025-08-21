@@ -22,7 +22,6 @@ const Requests = () => {
   const [convoHovered, setConvoHovered] = useState(-1);
   const requestContext = useContext(RequestContext);
   const navContext = useContext(NavContext);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const getRequests = async () => {

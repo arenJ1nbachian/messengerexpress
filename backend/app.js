@@ -85,11 +85,10 @@ io.on("connection", async (socket) => {
 
         // Get the list of users who should be notified (shared conversations)
         const data = await getOnline(null, null, userId);
-        const userOnline = await getUserInfo(null, null, userId);
-        const userProfilePicture = await getUserPicture(null, null, userId);
-
         // Notify relevant users (those who share conversations with this user)
         if (data?.length > 0) {
+          const userOnline = await getUserInfo(null, null, userId);
+          const userProfilePicture = await getUserPicture(null, null, userId);
           data.forEach((onlineUser) => {
             const recipientSockets = getSocketsByUserId(
               onlineUser.userId.toString()
@@ -158,9 +157,10 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("typing", (data) => {
-    console.log(data);
+    console.log("Data Receiver:" + data.receiver);
 
     const recipientSockets = getSocketsByUserId(data.receiver);
+    console.log(recipientSockets);
     if (data.isTyping) {
       addTyping(data.conversationId, data.receiver);
     } else {

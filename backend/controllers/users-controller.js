@@ -1,7 +1,5 @@
 const { validationResult } = require("express-validator/lib");
-const { default: mongoose } = require("mongoose");
 const Users = require("../models/user");
-const path = require("path");
 const jwt = require("jsonwebtoken");
 const Convo = require("../models/conversation");
 const message = require("../models/message");
@@ -33,7 +31,7 @@ const createUser = async (req, res, next) => {
   let profilePicture = null;
 
   if (req.file) {
-    profilePicture = req.file.path;
+    profilePicture = req.file.filename;
   }
 
   try {
@@ -61,7 +59,7 @@ const createUser = async (req, res, next) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The function does not return anything.
  */
-const getUserPicture = async (req, res, next, userId) => {
+const getUserPicture = async (req, res, userId) => {
   const uid = req ? req.params.uid : userId;
 
   try {
@@ -74,14 +72,16 @@ const getUserPicture = async (req, res, next, userId) => {
     } else {
       // If the user has a profile picture, send the profile picture as a response
       if (res) {
-        res.sendFile(path.join(__dirname, "..\\", user.profilePicture));
+        res.json({
+          url: "http://localhost:5000/uploads/" + user.profilePicture,
+        });
       } else {
-        return "http://localhost:5000\\" + user.profilePicture;
+        return "http://localhost:5000/uploads/" + user.profilePicture;
       }
     }
   } catch (error) {
     // Pass error to the error handling middleware
-    next(error);
+    console.log(error);
   }
 };
 
@@ -92,7 +92,7 @@ const getUserPicture = async (req, res, next, userId) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The function does not return anything.
  */
-const getUserInfo = async (req, res, next, userId) => {
+const getUserInfo = async (req, res, userId) => {
   try {
     const uid = req ? req.params.uid : userId;
 
@@ -107,7 +107,7 @@ const getUserInfo = async (req, res, next, userId) => {
     // Send the user details as a successful response
   } catch (error) {
     // Pass error to the error handling middleware
-    next(error);
+    console.log(error);
   }
 };
 
@@ -162,8 +162,7 @@ const logoutUser = async (userId) => {
       onlineStatus: { status: false, lastSeen: Date.now() },
     });
   } catch (error) {
-    console.error('Logout error:', error);
-    // Don't throw here as this is called from socket disconnect
+    console.error("Logout error:", error);
   }
 };
 
@@ -214,7 +213,8 @@ const searchUsers = async (req, res) => {
           _id: user._id,
           firstname: user.firstname,
           lastname: user.lastname,
-          profilePicture: "http://localhost:5000/" + user.profilePicture,
+          profilePicture:
+            "http://localhost:5000/uploads/" + user.profilePicture,
         };
       })
   );
@@ -248,7 +248,7 @@ const getOnline = async (req, res, userId) => {
         firstname: conversation.participants[0].firstname,
         lastname: conversation.participants[0].lastname,
         profilePicture:
-          "http://localhost:5000/" +
+          "http://localhost:5000/uploads/" +
           conversation.participants[0].profilePicture,
         read: lastMessage.read,
       });

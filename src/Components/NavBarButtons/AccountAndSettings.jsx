@@ -91,11 +91,8 @@ const AccountAndSettings = () => {
                     e.stopPropagation();
                     if (index === 10) {
                       // If the user clicks on the log out button, disconnect the socket and log out the user.
-                      socket.disconnect();
                       userContext.logout();
-                      sessionStorage.removeItem("token");
-                      sessionStorage.removeItem("userId");
-                      navBarContext.setShowSettings(false);
+
                       navigate("/");
                     }
                   }}

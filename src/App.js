@@ -209,11 +209,11 @@ const App = () => {
   /**
    * The state to keep track of the socket
    */
-  const [socket, setSocket] = useState(null);
+  const socket = useRef();
 
   useEffect(() => {
-    if (socket) {
-      socket.on("newRequest", (request) => {
+    if (socket.current) {
+      socket.current.on("newRequest", (request) => {
         console.log("RECEIVED NEW REQUEST", request);
         setRequests((prev) => {
           const requestMap = new Map(prev);
@@ -232,8 +232,13 @@ const App = () => {
 
           return sortedRequests;
         });
+        setRequestCount((prev) => {
+          const count = prev + 1;
+          sessionStorage.setItem("requestCount", count);
+          return count;
+        });
       });
-      socket.on("removeFromRequests", (convoID) => {
+      socket.current.on("removeFromRequests", (convoID) => {
         setRequests((prev) => {
           const requestMap = new Map(prev);
           requestMap.delete(convoID);
@@ -249,7 +254,7 @@ const App = () => {
           return count;
         });
       });
-      socket.on("updateConversationHeader", (convo) => {
+      socket.current.on("updateConversationHeader", (convo) => {
         if (convo.convoReceiver._id === selectedConversationRef.current) {
           markConversationAsRead(convo.convoReceiver._id);
           convo.convoReceiver.read = true;
@@ -295,21 +300,21 @@ const App = () => {
           return newChatCache;
         });
       });
-      socket.on("userOffline", (data) => {
+      socket.current.on("userOffline", (data) => {
         setActiveContacts((prev) => {
           let activeContactsMap = new Map(prev.map((c) => [c.userId, c]));
           activeContactsMap.delete(data);
           return Array.from(activeContactsMap.values());
         });
       });
-      socket.on("userOnline", (data) => {
+      socket.current.on("userOnline", (data) => {
         setActiveContacts((prev) => {
           let activeContactsMap = new Map(prev.map((c) => [c.userId, c]));
           activeContactsMap.set(data.userId, data);
           return Array.from(activeContactsMap.values());
         });
       });
-      socket.on("userTyping", (typingInfo) => {
+      socket.current.on("userTyping", (typingInfo) => {
         console.log("USER TYPING", typingInfo);
         if (typingInfo.isTyping) {
           setUsersTyping((prev) => {
@@ -336,7 +341,7 @@ const App = () => {
           typingTimeoutsRef.current.set(typingInfo.convoId, timeout);
         }
       });
-      socket.on("restoredTyping", (convos) => {
+      socket.current.on("restoredTyping", (convos) => {
         console.log("RESTORED TYPING", convos);
         setUsersTyping((prev) => {
           const typingMap = new Set(prev);
@@ -349,13 +354,13 @@ const App = () => {
     }
 
     return () => {
-      if (socket) {
-        socket.off("newRequest");
-        socket.off("updateConversationHeader");
-        socket.off("userOffline");
-        socket.off("userOnline");
-        socket.off("userTyping");
-        socket.off("restoredTyping");
+      if (socket.current) {
+        socket.current.off("newRequest");
+        socket.current.off("updateConversationHeader");
+        socket.current.off("userOffline");
+        socket.current.off("userOnline");
+        socket.current.off("userTyping");
+        socket.current.off("restoredTyping");
       }
     };
   }, [socket]);
@@ -365,14 +370,12 @@ const App = () => {
    */
   useEffect(() => {
     if (token && userId) {
-      setSocket(
-        io("http://localhost:5000", {
-          query: { uid: userId },
-          reconnection: true,
-          reconnectionAttempts: 5,
-          reconnectionDelay: 1000,
-        })
-      );
+      socket.current = io("http://localhost:5000", {
+        query: { uid: userId },
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+      });
     }
   }, [userId, token]);
 
@@ -460,6 +463,8 @@ const App = () => {
    * The callback to log the user out
    */
   const logout = useCallback(() => {
+    console.log("TESTING");
+    console.log(socket);
     logOff(
       setToken,
       setUserId,
@@ -473,7 +478,8 @@ const App = () => {
       setRequestCount,
       isConvosFullyLoaded,
       setDisplayedConversations,
-      selectedConversationRef
+      selectedConversationRef,
+      socket.current
     );
   }, []);
 
@@ -512,7 +518,7 @@ const App = () => {
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket, setSocket }}>
+    <SocketContext.Provider value={{ socket }}>
       <UserContext.Provider
         value={{
           isLoggedIn: !!token,

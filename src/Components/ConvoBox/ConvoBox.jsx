@@ -65,7 +65,7 @@ const ConvoBox = () => {
     if (sessionStorage.getItem("displayedConversations") === null) {
       displayConvo();
     }
-  }, [convoContext]);
+  }, []);
 
   return (
     <>

@@ -61,7 +61,7 @@ const Chatbox = () => {
     isTyping.current = false;
     if (sessionStorage.getItem("typing") && socket) {
       const previousTyping = JSON.parse(sessionStorage.getItem("typing"));
-      socket.emit("typing", {
+      socket.current.emit("typing", {
         isTyping: false,
         conversationId: previousTyping.conversationId,
         receiver: previousTyping.receiver,
@@ -72,7 +72,7 @@ const Chatbox = () => {
 
   useEffect(() => {
     if (sessionStorage.getItem("typing") && socket) {
-      socket.emit("typing", {
+      socket.current.emit("typing", {
         isTyping: false,
         conversationId: id,
         receiver: convoContext?.displayedConversations?.get(
@@ -205,7 +205,7 @@ const Chatbox = () => {
     }
 
     if (!isTyping.current) {
-      socket.emit("typing", {
+      socket.current.emit("typing", {
         isTyping: true,
         conversationId: id,
         receiver: convoContext?.displayedConversations?.get(
@@ -227,10 +227,11 @@ const Chatbox = () => {
 
     typingTimeoutRef.current = setTimeout(() => {
       isTyping.current = false;
-      socket.emit("typing", {
+      const previousTyping = JSON.parse(sessionStorage.getItem("typing"));
+      socket.current.emit("typing", {
         isTyping: false,
         conversationId: id,
-        receiver: sessionStorage.getItem("typing").receiver,
+        receiver: previousTyping.receiver,
       });
       sessionStorage.removeItem("typing");
     }, 3000);
@@ -418,6 +419,11 @@ const Chatbox = () => {
                         sessionStorage.setItem("requestCount", prev - 1);
                         return requestContext.requestCount - 1;
                       });
+                      if (requestContext.requests.size === 1) {
+                        requestContext.setSelectedRequest(null);
+                        requestContext.selectedRequestRef.current = null;
+                        sessionStorage.removeItem("selectedRequest");
+                      }
                     }}
                     className="btnChoice"
                   >

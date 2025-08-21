@@ -15,7 +15,7 @@ const ChatContent = ({ request }) => {
   const convoContext = useContext(ConversationContext);
   const requestContext = useContext(RequestContext);
 
-  return request ? (
+  return request?.requests?.size ? (
     <div className="chat scrollBar">
       {requestContext.requests
         ?.get(requestContext.selectedRequest)

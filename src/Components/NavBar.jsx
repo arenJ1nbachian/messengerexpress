@@ -61,8 +61,8 @@ const NavBar = () => {
   }, []);
 
   useEffect(() => {
-    if (socket) {
-      socket.on("updateRequestsNumber", (num) => {
+    if (socket.current) {
+      socket.current.on("updateRequestsNumber", (num) => {
         console.log("Update request number", num);
         num === -1
           ? requestContext.setRequestCount((prev) => {
@@ -76,8 +76,8 @@ const NavBar = () => {
       });
     }
     return () => {
-      if (socket) {
-        socket.off("updateRequestsNumber");
+      if (socket.current) {
+        socket.current.off("updateRequestsNumber");
       }
     };
   }, [socket]);
@@ -95,17 +95,9 @@ const NavBar = () => {
         }
       );
       if (res.ok) {
-        const reader = new FileReader();
-
-        reader.onloadend = () => {
-          sessionStorage.setItem("profilePicture", reader.result);
-        };
-
-        const blob = await res.blob();
-        const imageUrl = URL.createObjectURL(blob);
-
-        userContext.setProfilePicture(imageUrl);
-        reader.readAsDataURL(blob);
+        const profilePicture = await res.json();
+        sessionStorage.setItem("profilePicture", profilePicture.url);
+        userContext.setProfilePicture(profilePicture.url);
       }
     } catch (error) {
       console.log(error);

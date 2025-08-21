@@ -7,81 +7,106 @@ const {
 } = require("../userOnlineStatus");
 
 /**
+ * Helper function to get the other participant in a conversation
+ * @param {Object} lastMessage - Last message object
+ * @param {string} uid - Current user ID
+ * @returns {string} - Other participant's ID
+ */
+const getOtherParticipant = (lastMessage, uid) => {
+  return lastMessage.sender.toString() === uid
+    ? lastMessage.receiver
+    : lastMessage.sender;
+};
+
+/**
+ * Helper function to build conversation object
+ * @param {Object} convo - Conversation object
+ * @param {Object} lastMessage - Last message object
+ * @param {Object} name - Other participant's user object
+ * @param {string} uid - Current user ID
+ * @returns {Object} - Formatted conversation object
+ */
+const buildConversationObject = (convo, lastMessage, name, uid) => {
+  const nameID = getOtherParticipant(lastMessage, uid);
+
+  return {
+    userId: nameID,
+    name: name.firstname + " " + name.lastname,
+    lastMessage: {
+      content: lastMessage.content,
+      _id: lastMessage._id.toString(),
+    },
+    who: lastMessage.sender.toString() === uid ? "You:" : "",
+    read:
+      lastMessage.receiver.toString() === uid ? lastMessage.read : undefined,
+    _id: convo._id.toString(),
+    profilePicture:
+      name.profilePicture === null
+        ? ""
+        : "http://localhost:5000/uploads" + name.profilePicture,
+    updatedAt: convo.updatedAt,
+  };
+};
+
+/**
+ * Helper function to check if conversation should be included
+ * @param {Object} lastMessage - Last message object
+ * @param {Object} convo - Conversation object
+ * @param {string} uid - Current user ID
+ * @returns {boolean} - Whether conversation should be included
+ */
+const shouldIncludeConversation = (lastMessage, convo, uid) => {
+  return (
+    (lastMessage.sender.toString() === uid &&
+      (convo.status === "Pending" || convo.status === "Rejected")) ||
+    convo.status === "Accepted"
+  );
+};
+
+/**
  * Retrieves all conversations of a user.
  * @param {Object} req - The request object.
  * @param {Object} res - The response object.
  * @returns {Object} - The result containing the conversations.
  */
 const getConversations = async (req, res) => {
-  // Extract the user ID from the request parameters.
   const uid = req.params.uid;
-  const result = new Map();
 
   try {
-    // Retrieve all conversations where the user is a participant, sorted by the last update.
+    // Get all conversations for the user
     const conversations = await Convo.find({
       participants: { $in: [uid] },
     }).sort({ updatedAt: -1 });
 
-    // If there are no conversations, return a 404 error.
     if (conversations.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No conversations found for this user." });
+      return res.status(404).json({
+        message: "No conversations found for this user.",
+      });
     }
 
-    // Loop through each conversation to gather details.
-    for (let i = 0; i < conversations.length; i++) {
-      const convo = conversations[i];
-
-      // Retrieve the last message of the conversation.
+    // Process conversations in parallel
+    const conversationPromises = conversations.map(async (convo) => {
       const lastMessage = await Message.findById(convo.lastMessage);
 
-      // Identify the other participant in the conversation.
-      const nameID =
-        lastMessage.sender.toString() === uid
-          ? lastMessage.receiver
-          : lastMessage.sender;
+      if (!shouldIncludeConversation(lastMessage, convo, uid)) {
+        return null;
+      }
 
-      // Retrieve the name and profile picture of the other participant.
+      const nameID = getOtherParticipant(lastMessage, uid);
       const name = await Users.findById(nameID).select(
         "firstname lastname profilePicture"
       );
 
-      if (
-        (lastMessage.sender.toString() === uid &&
-          (convo.status === "Pending" || convo.status === "Rejected")) ||
-        convo.status === "Accepted"
-      ) {
-        // Construct the result object for each conversation.
-        result.set(convo._id.toString(), {
-          userId: nameID, // The ID of the other participant.
-          name: name.firstname + " " + name.lastname, // The full name of the other participant.
-          lastMessage: {
-            content: lastMessage.content,
-            _id: lastMessage._id.toString(),
-          }, // The content of the last message.
-          who: lastMessage.sender.toString() === uid ? "You:" : "", // Indicates if the user is the sender.
-          read:
-            lastMessage.receiver.toString() === uid
-              ? lastMessage.read
-              : undefined, // Indicates if the last message is read.
-          _id: convo._id.toString(), // The ID of the conversation.
-          profilePicture:
-            name.profilePicture === null
-              ? ""
-              : "http://localhost:5000/" + name.profilePicture, // URL of the other participant's profile picture.
-          updatedAt: convo.updatedAt, // The timestamp of the last update.
-        });
-      }
-    }
+      return buildConversationObject(convo, lastMessage, name, uid);
+    });
 
-    // Respond with the list of conversations.
-    res.status(200).json(Array.from(result.values()));
+    const results = await Promise.all(conversationPromises);
+    const validResults = results.filter((result) => result !== null);
+
+    res.status(200).json(validResults);
   } catch (error) {
-    // Log any errors and return a 500 error response.
-    console.log(error);
-    res.status(500).json({ error });
+    console.error("Error in getConversations:", error);
+    res.status(500).json({ error: "Failed to retrieve conversations" });
   }
 };
 
@@ -156,7 +181,7 @@ const emitnewRequestEvent = async (
         profilePicture:
           sender.profilePicture === null
             ? ""
-            : "http://localhost:5000/" + sender.profilePicture,
+            : "http://localhost:5000/uploads" + sender.profilePicture,
         read: message.read,
         updatedAt: newConvo.updatedAt,
         userId: sender._id.toString(),
@@ -183,7 +208,7 @@ const emitRealTimeEvent = (io, convo, newMessage, sender, receiverID) => {
           profilePicture:
             sender.profilePicture === null
               ? ""
-              : "http://localhost:5000/" + sender.profilePicture,
+              : "http://localhost:5000/uploads" + sender.profilePicture,
           read: newMessage.read,
           updatedAt: convo.updatedAt,
           userId: sender._id.toString(),
@@ -225,7 +250,7 @@ const getRequests = async (req, res) => {
             profilePicture:
               sender.profilePicture === null
                 ? ""
-                : "http://localhost:5000/" + sender.profilePicture,
+                : "http://localhost:5000/uploads" + sender.profilePicture,
             read: lastMessage.read,
             updatedAt: request.updatedAt,
             userId: sender._id.toString(),
@@ -311,139 +336,177 @@ const emitRemoveFromRequestsEvent = (io, convoID, receiverID) => {
 };
 
 /**
- * Creates a new conversation between two users, or updates an existing one.
- * @param {Object} req - The request object.
- * @param {Object} res - The response object.
- * @param {Object} io - The socket.io object.
- * @returns {Object} - The result containing the conversation.
+ * Helper function to find users by name
+ * @param {string} userName2 - Full name of the user
+ * @returns {Object} - User object
  */
-const createConvo = async (req, res, io) => {
-  const { userID1, userName2, message } = req.body;
+const findUserByName = async (userName2) => {
   const user2Firstname = userName2.split(" ")[0];
   const user2Lastname = userName2.split(" ")[1];
 
+  return await Users.findOne({
+    firstname: user2Firstname,
+    lastname: user2Lastname,
+  });
+};
+
+/**
+ * Helper function to handle existing conversation logic
+ * @param {Object} convo - Conversation object
+ * @param {Object} newMessage - New message object
+ * @param {Object} sender - Sender user object
+ * @param {Object} receiver - Receiver user object
+ * @param {Object} io - Socket.IO instance
+ * @returns {Object} - Updated conversation response
+ */
+const handleExistingConversation = async (
+  convo,
+  newMessage,
+  sender,
+  receiver,
+  io
+) => {
+  const lastMessage = await Message.findById(convo.lastMessage);
+  newMessage.conversation = convo._id;
+  await newMessage.save();
+
+  // Handle different conversation statuses
+  if (convo.status === "Accepted") {
+    convo.updatedAt = Date.now();
+    emitRealTimeEvent(io, convo, newMessage, sender, receiver._id.toString());
+  } else if (
+    convo.status === "Pending" &&
+    lastMessage.receiver.equals(sender._id)
+  ) {
+    convo.status = "Accepted";
+    emitRealTimeEvent(io, convo, newMessage, sender, receiver._id.toString());
+    emitRemoveFromRequestsEvent(io, convo._id, sender._id.toString());
+  } else if (
+    (convo.status === "Pending" || convo.status === "Rejected") &&
+    lastMessage.sender.equals(sender._id)
+  ) {
+    emitnewRequestEvent(io, convo, newMessage, sender, receiver._id.toString());
+  }
+
+  await updateConversation(convo, newMessage);
+
+  return {
+    convoSender: {
+      _id: convo._id.toString(),
+      lastMessage: {
+        content: newMessage.content,
+        _id: newMessage._id.toString(),
+      },
+      name: receiver.firstname + " " + receiver.lastname,
+      profilePicture:
+        receiver.profilePicture === null
+          ? ""
+          : "http://localhost:5000/uploads" + receiver.profilePicture,
+      updatedAt: convo.updatedAt,
+      userId: receiver._id.toString(),
+      who: "You:",
+    },
+  };
+};
+
+/**
+ * Helper function to handle new conversation creation
+ * @param {Array} participants - Array of participant IDs
+ * @param {Object} newMessage - New message object
+ * @param {Object} sender - Sender user object
+ * @param {Object} receiver - Receiver user object
+ * @param {Object} io - Socket.IO instance
+ * @returns {Object} - New conversation response
+ */
+const handleNewConversation = async (
+  participants,
+  newMessage,
+  sender,
+  receiver,
+  io
+) => {
+  const newConvo = await createConversation(participants, newMessage._id);
+  newMessage.conversation = newConvo._id;
+  await newMessage.save();
+
+  emitnewRequestEvent(
+    io,
+    newConvo,
+    newMessage,
+    sender,
+    receiver._id.toString()
+  );
+
+  if (searchActiveUsers(receiver._id.toString())) {
+    console.log("Updating requests number");
+  }
+
+  return {
+    convoSender: {
+      _id: newConvo._id.toString(),
+      lastMessage: {
+        content: newMessage.content,
+        _id: newMessage._id.toString(),
+      },
+      name: receiver.firstname + " " + receiver.lastname,
+      profilePicture:
+        receiver.profilePicture === null
+          ? ""
+          : "http://localhost:5000/uploads" + receiver.profilePicture,
+      updatedAt: newConvo.updatedAt,
+      userId: receiver._id.toString(),
+      who: "You:",
+    },
+  };
+};
+
+/**
+ * Creates a new conversation or updates an existing one
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ * @param {Object} io - Socket.IO instance
+ */
+const createConvo = async (req, res, io) => {
+  const { userID1, userName2, message } = req.body;
+
   try {
-    const receiver = await Users.findOne({
-      firstname: user2Firstname,
-      lastname: user2Lastname,
-    });
-    const sender = await Users.findById(userID1);
+    // Find users
+    const [receiver, sender] = await Promise.all([
+      findUserByName(userName2),
+      Users.findById(userID1),
+    ]);
+
+    if (!receiver || !sender) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
     const participants = [sender._id, receiver._id];
-
     const convo = await Convo.findOne({ participants: { $all: participants } });
     const newMessage = await createMessage(message, sender._id, receiver._id);
 
+    let response;
     if (convo) {
-      const lastMessage = await Message.findById(convo.lastMessage);
-      newMessage.conversation = convo._id;
-      await newMessage.save();
-      // If the conversation already exists, emit a real-time event
-      // Or if the conversation is pending and the user who sent this current message was also
-      // the same user who received the last message, emit a realTimeEvent.
-      // This will also change the status of the conversation to "Accepted" and will also emit
-      // a realTimeEvent to remove the request from the other user's screen since it's being accepted
-      if (convo.status === "Accepted") {
-        convo.updatedAt = Date.now();
-        emitRealTimeEvent(
-          io,
-          convo,
-          newMessage,
-          sender,
-          receiver._id.toString()
-        );
-      } else if (
-        convo.status === "Pending" &&
-        lastMessage.receiver.equals(sender._id)
-      ) {
-        convo.status = "Accepted";
-        emitRealTimeEvent(
-          io,
-          convo,
-          newMessage,
-          sender,
-          receiver._id.toString()
-        );
-        emitRemoveFromRequestsEvent(io, convo._id, sender._id.toString());
-      }
-      // If the conversation is pending and the user who sent this current message was also
-      // the same user who sent the last message, emit a newRequest event to the other user.
-      // This will just change the information shown on the other user's screen
-      else if (
-        (convo.status === "Pending" || convo.status === "Rejected") &&
-        lastMessage.sender.equals(sender._id)
-      ) {
-        emitnewRequestEvent(
-          io,
-          convo,
-          newMessage,
-          sender,
-          receiver._id.toString()
-        );
-      }
-
-      updateConversation(convo, newMessage);
-
-      res.status(201).json({
-        convoSender: {
-          _id: convo._id.toString(),
-          lastMessage: {
-            content: newMessage.content,
-            _id: newMessage._id.toString(),
-          },
-          name: receiver.firstname + " " + receiver.lastname,
-          profilePicture:
-            receiver.profilePicture === null
-              ? ""
-              : "http://localhost:5000/" + receiver.profilePicture,
-          updatedAt: convo.updatedAt,
-          userId: receiver._id.toString(),
-          who: "You:",
-        },
-      });
-    } else {
-      const newConvo = await createConversation(participants, newMessage._id);
-
-      newMessage.conversation = newConvo._id;
-
-      await newMessage.save();
-
-      emitnewRequestEvent(
-        io,
-        newConvo,
+      response = await handleExistingConversation(
+        convo,
         newMessage,
         sender,
-        receiver._id.toString()
+        receiver,
+        io
       );
-
-      if (searchActiveUsers(receiver._id.toString())) {
-        console.log("Updating requests number");
-        for (const socket of getSocketsByUserId(receiver._id.toString())) {
-          io.to(socket).emit("updateRequestsNumber", 1);
-        }
-      }
-
-      res.status(201).json({
-        convoSender: {
-          _id: newConvo._id.toString(),
-          lastMessage: {
-            content: newMessage.content,
-            _id: newMessage._id.toString(),
-          },
-          name: receiver.firstname + " " + receiver.lastname,
-          profilePicture:
-            receiver.profilePicture === null
-              ? ""
-              : "http://localhost:5000/" + receiver.profilePicture,
-          read: false,
-          updatedAt: newConvo.updatedAt,
-          userId: receiver._id.toString(),
-          who: "You:",
-        },
-      });
+    } else {
+      response = await handleNewConversation(
+        participants,
+        newMessage,
+        sender,
+        receiver,
+        io
+      );
     }
+
+    res.status(201).json(response);
   } catch (error) {
-    console.log(error);
+    console.error("Error in createConvo:", error);
+    res.status(500).json({ error: "Failed to create conversation" });
   }
 };
 
