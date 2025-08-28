@@ -45,14 +45,21 @@ const io = new Server(server, {
   },
 });
 
-app.use(express.json());
-
 app.use(
   cors({
-    origin: process.env.FRONTEND,
+    origin: process.env.FRONT_END,
     credentials: true,
   })
 );
+app.options(
+  "*",
+  cors({
+    origin: process.env.FRONT_END,
+    credentials: true,
+  })
+);
+
+app.use(express.json());
 
 io.on("connection", async (socket) => {
   const userId = socket.handshake.query.uid;
@@ -186,17 +193,6 @@ io.on("connection", async (socket) => {
 });
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", process.env.FRONT_END);
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  next();
-});
 
 app.use("/api/users", usersRoutes);
 app.use("/api/messages", messagesRoutes);
