@@ -25,7 +25,7 @@ import { ChatCacheContext } from "./Contexts/ChatCacheContext.js";
 import { ActiveUsersContext } from "./Contexts/ActiveUsersContext.js";
 import { UserTypingContext } from "./Contexts/UserTypingContext.js";
 
-const API = process.env.production.REACT_APP_API_BASE;
+const API = process.env.REACT_APP_API_BASE;
 
 const router = createBrowserRouter([
   {

@@ -27,7 +27,7 @@ const Requests = () => {
     const getRequests = async () => {
       try {
         const requests = await fetch(
-          `${process.env.production.REACT_APP_API_BASE}/api/conversations/getRequests/` +
+          `${process.env.REACT_APP_API_BASE}/api/conversations/getRequests/` +
             sessionStorage.getItem("userId"),
           {
             method: "GET",

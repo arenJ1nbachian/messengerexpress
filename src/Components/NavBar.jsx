@@ -37,7 +37,7 @@ const NavBar = () => {
     const getRequests = async () => {
       try {
         const requests = await fetch(
-          `${process.env.production.REACT_APP_API_BASE}/api/conversations/getRequestCount/` +
+          `${process.env.REACT_APP_API_BASE}/api/conversations/getRequestCount/` +
             sessionStorage.getItem("userId"),
           {
             method: "GET",
@@ -119,9 +119,7 @@ const NavBar = () => {
   const fetchName = async (uid) => {
     try {
       const res = await fetch(
-        `${process.env.production.REACT_APP_API_BASE}/api/users/` +
-          uid +
-          "/info",
+        `${process.env.REACT_APP_API_BASE}/api/users/` + uid + "/info",
         {
           method: "GET",
           headers: {

@@ -143,7 +143,7 @@ const Login = () => {
 
       try {
         const res = await fetch(
-          `${process.env.production.REACT_APP_API_BASE}/api/users/register`,
+          `${process.env.REACT_APP_API_BASE}/api/users/register`,
           {
             method: "POST",
             body: data,
@@ -249,7 +249,7 @@ const Login = () => {
     if (formIsValid()) {
       try {
         const res = await fetch(
-          `${process.env.production.REACT_APP_API_BASE}/api/users/login`,
+          `${process.env.REACT_APP_API_BASE}/api/users/login`,
           {
             method: "POST",
             headers: {

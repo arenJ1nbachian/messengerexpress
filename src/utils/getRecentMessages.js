@@ -1,7 +1,7 @@
 export const getRecentMessages = async (chatCacheContext, convoContext) => {
   try {
     const response = await fetch(
-      `${process.env.production.REACT_APP_API_BASE}/api/conversations/getRecentMessages/${convoContext.selectedConversation}`,
+      `${process.env.REACT_APP_API_BASE}/api/conversations/getRecentMessages/${convoContext.selectedConversation}`,
       {
         headers: {
           "Content-Type": "application/json",

@@ -37,7 +37,7 @@ const Contacts = () => {
       const fetchUsersOnline = async () => {
         try {
           const res = await fetch(
-            `${process.env.production.REACT_APP_API_BASE}/api/users/getOnline`,
+            `${process.env.REACT_APP_API_BASE}/api/users/getOnline`,
             {
               method: "POST",
               headers: {
