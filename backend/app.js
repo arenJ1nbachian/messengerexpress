@@ -47,11 +47,9 @@ const io = new Server(server, {
 
 app.use(express.json());
 
-const FRONTEND = "https://<your-frontend>.vercel.app";
-
 app.use(
   cors({
-    origin: FRONTEND,
+    origin: process.env.FRONTEND,
     credentials: true,
   })
 );
