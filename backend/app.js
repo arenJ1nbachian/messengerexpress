@@ -1,3 +1,4 @@
+import cors from "cors";
 const express = require("express");
 const usersRoutes = require("./routes/users-routes");
 const messagesRoutes = require("./routes/messages-routes");
@@ -45,6 +46,15 @@ const io = new Server(server, {
 });
 
 app.use(express.json());
+
+const FRONTEND = "https://<your-frontend>.vercel.app";
+
+app.use(
+  cors({
+    origin: FRONTEND,
+    credentials: true,
+  })
+);
 
 io.on("connection", async (socket) => {
   const userId = socket.handshake.query.uid;
@@ -197,11 +207,14 @@ app.use("/api/conversations", convoRoutes(io));
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
+const port = process.env.PORT || 5000;
+const mongoUri = process.env.MONGO_URI;
+
 mongoose
-  .connect("mongodb://localhost:27017/")
+  .connect(mongoUri)
   .then(() => {
-    server.listen(5000, () => {
-      console.log("Server running on http://localhost:5000\n\n");
+    server.listen(port, () => {
+      console.log(`Server running on http://localhost:${port}\n\n`);
     });
   })
   .catch((err) => console.log(err));
