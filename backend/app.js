@@ -38,7 +38,7 @@ const io = new Server(server, {
   pingTimeout: 3000,
   pingInterval: 1000,
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.FRONT_END,
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -190,7 +190,7 @@ io.on("connection", async (socket) => {
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.setHeader("Access-Control-Allow-Origin", process.env.FRONT_END);
   res.setHeader(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
@@ -214,7 +214,7 @@ mongoose
   .connect(mongoUri)
   .then(() => {
     server.listen(port, () => {
-      console.log(`Server running on http://localhost:${port}\n\n`);
+      console.log(`Server running on port ${port}\n\n`);
     });
   })
   .catch((err) => console.log(err));

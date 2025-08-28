@@ -25,6 +25,8 @@ import { ChatCacheContext } from "./Contexts/ChatCacheContext.js";
 import { ActiveUsersContext } from "./Contexts/ActiveUsersContext.js";
 import { UserTypingContext } from "./Contexts/UserTypingContext.js";
 
+const API = process.env.production.REACT_APP_API_BASE;
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -370,7 +372,7 @@ const App = () => {
    */
   useEffect(() => {
     if (token && userId) {
-      socket.current = io("http://localhost:5000", {
+      socket.current = io(API, {
         query: { uid: userId },
         reconnection: true,
         reconnectionAttempts: 5,

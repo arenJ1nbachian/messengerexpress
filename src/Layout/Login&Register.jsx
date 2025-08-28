@@ -142,10 +142,13 @@ const Login = () => {
       }
 
       try {
-        const res = await fetch("http://localhost:5000/api/users/register", {
-          method: "POST",
-          body: data,
-        });
+        const res = await fetch(
+          `${process.env.production.REACT_APP_API_BASE}/api/users/register`,
+          {
+            method: "POST",
+            body: data,
+          }
+        );
 
         if (res.ok) {
           const result = await res.json();
@@ -245,16 +248,19 @@ const Login = () => {
     e.preventDefault();
     if (formIsValid()) {
       try {
-        const res = await fetch("http://localhost:5000/api/users/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        });
+        const res = await fetch(
+          `${process.env.production.REACT_APP_API_BASE}/api/users/login`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: formData.email,
+              password: formData.password,
+            }),
+          }
+        );
 
         if (res.ok) {
           const data = await res.json();
