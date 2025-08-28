@@ -374,6 +374,8 @@ const App = () => {
     if (token && userId) {
       socket.current = io(API, {
         query: { uid: userId },
+        withCredentials: true,
+        transports: ["websocket"],
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
