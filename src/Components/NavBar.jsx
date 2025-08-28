@@ -41,6 +41,10 @@ const NavBar = () => {
             sessionStorage.getItem("userId"),
           {
             method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            },
           }
         );
 
@@ -92,6 +96,10 @@ const NavBar = () => {
         "http://localhost:5000/api/users/" + uid + "/picture",
         {
           method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          },
         }
       );
       if (res.ok) {
@@ -114,6 +122,10 @@ const NavBar = () => {
         "http://localhost:5000/api/users/" + uid + "/info",
         {
           method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          },
         }
       );
       if (res.ok) {

@@ -143,7 +143,7 @@ const loginUser = async (req, res, next) => {
     });
 
     // Generate a JWT token for the user
-    const token = jwt.sign({ userId: user._id }, "secretkey", {
+    const token = jwt.sign({ userId: user._id }, "r$WMw32(wH^GaZZ", {
       expiresIn: "1h",
     });
 

@@ -40,6 +40,7 @@ const Contacts = () => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
             },
             body: JSON.stringify({
               userId: sessionStorage.getItem("userId"),

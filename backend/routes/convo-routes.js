@@ -1,29 +1,58 @@
 const express = require("express");
 const router = express.Router();
 const convoController = require("../controllers/convo-controller");
+const authenticateToken = require("../middleware/authenticateToken");
 
 module.exports = (io) => {
-  router.get("/getConvos/:uid", convoController.getConversations);
+  router.get(
+    "/getConvos/:uid",
+    authenticateToken,
+    convoController.getConversations
+  );
 
-  router.post("/createConvo", (req, res) =>
+  router.post("/createConvo", authenticateToken, (req, res) =>
     convoController.createConvo(req, res, io)
   );
 
-  router.get("/getConvo", convoController.getConvo);
+  router.get("/getConvo", authenticateToken, convoController.getConvo);
 
-  router.patch("/convoRead", convoController.convoRead);
+  router.patch("/convoRead", authenticateToken, convoController.convoRead);
 
-  router.get("/getMessageRead/:convoID", convoController.getMessageRead);
+  router.get(
+    "/getMessageRead/:convoID",
+    authenticateToken,
+    convoController.getMessageRead
+  );
 
-  router.get("/getRequests/:uid", convoController.getRequests);
+  router.get(
+    "/getRequests/:uid",
+    authenticateToken,
+    convoController.getRequests
+  );
 
-  router.get("/getRequestCount/:uid", convoController.getRequestCount);
+  router.get(
+    "/getRequestCount/:uid",
+    authenticateToken,
+    convoController.getRequestCount
+  );
 
-  router.patch("/acceptRequest", convoController.acceptRequest);
+  router.patch(
+    "/acceptRequest",
+    authenticateToken,
+    convoController.acceptRequest
+  );
 
-  router.patch("/rejectRequest", convoController.rejectRequest);
+  router.patch(
+    "/rejectRequest",
+    authenticateToken,
+    convoController.rejectRequest
+  );
 
-  router.get("/getRecentMessages/:convoID", convoController.getRecentMessage);
+  router.get(
+    "/getRecentMessages/:convoID",
+    authenticateToken,
+    convoController.getRecentMessage
+  );
 
   return router;
 };

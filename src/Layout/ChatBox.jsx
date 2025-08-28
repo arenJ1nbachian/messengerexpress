@@ -108,6 +108,7 @@ const Chatbox = () => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
             },
             body: JSON.stringify({
               userID1: sessionStorage.getItem("userId"),

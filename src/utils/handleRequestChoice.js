@@ -7,6 +7,7 @@ export const handleRequestChoice = async (choice, convoId) => {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         },
         body: JSON.stringify({ convoId }),
       }

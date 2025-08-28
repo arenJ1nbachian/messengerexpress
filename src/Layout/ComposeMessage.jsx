@@ -41,6 +41,7 @@ const ComposeMessage = () => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
             },
             body: JSON.stringify({
               userID1: sessionStorage.getItem("userId"),
@@ -170,6 +171,7 @@ const ComposeMessage = () => {
             body: JSON.stringify({ userId: sessionStorage.getItem("userId") }),
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
             },
           }
         );

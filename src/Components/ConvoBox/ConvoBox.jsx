@@ -33,6 +33,10 @@ const ConvoBox = () => {
           "http://localhost:5000/api/conversations/getConvos/" +
             sessionStorage.getItem("userId"),
           {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            },
             method: "GET",
           }
         );

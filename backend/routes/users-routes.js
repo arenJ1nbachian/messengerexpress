@@ -3,6 +3,7 @@ const usersController = require("../controllers/users-controller");
 const { check } = require("express-validator");
 const upload = require("../middleware/upload");
 const router = express.Router();
+const authenticateToken = require("../middleware/authenticateToken");
 
 router.post(
   "/register",
@@ -18,14 +19,18 @@ router.post(
   usersController.createUser
 );
 
-router.get("/:uid/picture", usersController.getUserPicture);
+router.get("/:uid/picture", authenticateToken, usersController.getUserPicture);
 
-router.get("/:uid/info", usersController.getUserInfo);
+router.get("/:uid/info", authenticateToken, usersController.getUserInfo);
 
 router.post("/login", usersController.loginUser);
 
-router.post("/search/:searchString", usersController.searchUsers);
+router.post(
+  "/search/:searchString",
+  authenticateToken,
+  usersController.searchUsers
+);
 
-router.post("/getOnline", usersController.getOnline);
+router.post("/getOnline", authenticateToken, usersController.getOnline);
 
 module.exports = router;

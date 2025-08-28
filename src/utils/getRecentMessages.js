@@ -1,7 +1,13 @@
 export const getRecentMessages = async (chatCacheContext, convoContext) => {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/conversations/getRecentMessages/${convoContext.selectedConversation}`
+      `http://localhost:5000/api/conversations/getRecentMessages/${convoContext.selectedConversation}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+        },
+      }
     );
     const data = await response.json();
 

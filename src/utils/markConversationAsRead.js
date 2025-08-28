@@ -6,6 +6,7 @@ export const markConversationAsRead = async (convoID) => {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         },
         body: JSON.stringify({ convoID }),
       }
