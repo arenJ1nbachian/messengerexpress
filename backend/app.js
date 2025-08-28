@@ -1,4 +1,4 @@
-import cors from "cors";
+const cors = require("cors");
 const express = require("express");
 const usersRoutes = require("./routes/users-routes");
 const messagesRoutes = require("./routes/messages-routes");
