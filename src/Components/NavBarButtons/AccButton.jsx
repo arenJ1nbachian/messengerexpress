@@ -73,7 +73,6 @@ const AccButton = ({ account, loggedName }) => {
           }
           onClick={() => navBar.setShowSettings(!navBar.showSettings)}
         >
-          {" "}
           {account !== null ? (
             <img
               src={account}

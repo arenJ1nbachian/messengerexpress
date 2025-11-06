@@ -4,6 +4,21 @@ const jwt = require("jsonwebtoken");
 const Convo = require("../models/conversation");
 const message = require("../models/message");
 const bcrypt = require("bcrypt");
+const { v2: cloudinary } = require("cloudinary");
+const streamifier = require("streamifier");
+
+const uploadToCloudinary = (fileBuffer) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: "user_profiles" },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }
+    );
+    streamifier.createReadStream(fileBuffer).pipe(uploadStream);
+  });
+};
 
 /**
  * Creates a new user in the database.
@@ -30,11 +45,12 @@ const createUser = async (req, res, next) => {
   // If the request has a file, use the path as the profile picture
   let profilePicture = null;
 
-  if (req.file) {
-    profilePicture = req.file.filename;
-  }
-
   try {
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer);
+      profilePicture = result.secure_url;
+    }
+
     // Create a new user in the database
     const user = new Users({
       firstname,
@@ -73,10 +89,10 @@ const getUserPicture = async (req, res, userId) => {
       // If the user has a profile picture, send the profile picture as a response
       if (res) {
         res.json({
-          url: "http://localhost:5000/uploads/" + user.profilePicture,
+          url: user.profilePicture,
         });
       } else {
-        return "http://localhost:5000/uploads/" + user.profilePicture;
+        return user.profilePicture;
       }
     }
   } catch (error) {
@@ -213,8 +229,7 @@ const searchUsers = async (req, res) => {
           _id: user._id,
           firstname: user.firstname,
           lastname: user.lastname,
-          profilePicture:
-            "http://localhost:5000/uploads/" + user.profilePicture,
+          profilePicture: user.profilePicture,
         };
       })
   );
@@ -247,9 +262,7 @@ const getOnline = async (req, res, userId) => {
         userId: conversation.participants[0]._id,
         firstname: conversation.participants[0].firstname,
         lastname: conversation.participants[0].lastname,
-        profilePicture:
-          "http://localhost:5000/uploads/" +
-          conversation.participants[0].profilePicture,
+        profilePicture: conversation.participants[0].profilePicture,
         read: lastMessage.read,
       });
     }

@@ -40,10 +40,7 @@ const buildConversationObject = (convo, lastMessage, name, uid) => {
     read:
       lastMessage.receiver.toString() === uid ? lastMessage.read : undefined,
     _id: convo._id.toString(),
-    profilePicture:
-      name.profilePicture === null
-        ? ""
-        : "https://messengerexpress.onrender.com/uploads" + name.profilePicture,
+    profilePicture: name.profilePicture === null ? "" : name.profilePicture,
     updatedAt: convo.updatedAt,
   };
 };
@@ -179,9 +176,7 @@ const emitnewRequestEvent = async (
         messages: messages,
         name: sender.firstname + " " + sender.lastname,
         profilePicture:
-          sender.profilePicture === null
-            ? ""
-            : "http://localhost:5000/uploads" + sender.profilePicture,
+          sender.profilePicture === null ? "" : sender.profilePicture,
         read: message.read,
         updatedAt: newConvo.updatedAt,
         userId: sender._id.toString(),
@@ -206,9 +201,7 @@ const emitRealTimeEvent = (io, convo, newMessage, sender, receiverID) => {
           },
           name: sender.firstname + " " + sender.lastname,
           profilePicture:
-            sender.profilePicture === null
-              ? ""
-              : "http://localhost:5000/uploads" + sender.profilePicture,
+            sender.profilePicture === null ? "" : sender.profilePicture,
           read: newMessage.read,
           updatedAt: convo.updatedAt,
           userId: sender._id.toString(),
@@ -248,9 +241,7 @@ const getRequests = async (req, res) => {
             messages: messages,
             name: sender.firstname + " " + sender.lastname,
             profilePicture:
-              sender.profilePicture === null
-                ? ""
-                : "http://localhost:5000/uploads" + sender.profilePicture,
+              sender.profilePicture === null ? "" : sender.profilePicture,
             read: lastMessage.read,
             updatedAt: request.updatedAt,
             userId: sender._id.toString(),
@@ -399,9 +390,7 @@ const handleExistingConversation = async (
       },
       name: receiver.firstname + " " + receiver.lastname,
       profilePicture:
-        receiver.profilePicture === null
-          ? ""
-          : "http://localhost:5000/uploads" + receiver.profilePicture,
+        receiver.profilePicture === null ? "" : receiver.profilePicture,
       updatedAt: convo.updatedAt,
       userId: receiver._id.toString(),
       who: "You:",
@@ -450,9 +439,7 @@ const handleNewConversation = async (
       },
       name: receiver.firstname + " " + receiver.lastname,
       profilePicture:
-        receiver.profilePicture === null
-          ? ""
-          : "http://localhost:5000/uploads" + receiver.profilePicture,
+        receiver.profilePicture === null ? "" : receiver.profilePicture,
       updatedAt: newConvo.updatedAt,
       userId: receiver._id.toString(),
       who: "You:",
