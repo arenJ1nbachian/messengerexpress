@@ -103,7 +103,7 @@ const Chatbox = () => {
     if (inputValue.length > 0) {
       try {
         const res = await fetch(
-          "http://localhost:5000/api/conversations/createConvo",
+          `${process.env.REACT_APP_API_BASE}/api/conversations/createConvo`,
           {
             method: "POST",
             headers: {

@@ -1,3 +1,4 @@
+const cors = require("cors");
 const express = require("express");
 const usersRoutes = require("./routes/users-routes");
 const messagesRoutes = require("./routes/messages-routes");
@@ -37,12 +38,26 @@ const io = new Server(server, {
   pingTimeout: 3000,
   pingInterval: 1000,
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.FRONT_END,
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   },
 });
+
+app.use(
+  cors({
+    origin: process.env.FRONT_END,
+    credentials: true,
+  })
+);
+app.options(
+  "*",
+  cors({
+    origin: process.env.FRONT_END,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
@@ -179,17 +194,6 @@ io.on("connection", async (socket) => {
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  next();
-});
-
 app.use("/api/users", usersRoutes);
 app.use("/api/messages", messagesRoutes);
 app.use("/api/conversations", convoRoutes(io));
@@ -197,11 +201,14 @@ app.use("/api/conversations", convoRoutes(io));
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
+const port = process.env.PORT || 5000;
+const mongoUri = process.env.MONGO_URI;
+
 mongoose
-  .connect("mongodb://localhost:27017/")
+  .connect(mongoUri)
   .then(() => {
-    server.listen(5000, () => {
-      console.log("Server running on http://localhost:5000\n\n");
+    server.listen(port, () => {
+      console.log(`Server running on port ${port}\n\n`);
     });
   })
   .catch((err) => console.log(err));

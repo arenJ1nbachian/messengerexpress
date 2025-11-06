@@ -43,7 +43,7 @@ const buildConversationObject = (convo, lastMessage, name, uid) => {
     profilePicture:
       name.profilePicture === null
         ? ""
-        : "http://localhost:5000/uploads" + name.profilePicture,
+        : "https://messengerexpress.onrender.com/uploads" + name.profilePicture,
     updatedAt: convo.updatedAt,
   };
 };

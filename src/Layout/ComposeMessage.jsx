@@ -36,7 +36,7 @@ const ComposeMessage = () => {
     ) {
       try {
         const res = await fetch(
-          "http://localhost:5000/api/conversations/createConvo",
+          `${process.env.REACT_APP_API_BASE}/api/conversations/createConvo`,
           {
             method: "POST",
             headers: {
@@ -165,7 +165,8 @@ const ComposeMessage = () => {
     if (e.target.value[0] !== " " && e.target.value.length > 0) {
       try {
         const res = await fetch(
-          "http://localhost:5000/api/users/search/" + e.target.value,
+          `${process.env.REACT_APP_API_BASE}/api/users/search/` +
+            e.target.value,
           {
             method: "POST",
             body: JSON.stringify({ userId: sessionStorage.getItem("userId") }),

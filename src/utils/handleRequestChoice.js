@@ -2,7 +2,7 @@ export const handleRequestChoice = async (choice, convoId) => {
   try {
     console.log(convoId);
     const res = await fetch(
-      `http://localhost:5000/api/conversations/${choice}Request`,
+      `${process.env.REACT_APP_API_BASE}/api/conversations/${choice}Request`,
       {
         method: "PATCH",
         headers: {
