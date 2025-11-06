@@ -30,7 +30,7 @@ const ConvoBox = () => {
         convoContext.isConvosFullyLoaded.current = true;
         console.log("Getting conversations");
         const conversations = await fetch(
-          `${process.env.REACT_APP_API_BASE}/api/conversations/getConvos/` +
+          `http://localhost:5000/api/conversations/getConvos/` +
             sessionStorage.getItem("userId"),
           {
             headers: {

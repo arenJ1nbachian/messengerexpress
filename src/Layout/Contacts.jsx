@@ -36,19 +36,16 @@ const Contacts = () => {
       // Fetch the online users when the component mounts.
       const fetchUsersOnline = async () => {
         try {
-          const res = await fetch(
-            `${process.env.REACT_APP_API_BASE}/api/users/getOnline`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-              },
-              body: JSON.stringify({
-                userId: sessionStorage.getItem("userId"),
-              }),
-            }
-          );
+          const res = await fetch(`http://localhost:5000/api/users/getOnline`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({
+              userId: sessionStorage.getItem("userId"),
+            }),
+          });
 
           if (res.ok) {
             const data = await res.json();

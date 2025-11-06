@@ -1,7 +1,7 @@
 export const markConversationAsRead = async (convoID) => {
   try {
     const res = await fetch(
-      `${process.env.REACT_APP_API_BASE}/api/conversations/convoRead`,
+      `http://localhost:5000/api/conversations/convoRead`,
       {
         method: "PATCH",
         headers: {
