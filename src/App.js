@@ -372,7 +372,7 @@ const App = () => {
    */
   useEffect(() => {
     if (token && userId) {
-      socket.current = io(API, {
+      socket.current = io("http://localhost:5000", {
         query: { uid: userId },
         withCredentials: true,
         transports: ["websocket"],
