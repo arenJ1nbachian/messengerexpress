@@ -214,32 +214,33 @@ const App = () => {
   const socket = useRef();
 
   useEffect(() => {
-    if (socket.current) {
-      socket.current.on("newRequest", (request) => {
-        console.log("RECEIVED NEW REQUEST", request);
-        setRequests((prev) => {
-          const requestMap = new Map(prev);
-          requestMap.set(request._id, request);
+    const newRequest = (request) => {
+      console.log("RECEIVED NEW REQUEST", request);
+      setRequests((prev) => {
+        const requestMap = new Map(prev);
+        requestMap.set(request._id, request);
 
-          const sortedRequests = new Map(
-            [...requestMap.entries()].sort((a, b) => {
-              return new Date(b[1].updatedAt) - new Date(a[1].updatedAt);
-            })
-          );
+        const sortedRequests = new Map(
+          [...requestMap.entries()].sort((a, b) => {
+            return new Date(b[1].updatedAt) - new Date(a[1].updatedAt);
+          })
+        );
 
-          sessionStorage.setItem(
-            "requests",
-            JSON.stringify(Array.from(sortedRequests.entries()))
-          );
+        sessionStorage.setItem(
+          "requests",
+          JSON.stringify(Array.from(sortedRequests.entries()))
+        );
 
-          return sortedRequests;
-        });
-        setRequestCount((prev) => {
-          const count = prev + 1;
-          sessionStorage.setItem("requestCount", count);
-          return count;
-        });
+        return sortedRequests;
       });
+      setRequestCount((prev) => {
+        const count = prev + 1;
+        sessionStorage.setItem("requestCount", count);
+        return count;
+      });
+    };
+    if (socket.current) {
+      socket.current.on("newRequest", newRequest);
       socket.current.on("removeFromRequests", (convoID) => {
         setRequests((prev) => {
           const requestMap = new Map(prev);
@@ -357,7 +358,7 @@ const App = () => {
 
     return () => {
       if (socket.current) {
-        socket.current.off("newRequest");
+        socket.current.off("newRequest", newRequest);
         socket.current.off("updateConversationHeader");
         socket.current.off("userOffline");
         socket.current.off("userOnline");
@@ -365,7 +366,7 @@ const App = () => {
         socket.current.off("restoredTyping");
       }
     };
-  }, [socket]);
+  }, []);
 
   /**
    * The effect to set the socket when the user logs in

@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import { UserContext } from "../Contexts/UserContext";
-import { NavContext } from "../Contexts/NavContext";
 import BubbleMessage from "../Components/BubbleMessage";
 import "./ChatContent.css";
 import { ChatCacheContext } from "../Contexts/ChatCacheContext";
@@ -15,7 +14,7 @@ const ChatContent = ({ request }) => {
   const convoContext = useContext(ConversationContext);
   const requestContext = useContext(RequestContext);
 
-  return request?.requests?.size ? (
+  return request ? (
     <div className="chat scrollBar">
       {requestContext.requests
         ?.get(requestContext.selectedRequest)

@@ -162,26 +162,26 @@ const emitnewRequestEvent = async (
     for (const socket of getSocketsByUserId(receiverID)) {
       if (newConvo.status === "Rejected") {
         io.to(socket).emit("updateRequestsNumber", 1);
+        const messages = await Message.find({ conversation: newConvo._id })
+          .sort({ timestamp: -1 })
+          .limit(20)
+          .select("content timestamp _id sender");
+        io.to(socket).emit("newRequest", {
+          _id: newConvo._id.toString(),
+          lastMessage: {
+            content: message.content,
+            _id: message._id.toString(),
+          },
+          messages: messages,
+          name: sender.firstname + " " + sender.lastname,
+          profilePicture:
+            sender.profilePicture === null ? "" : sender.profilePicture,
+          read: message.read,
+          updatedAt: newConvo.updatedAt,
+          userId: sender._id.toString(),
+          who: "",
+        });
       }
-      const messages = await Message.find({ conversation: newConvo._id })
-        .sort({ timestamp: -1 })
-        .limit(20)
-        .select("content timestamp _id sender");
-      io.to(socket).emit("newRequest", {
-        _id: newConvo._id.toString(),
-        lastMessage: {
-          content: message.content,
-          _id: message._id.toString(),
-        },
-        messages: messages,
-        name: sender.firstname + " " + sender.lastname,
-        profilePicture:
-          sender.profilePicture === null ? "" : sender.profilePicture,
-        read: message.read,
-        updatedAt: newConvo.updatedAt,
-        userId: sender._id.toString(),
-        who: "",
-      });
     }
   } else {
     console.log("User is offline, there's no need to emit the event");

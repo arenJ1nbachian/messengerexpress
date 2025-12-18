@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import message from "../images/messageIcon.svg";
 import people from "../images/contactsIcon.svg";
 import request from "../images/requestIcon.svg";
@@ -64,27 +64,27 @@ const NavBar = () => {
     }
   }, []);
 
+  const { setRequestCount, requestCount } = requestContext;
+
+  const componentID = useRef(Math.floor(Math.random() * 1000)).current;
+
   useEffect(() => {
-    if (socket.current) {
-      socket.current.on("updateRequestsNumber", (num) => {
-        console.log("Update request number", num);
-        num === -1
-          ? requestContext.setRequestCount((prev) => {
-              sessionStorage.setItem("requestCount", prev - 1);
-              return prev - 1;
-            })
-          : requestContext.setRequestCount((prev) => {
-              sessionStorage.setItem("requestCount", prev + 1);
-              return prev + 1;
-            });
+    if (!socket.current) return;
+
+    const handleRequestUpdate = (num) => {
+      sessionStorage.setItem("requestCount", requestCount + 1);
+      requestContext.setRequestCount((prev) => {
+        return prev + 1;
       });
-    }
-    return () => {
-      if (socket.current) {
-        socket.current.off("updateRequestsNumber");
-      }
     };
-  }, [socket]);
+
+    socket.current.on("updateRequestsNumber", handleRequestUpdate);
+
+    return () => {
+      if (!socket.current) return;
+      socket.current.off("updateRequestsNumber", handleRequestUpdate);
+    };
+  }, [setRequestCount]);
 
   /**
    * Fetches the user's profile picture from the server.

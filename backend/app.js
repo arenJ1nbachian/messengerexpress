@@ -156,10 +156,7 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("typing", (data) => {
-    console.log("Data Receiver:" + data.receiver);
-
     const recipientSockets = getSocketsByUserId(data.receiver);
-    console.log(recipientSockets);
     if (data.isTyping) {
       addTyping(data.conversationId, data.receiver);
     } else {
