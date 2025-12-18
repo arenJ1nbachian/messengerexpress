@@ -35,6 +35,7 @@ const Login = () => {
   const container = useRef();
   const [mode, setMode] = useState(sessionStorage.getItem("mode") || "Login");
   const formRef = useRef();
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -62,6 +63,14 @@ const Login = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, [mode]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   /**
    * Checks if the form is valid
@@ -120,10 +129,10 @@ const Login = () => {
       setError("Error: Field is required");
       errorBanner.current.style.opacity = "1";
       setRemoveError(
-        setTimeout(() => {
+        (timeoutRef.current = setTimeout(() => {
           errorBanner.current.style.opacity = "0";
           setRemoveError(null);
-        }, 5000)
+        }, 5000))
       );
     }
     return valid;
@@ -270,10 +279,10 @@ const Login = () => {
             setError("Error: Invalid credentials");
             errorBanner.current.style.opacity = "1";
             setRemoveError(
-              setTimeout(() => {
+              (timeoutRef.current = setTimeout(() => {
                 errorBanner.current.style.opacity = "0";
                 setRemoveError(null);
-              }, 5000)
+              }, 5000))
             );
           }
         }
@@ -318,7 +327,7 @@ const Login = () => {
           )}
 
           <div ref={errorBanner} className="alert">
-            <span class="material-symbols-outlined">priority_high</span>
+            <span className="material-symbols-outlined">priority_high</span>
             <span>{error}</span>
           </div>
           <h1>
