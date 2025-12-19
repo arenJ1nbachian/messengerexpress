@@ -1,20 +1,19 @@
 .convoBox {
   margin-top: 15px;
-  height: 80%;
+  height: 85%;
   width: 100%;
   gap: 5px;
   overflow-y: auto;
   display: flex;
   align-items: center;
   flex-direction: column;
-  border-bottom: 3px solid black;
 }
 
 .userConvo {
   align-items: center;
   width: 97%;
   display: flex;
-  height: 80px;
+  height: 75px;
   border-radius: 15px;
   background-color: transparent;
 }

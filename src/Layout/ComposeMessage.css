@@ -102,7 +102,7 @@
 }
 
 .chatConvoBox form {
-  height: 40px;
+  height: 35px;
   display: flex;
   align-items: center;
   flex-shrink: 0;

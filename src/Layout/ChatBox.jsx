@@ -61,16 +61,6 @@ const Chatbox = () => {
     typingIntervalRef.current = null;
   }, [convoContext.selectedConversation]);
 
-  useEffect(() => {
-    document.addEventListener("click", () => {
-      inputRef.current?.focus();
-    });
-
-    return () => {
-      document.removeEventListener("click", () => {});
-    };
-  }, []);
-
   /**
    * The handleClick function is used to handle the click event of the send
    * button. It sends the message to the server and clears the input field.

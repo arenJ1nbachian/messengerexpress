@@ -67,8 +67,8 @@ const Chat = () => {
           >
             <Category
               img={compose}
-              width={composeHover === true ? "55%" : "25px"}
-              height={composeHover === true ? "55%" : "25px"}
+              width={composeHover === true ? "30px" : "25px"}
+              height={composeHover === true ? "30px" : "25px"}
             />
           </div>
         </div>
@@ -89,13 +89,6 @@ const Chat = () => {
           />
         </div>
         <ConvoBox />
-        <div
-          className={`tryMessengerBox ${hovered ? "hovered" : "default"}`}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-        >
-          <div>Try Messenger for Windows</div>
-        </div>
       </div>
     </div>
   );
