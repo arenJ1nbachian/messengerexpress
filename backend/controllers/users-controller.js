@@ -53,6 +53,7 @@ const createUser = async (req, res, next) => {
     if (req.file) {
       const result = await uploadToCloudinary(req.file.buffer);
       profilePicture = result.secure_url;
+      console.log(result.secure_url);
     }
 
     // Create a new user in the database
