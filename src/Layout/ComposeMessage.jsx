@@ -7,7 +7,6 @@ import { ComposeContext } from "../Contexts/ComposeContext";
 import { ConversationContext } from "../Contexts/ConversationContext";
 import { NavContext } from "../Contexts/NavContext";
 import { ChatCacheContext } from "../Contexts/ChatCacheContext";
-import { RequestContext } from "../Contexts/RequestContext";
 const REACT_APP_API_BASE = process.env.REACT_APP_API_BASE;
 
 /**
@@ -21,7 +20,6 @@ const ComposeMessage = () => {
   const convoContext = useContext(ConversationContext);
   const chatCacheContext = useContext(ChatCacheContext);
   const navContext = useContext(NavContext);
-  const requestContext = useContext(RequestContext);
 
   /**
    * Handles the click event to create or join a conversation.
@@ -223,9 +221,7 @@ const ComposeMessage = () => {
               <div
                 onClick={(e) => {
                   composeContext.setSelectedElement({
-                    picture: !user.profilePicture
-                      ? user.profilePicture
-                      : defaultPicture,
+                    picture: user.profilePicture || defaultPicture,
                     name: user.firstname + " " + user.lastname,
                     id: user._id,
                     convoId: user.convo,
@@ -244,11 +240,7 @@ const ComposeMessage = () => {
                   <img
                     id="searchUser"
                     className="convoPicture"
-                    src={
-                      !user.profilePicture
-                        ? user.profilePicture
-                        : defaultPicture
-                    }
+                    src={user.profilePicture || defaultPicture}
                     alt="profilePic"
                   />
                 </div>
