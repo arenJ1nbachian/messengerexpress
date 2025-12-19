@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const conversation = require("./conversation");
 
 const messageSchema = new mongoose.Schema({
   sender: {
