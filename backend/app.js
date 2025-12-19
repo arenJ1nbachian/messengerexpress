@@ -31,12 +31,19 @@ const {
   getTypingConvos,
 } = require("./userConvoTyping");
 const errorHandler = require("./middleware/errorHandler");
+const dotenv = require("dotenv");
+dotenv.config();
+const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/";
+const FRONT_END = process.env.FRONT_END || "http://localhost:3000";
+
+dotenv.config();
 
 const io = new Server(server, {
   pingTimeout: 3000,
   pingInterval: 1000,
   cors: {
-    origin: "http://localhost:3000",
+    origin: FRONT_END,
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -192,7 +199,7 @@ io.on("connection", async (socket) => {
 });
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.setHeader("Access-Control-Allow-Origin", `${FRONT_END}`);
   res.setHeader(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
@@ -210,10 +217,10 @@ app.use("/api/conversations", convoRoutes(io));
 app.use(errorHandler);
 
 mongoose
-  .connect("mongodb://localhost:27017/")
+  .connect(MONGO_URI)
   .then(() => {
-    server.listen(5000, () => {
-      console.log("Server running on http://localhost:5000\n\n");
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}\n\n`);
     });
   })
   .catch((err) => console.log(err));

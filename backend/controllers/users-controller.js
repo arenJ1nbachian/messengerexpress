@@ -6,6 +6,10 @@ const message = require("../models/message");
 const bcrypt = require("bcrypt");
 const { v2: cloudinary } = require("cloudinary");
 const streamifier = require("streamifier");
+const dotenv = require("dotenv");
+dotenv.config();
+
+const JWT_SECRET = process.env.JWT_SECRET || "secretKey";
 
 const uploadToCloudinary = (fileBuffer) => {
   return new Promise((resolve, reject) => {
@@ -159,7 +163,7 @@ const loginUser = async (req, res, next) => {
     });
 
     // Generate a JWT token for the user
-    const token = jwt.sign({ userId: user._id }, "r$WMw32(wH^GaZZ", {
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
       expiresIn: "1h",
     });
 
