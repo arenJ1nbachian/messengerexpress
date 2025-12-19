@@ -17,4 +17,6 @@ const messageSchema = new mongoose.Schema({
   conversation: { type: mongoose.Schema.Types.ObjectId, ref: "Conversations" },
 });
 
+messageSchema.index({ conversation: 1, timestamp: -1, _id: -1 });
+
 module.exports = mongoose.model("Messages", messageSchema);

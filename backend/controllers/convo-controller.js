@@ -577,7 +577,7 @@ const getRecentMessage = async (req, res) => {
   const limit = 20;
   try {
     const messages = await Message.find({ conversation: convoID })
-      .sort({ timestamp: -1 })
+      .sort({ timestamp: -1, _id: -1 })
       .limit(limit)
       .select("content timestamp _id sender");
 
@@ -598,7 +598,7 @@ const getOlderMessages = async (req, res) => {
       conversation: convoID,
       _id: { $lt: lastMessageId },
     })
-      .sort({ timestamp: -1 })
+      .sort({ timestamp: -1, _id: -1 })
       .limit(limit);
 
     res.status(200).json(messages.reverse());
