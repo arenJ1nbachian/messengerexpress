@@ -245,7 +245,7 @@ const ComposeMessage = () => {
                     id="searchUser"
                     className="convoPicture"
                     src={
-                      !user.profilePicture.includes("null")
+                      !user.profilePicture
                         ? user.profilePicture
                         : defaultPicture
                     }
