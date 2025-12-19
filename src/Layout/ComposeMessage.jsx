@@ -223,7 +223,7 @@ const ComposeMessage = () => {
               <div
                 onClick={(e) => {
                   composeContext.setSelectedElement({
-                    picture: !user.profilePicture.includes("null")
+                    picture: !user.profilePicture
                       ? user.profilePicture
                       : defaultPicture,
                     name: user.firstname + " " + user.lastname,
