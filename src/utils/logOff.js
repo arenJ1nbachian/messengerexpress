@@ -30,7 +30,7 @@ export const logOff = (
   setSelectedElement(null);
   setNavExpanded(false);
   setShowSettings(false);
-  setChatCache(null);
+  setChatCache(new Map());
   sessionStorage.clear();
   localStorage.clear();
   setCompose(false);
