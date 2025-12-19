@@ -1,4 +1,5 @@
 export const logOff = (
+  setShowSettings,
   setProfilePicture,
   setName,
   setToken,
@@ -27,6 +28,7 @@ export const logOff = (
   setSelectedRequest(null);
   setSelectedElement(null);
   setNavExpanded(false);
+  setShowSettings(false);
   sessionStorage.clear();
   localStorage.clear();
   setCompose(false);

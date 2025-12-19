@@ -490,6 +490,7 @@ const App = () => {
    */
   const logout = useCallback(() => {
     logOff(
+      setShowSettings,
       setProfilePicture,
       setName,
       setToken,
