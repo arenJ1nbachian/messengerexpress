@@ -157,18 +157,36 @@ io.on("connection", async (socket) => {
 
   socket.on("typing", (data) => {
     const recipientSockets = getSocketsByUserId(data.receiver);
+    let timeoutId = null;
     if (data.isTyping) {
-      addTyping(data.conversationId, data.receiver);
-    } else {
-      removeTyping(data.conversationId, data.receiver);
-    }
-    if (recipientSockets) {
-      recipientSockets.forEach((recipientSocketId) => {
+      timeoutId = setTimeout(() => {
+        removeTyping(data.conversationId, data.receiver);
+        if (recipientSockets) {
+          recipientSockets?.forEach((recipientSocketId) => {
+            socket.to(recipientSocketId).emit("userTyping", {
+              convoId: data.conversationId,
+              isTyping: false,
+            });
+          });
+        }
+      }, 3000);
+      addTyping(data.conversationId, data.receiver, timeoutId);
+      recipientSockets?.forEach((recipientSocketId) => {
         socket.to(recipientSocketId).emit("userTyping", {
           convoId: data.conversationId,
           isTyping: data.isTyping,
         });
       });
+    } else {
+      removeTyping(data.conversationId, data.receiver);
+      if (recipientSockets) {
+        recipientSockets?.forEach((recipientSocketId) => {
+          socket.to(recipientSocketId).emit("userTyping", {
+            convoId: data.conversationId,
+            isTyping: data.isTyping,
+          });
+        });
+      }
     }
   });
 });

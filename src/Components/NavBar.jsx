@@ -9,7 +9,6 @@ import Button from "./NavBarButtons/Button";
 import AccButton from "./NavBarButtons/AccButton";
 import Chevron from "./NavBarButtons/Chevron";
 import "./NavBar.css";
-import { SocketContext } from "../Contexts/SocketContext";
 import { RequestContext } from "../Contexts/RequestContext";
 import { UserContext } from "../Contexts/UserContext";
 
@@ -30,7 +29,6 @@ const NavBar = () => {
   const navBar = useContext(NavContext);
   const requestContext = useContext(RequestContext);
   const userContext = useContext(UserContext);
-  const { socket } = useContext(SocketContext);
   const buttonText = ["Chats", "People", "Requests", "Archive"];
 
   useEffect(() => {
@@ -63,28 +61,6 @@ const NavBar = () => {
       getRequests();
     }
   }, []);
-
-  const { setRequestCount, requestCount } = requestContext;
-
-  const componentID = useRef(Math.floor(Math.random() * 1000)).current;
-
-  useEffect(() => {
-    if (!socket.current) return;
-
-    const handleRequestUpdate = (num) => {
-      sessionStorage.setItem("requestCount", requestCount + 1);
-      requestContext.setRequestCount((prev) => {
-        return prev + 1;
-      });
-    };
-
-    socket.current.on("updateRequestsNumber", handleRequestUpdate);
-
-    return () => {
-      if (!socket.current) return;
-      socket.current.off("updateRequestsNumber", handleRequestUpdate);
-    };
-  }, [setRequestCount]);
 
   /**
    * Fetches the user's profile picture from the server.

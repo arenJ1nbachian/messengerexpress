@@ -6,7 +6,7 @@ import "./ChatBox.css";
 import ChatContent from "./ChatContent";
 import { SocketContext } from "../Contexts/SocketContext";
 import { NavContext } from "../Contexts/NavContext";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import noConvo from "../images/noConvoSelected.png";
 import { handleRequestChoice } from "../utils/handleRequestChoice";
 import { markConversationAsRead } from "../utils/markConversationAsRead";
@@ -39,6 +39,8 @@ const Chatbox = () => {
    */
   const typingTimeoutRef = useRef(null);
 
+  const typingIntervalRef = useRef(null);
+
   /**
    * The socket object is obtained from the SocketContext and is used to emit
    * events to the server.
@@ -50,37 +52,14 @@ const Chatbox = () => {
   const navContext = useContext(NavContext);
   const composeContext = useContext(ComposeContext);
 
-  /**
-   * The id parameter is obtained from the useParams hook and is used to
-   * determine which conversation to render.
-   */
-  const { id } = useParams();
-
   useEffect(() => {
-    setInputValue("");
+    if (!convoContext.selectedConversation) return;
     isTyping.current = false;
-    if (sessionStorage.getItem("typing") && socket) {
-      const previousTyping = JSON.parse(sessionStorage.getItem("typing"));
-      socket.current.emit("typing", {
-        isTyping: false,
-        conversationId: previousTyping.conversationId,
-        receiver: previousTyping.receiver,
-      });
-      sessionStorage.removeItem("typing");
-    }
-  }, [socket]);
-
-  useEffect(() => {
-    if (sessionStorage.getItem("typing") && socket) {
-      socket.current.emit("typing", {
-        isTyping: false,
-        conversationId: id,
-        receiver: convoContext?.displayedConversations?.get(
-          convoContext.selectedConversationRef.current
-        ).userId,
-      });
-    }
-  }, [socket]);
+    typingTimeoutRef.current = null;
+    setInputValue("");
+    clearInterval(typingIntervalRef.current);
+    typingIntervalRef.current = null;
+  }, [convoContext.selectedConversation]);
 
   useEffect(() => {
     document.addEventListener("click", () => {
@@ -171,6 +150,48 @@ const Chatbox = () => {
     }
   };
 
+  const startTyping = () => {
+    if (typingIntervalRef.current) return;
+
+    socket.current.emit("typing", {
+      isTyping: true,
+      conversationId: convoContext.selectedConversation,
+      receiver: convoContext.displayedConversations.get(
+        convoContext.selectedConversation
+      ).userId,
+    });
+
+    typingIntervalRef.current = setInterval(() => {
+      socket.current.emit("typing", {
+        isTyping: true,
+        conversationId: convoContext.selectedConversation,
+        receiver: convoContext.displayedConversations.get(
+          convoContext.selectedConversation
+        ).userId,
+      });
+    }, 1500);
+  };
+
+  const stopTyping = (staleConvoId) => {
+    console.log("STALE ID", staleConvoId);
+    console.log("ACTUAL ID", convoContext.selectedConversationRef.current);
+    if (staleConvoId === convoContext.selectedConversationRef.current) {
+      clearInterval(typingIntervalRef.current);
+      typingIntervalRef.current = null;
+    }
+
+    console.log("FRONTEND TAKING CARE OF ISTYPING FALSE");
+    console.log(socket.current);
+
+    socket?.current?.emit("typing", {
+      isTyping: false,
+      conversationId: convoContext.selectedConversation,
+      receiver: convoContext.displayedConversations.get(
+        convoContext.selectedConversation
+      ).userId,
+    });
+  };
+
   /**
    * The handleChange function is used to handle the change event of the input
    * field. It is used to update the inputValue state variable and to clear the
@@ -205,36 +226,12 @@ const Chatbox = () => {
       typingTimeoutRef.current = null;
     }
 
-    if (!isTyping.current) {
-      socket.current.emit("typing", {
-        isTyping: true,
-        conversationId: id,
-        receiver: convoContext?.displayedConversations?.get(
-          convoContext.selectedConversationRef.current
-        ).userId,
-      });
-    }
-
+    startTyping();
     isTyping.current = true;
-    sessionStorage.setItem(
-      "typing",
-      JSON.stringify({
-        conversationId: id,
-        receiver: convoContext?.displayedConversations?.get(
-          convoContext.selectedConversationRef.current
-        ).userId,
-      })
-    );
 
     typingTimeoutRef.current = setTimeout(() => {
-      isTyping.current = false;
-      const previousTyping = JSON.parse(sessionStorage.getItem("typing"));
-      socket.current.emit("typing", {
-        isTyping: false,
-        conversationId: id,
-        receiver: previousTyping.receiver,
-      });
-      sessionStorage.removeItem("typing");
+      const staleConvoId = convoContext.selectedConversation;
+      stopTyping(staleConvoId);
     }, 3000);
 
     setInputValue(event.target.value);

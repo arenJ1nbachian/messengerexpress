@@ -151,37 +151,45 @@ const createConversation = async (participants, lastMessage) => {
   }
 };
 
+/**
+ * Emits a request event to the recipient but only if certain conditions are met. The user must be online and either the conversation
+ * has been rejected or pending under a isNewConvo boolean flag which indicates that the conversation has newly been created.
+ */
 const emitnewRequestEvent = async (
   io,
   newConvo,
   message,
   sender,
-  receiverID
+  receiverID,
+  isNewConvo
 ) => {
   if (searchActiveUsers(receiverID)) {
     for (const socket of getSocketsByUserId(receiverID)) {
-      if (newConvo.status === "Rejected") {
-        io.to(socket).emit("updateRequestsNumber", 1);
-        const messages = await Message.find({ conversation: newConvo._id })
-          .sort({ timestamp: -1 })
-          .limit(20)
-          .select("content timestamp _id sender");
-        io.to(socket).emit("newRequest", {
-          _id: newConvo._id.toString(),
-          lastMessage: {
-            content: message.content,
-            _id: message._id.toString(),
-          },
-          messages: messages,
-          name: sender.firstname + " " + sender.lastname,
-          profilePicture:
-            sender.profilePicture === null ? "" : sender.profilePicture,
-          read: message.read,
-          updatedAt: newConvo.updatedAt,
-          userId: sender._id.toString(),
-          who: "",
-        });
+      if (
+        newConvo.status === "Rejected" ||
+        (isNewConvo && newConvo.status === "Pending")
+      ) {
+        io.to(socket).emit("updateRequestsNumber"); // Makes the request count of the recipient's client side increment
       }
+      const messages = await Message.find({ conversation: newConvo._id })
+        .sort({ timestamp: -1 })
+        .limit(20)
+        .select("content timestamp _id sender");
+      io.to(socket).emit("newRequest", {
+        _id: newConvo._id.toString(),
+        lastMessage: {
+          content: message.content,
+          _id: message._id.toString(),
+        },
+        messages: messages,
+        name: sender.firstname + " " + sender.lastname,
+        profilePicture:
+          sender.profilePicture === null ? "" : sender.profilePicture,
+        read: message.read,
+        updatedAt: newConvo.updatedAt,
+        userId: sender._id.toString(),
+        who: "",
+      });
     }
   } else {
     console.log("User is offline, there's no need to emit the event");
@@ -319,7 +327,7 @@ const rejectRequest = async (req, res) => {
 const emitRemoveFromRequestsEvent = (io, convoID, receiverID) => {
   if (searchActiveUsers(receiverID)) {
     for (const socket of getSocketsByUserId(receiverID)) {
-      io.to(socket).emit("removeFromRequests", { convoID });
+      io.to(socket).emit("removeFromRequests", convoID);
     }
   } else {
     console.log("User is offline, there's no need to emit the event");
@@ -371,12 +379,23 @@ const handleExistingConversation = async (
   ) {
     convo.status = "Accepted";
     emitRealTimeEvent(io, convo, newMessage, sender, receiver._id.toString());
-    emitRemoveFromRequestsEvent(io, convo._id, sender._id.toString());
+    emitRemoveFromRequestsEvent(
+      io,
+      convo._id.toString(),
+      sender._id.toString()
+    );
   } else if (
     (convo.status === "Pending" || convo.status === "Rejected") &&
     lastMessage.sender.equals(sender._id)
   ) {
-    emitnewRequestEvent(io, convo, newMessage, sender, receiver._id.toString());
+    emitnewRequestEvent(
+      io,
+      convo,
+      newMessage,
+      sender,
+      receiver._id.toString(),
+      false
+    );
   }
 
   await updateConversation(convo, newMessage);
@@ -423,12 +442,9 @@ const handleNewConversation = async (
     newConvo,
     newMessage,
     sender,
-    receiver._id.toString()
+    receiver._id.toString(),
+    true
   );
-
-  if (searchActiveUsers(receiver._id.toString())) {
-    console.log("Updating requests number");
-  }
 
   return {
     convoSender: {

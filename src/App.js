@@ -213,51 +213,46 @@ const App = () => {
    */
   const socket = useRef();
 
+  /**
+   * The effect to set the socket when the user logs in and the event listeners
+   */
   useEffect(() => {
-    const newRequest = (request) => {
-      console.log("RECEIVED NEW REQUEST", request);
-      setRequests((prev) => {
-        const requestMap = new Map(prev);
-        requestMap.set(request._id, request);
-
-        const sortedRequests = new Map(
-          [...requestMap.entries()].sort((a, b) => {
-            return new Date(b[1].updatedAt) - new Date(a[1].updatedAt);
-          })
-        );
-
-        sessionStorage.setItem(
-          "requests",
-          JSON.stringify(Array.from(sortedRequests.entries()))
-        );
-
-        return sortedRequests;
+    if (userId) {
+      socket.current = io("http://localhost:5000", {
+        query: { uid: userId },
+        withCredentials: true,
+        transports: ["websocket"],
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
       });
-      setRequestCount((prev) => {
-        const count = prev + 1;
-        sessionStorage.setItem("requestCount", count);
-        return count;
-      });
-    };
-    if (socket.current) {
-      socket.current.on("newRequest", newRequest);
-      socket.current.on("removeFromRequests", (convoID) => {
+
+      const newRequest = (request) => {
+        console.log("NEW REQUEST DETECTED", request);
         setRequests((prev) => {
           const requestMap = new Map(prev);
-          requestMap.delete(convoID);
+          requestMap.set(request._id, request);
+
+          const sortedRequests = new Map(
+            [...requestMap.entries()].sort((a, b) => {
+              return new Date(b[1].updatedAt) - new Date(a[1].updatedAt);
+            })
+          );
+
+          //    sessionStorage.setItem("requestCount", requestCount + 1);
+          /*   setRequestCount((prev) => {
+            return prev + 1;
+          });*/
+
           sessionStorage.setItem(
             "requests",
-            JSON.stringify(Array.from(requestMap.entries()))
+            JSON.stringify(Array.from(sortedRequests.entries()))
           );
-          return requestMap;
+
+          return sortedRequests;
         });
-        setRequestCount((prev) => {
-          const count = prev - 1;
-          sessionStorage.setItem("requestCount", count);
-          return count;
-        });
-      });
-      socket.current.on("updateConversationHeader", (convo) => {
+      };
+      const updateConversationHeader = (convo) => {
         if (convo.convoReceiver._id === selectedConversationRef.current) {
           markConversationAsRead(convo.convoReceiver._id);
           convo.convoReceiver.read = true;
@@ -302,22 +297,42 @@ const App = () => {
 
           return newChatCache;
         });
-      });
-      socket.current.on("userOffline", (data) => {
+      };
+
+      const removeFromRequests = (convoID) => {
+        setRequests((prev) => {
+          const requestMap = new Map(prev);
+          requestMap.delete(convoID);
+          sessionStorage.setItem(
+            "requests",
+            JSON.stringify(Array.from(requestMap.entries()))
+          );
+          return requestMap;
+        });
+        setRequestCount((prev) => {
+          const count = prev - 1;
+          sessionStorage.setItem("requestCount", count);
+          return count;
+        });
+      };
+
+      const userOffline = (data) => {
         setActiveContacts((prev) => {
           let activeContactsMap = new Map(prev.map((c) => [c.userId, c]));
           activeContactsMap.delete(data);
           return Array.from(activeContactsMap.values());
         });
-      });
-      socket.current.on("userOnline", (data) => {
+      };
+
+      const userOnline = (data) => {
         setActiveContacts((prev) => {
           let activeContactsMap = new Map(prev.map((c) => [c.userId, c]));
           activeContactsMap.set(data.userId, data);
           return Array.from(activeContactsMap.values());
         });
-      });
-      socket.current.on("userTyping", (typingInfo) => {
+      };
+
+      const userTyping = (typingInfo) => {
         console.log("USER TYPING", typingInfo);
         if (typingInfo.isTyping) {
           setUsersTyping((prev) => {
@@ -343,9 +358,10 @@ const App = () => {
 
           typingTimeoutsRef.current.set(typingInfo.convoId, timeout);
         }
-      });
-      socket.current.on("restoredTyping", (convos) => {
-        console.log("RESTORED TYPING", convos);
+      };
+
+      const restoredTyping = (convos) => {
+        console.log("FOUND PREVIOUS LOST TYPINGS");
         setUsersTyping((prev) => {
           const typingMap = new Set(prev);
           convos.forEach((convoId) => {
@@ -353,36 +369,42 @@ const App = () => {
           });
           return typingMap;
         });
-      });
-    }
+      };
 
-    return () => {
+      const updateRequestsNumber = () => {
+        sessionStorage.setItem("requestCount", requestCount + 1);
+        setRequestCount((prev) => {
+          return prev + 1;
+        });
+      };
       if (socket.current) {
-        socket.current.off("newRequest", newRequest);
-        socket.current.off("updateConversationHeader");
-        socket.current.off("userOffline");
-        socket.current.off("userOnline");
-        socket.current.off("userTyping");
-        socket.current.off("restoredTyping");
+        socket.current.on("newRequest", newRequest);
+        socket.current.on("updateRequestsNumber", updateRequestsNumber);
+        socket.current.on("removeFromRequests", removeFromRequests);
+        socket.current.on("updateConversationHeader", updateConversationHeader);
+        socket.current.on("userOffline", userOffline);
+        socket.current.on("userOnline", userOnline);
+        socket.current.on("userTyping", userTyping);
+        socket.current.on("restoredTyping", restoredTyping);
       }
-    };
-  }, []);
 
-  /**
-   * The effect to set the socket when the user logs in
-   */
-  useEffect(() => {
-    if (token && userId) {
-      socket.current = io("http://localhost:5000", {
-        query: { uid: userId },
-        withCredentials: true,
-        transports: ["websocket"],
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-      });
+      return () => {
+        if (socket.current) {
+          socket.current.off("updateRequestsNumber", updateRequestsNumber);
+          socket.current.off("newRequest", newRequest);
+          socket.current.off(
+            "updateConversationHeader",
+            updateConversationHeader
+          );
+          socket.current.off("removeFromRequests", removeFromRequests);
+          socket.current.off("userOffline", userOffline);
+          socket.current.off("userOnline", userOnline);
+          socket.current.off("userTyping", userTyping);
+          socket.current.off("restoredTyping", restoredTyping);
+        }
+      };
     }
-  }, [userId, token]);
+  }, [userId]);
 
   useEffect(() => {
     if (token && userId) {
@@ -444,9 +466,8 @@ const App = () => {
   /**
    * The callback to turn the compose button on or off
    * @param {boolean} bool - whether the compose button should be on or off
-   * @param {number} convoID - the ID of the conversation
    */
-  const composeOff = useCallback((bool, convoID) => {
+  const composeOff = useCallback((bool) => {
     if (!bool) {
       setCompose(false);
     } else {
