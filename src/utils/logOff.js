@@ -1,4 +1,6 @@
 export const logOff = (
+  setProfilePicture,
+  setName,
   setToken,
   setUserId,
   setSelected,
@@ -16,6 +18,8 @@ export const logOff = (
 ) => {
   socket.removeAllListeners();
   socket.close();
+  setProfilePicture(null);
+  setName(null);
   setToken(null);
   setUserId(null);
   setSelected(0);

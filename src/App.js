@@ -489,9 +489,9 @@ const App = () => {
    * The callback to log the user out
    */
   const logout = useCallback(() => {
-    console.log("TESTING");
-    console.log(socket);
     logOff(
+      setProfilePicture,
+      setName,
       setToken,
       setUserId,
       setSelected,
