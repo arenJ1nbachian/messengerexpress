@@ -581,7 +581,7 @@ const getRecentMessage = async (req, res) => {
       .limit(limit)
       .select("content timestamp _id sender");
 
-    res.status(200).json(messages.reverse());
+    res.status(200).json(messages);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });
@@ -601,7 +601,7 @@ const getOlderMessages = async (req, res) => {
       .sort({ timestamp: -1, _id: -1 })
       .limit(limit);
 
-    res.status(200).json(messages.reverse());
+    res.status(200).json(messages);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });
