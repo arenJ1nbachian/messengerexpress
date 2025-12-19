@@ -1,4 +1,5 @@
 export const logOff = (
+  setChatCache,
   setShowSettings,
   setProfilePicture,
   setName,
@@ -29,6 +30,7 @@ export const logOff = (
   setSelectedElement(null);
   setNavExpanded(false);
   setShowSettings(false);
+  setChatCache(null);
   sessionStorage.clear();
   localStorage.clear();
   setCompose(false);

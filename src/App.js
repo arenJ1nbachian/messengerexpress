@@ -490,6 +490,7 @@ const App = () => {
    */
   const logout = useCallback(() => {
     logOff(
+      setChatCache,
       setShowSettings,
       setProfilePicture,
       setName,
