@@ -5,6 +5,7 @@ const convoRoutes = require("./routes/convo-routes");
 const mongoose = require("mongoose");
 const app = express();
 const http = require("http");
+const cors = require("cors");
 const Users = require("./models/user");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
@@ -198,16 +199,14 @@ io.on("connection", async (socket) => {
   });
 });
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", `${FRONT_END}`);
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  next();
-});
+app.use(
+  cors({
+    origin: FRONT_END,
+    credentials: true,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 app.use("/api/users", usersRoutes);
 app.use("/api/messages", messagesRoutes);

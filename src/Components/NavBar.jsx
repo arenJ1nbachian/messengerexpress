@@ -11,6 +11,7 @@ import Chevron from "./NavBarButtons/Chevron";
 import "./NavBar.css";
 import { RequestContext } from "../Contexts/RequestContext";
 import { UserContext } from "../Contexts/UserContext";
+const REACT_APP_API_BASE = process.env.REACT_APP_API_BASE;
 
 /**
  * A navigation bar component that displays the current user's
@@ -35,7 +36,7 @@ const NavBar = () => {
     const getRequests = async () => {
       try {
         const requests = await fetch(
-          `http://localhost:5000/api/conversations/getRequestCount/` +
+          `${REACT_APP_API_BASE}/api/conversations/getRequestCount/` +
             sessionStorage.getItem("userId"),
           {
             method: "GET",
@@ -69,7 +70,7 @@ const NavBar = () => {
   const fetchProfilePicture = async (uid) => {
     try {
       const res = await fetch(
-        "http://localhost:5000/api/users/" + uid + "/picture",
+        `${REACT_APP_API_BASE}/api/users/` + uid + "/picture",
         {
           method: "GET",
           headers: {
@@ -95,7 +96,7 @@ const NavBar = () => {
   const fetchName = async (uid) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/users/` + uid + "/info",
+        `${REACT_APP_API_BASE}/api/users/` + uid + "/info",
         {
           method: "GET",
           headers: {

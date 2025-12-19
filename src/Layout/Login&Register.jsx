@@ -4,7 +4,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "../Contexts/UserContext";
 import logo from "../images/messengerLogo.png";
 import pfp from "../images/imgUpload.svg";
-
+const REACT_APP_API_BASE = process.env.REACT_APP_API_BASE;
 /**
  * Handles the login functionality
  *
@@ -151,7 +151,7 @@ const Login = () => {
       }
 
       try {
-        const res = await fetch(`http://localhost:5000/api/users/register`, {
+        const res = await fetch(`${REACT_APP_API_BASE}/api/users/register`, {
           method: "POST",
           body: data,
         });
@@ -254,7 +254,7 @@ const Login = () => {
     e.preventDefault();
     if (formIsValid()) {
       try {
-        const res = await fetch(`http://localhost:5000/api/users/login`, {
+        const res = await fetch(`${REACT_APP_API_BASE}/api/users/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

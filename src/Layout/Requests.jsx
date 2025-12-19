@@ -8,6 +8,7 @@ import norequestPicture from "../images/norequest.png";
 import { ComposeContext } from "../Contexts/ComposeContext";
 import { ConversationContext } from "../Contexts/ConversationContext";
 import { RequestContext } from "../Contexts/RequestContext";
+const REACT_APP_API_BASE = process.env.REACT_APP_API_BASE;
 
 /**
  * This component is used to display the requests page of the chat application.
@@ -27,7 +28,7 @@ const Requests = () => {
     const getRequests = async () => {
       try {
         const requests = await fetch(
-          `http://localhost:5000/api/conversations/getRequests/` +
+          `${REACT_APP_API_BASE}/api/conversations/getRequests/` +
             sessionStorage.getItem("userId"),
           {
             method: "GET",

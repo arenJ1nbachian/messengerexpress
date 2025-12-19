@@ -1,7 +1,8 @@
+const REACT_APP_API_BASE = process.env.REACT_APP_API_BASE;
 export const markConversationAsRead = async (convoID) => {
   try {
     const res = await fetch(
-      `http://localhost:5000/api/conversations/convoRead`,
+      `${REACT_APP_API_BASE}/api/conversations/convoRead`,
       {
         method: "PATCH",
         headers: {

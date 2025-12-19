@@ -14,7 +14,7 @@ import { ConversationContext } from "../Contexts/ConversationContext";
 import { RequestContext } from "../Contexts/RequestContext";
 import { ComposeContext } from "../Contexts/ComposeContext";
 import { ChatCacheContext } from "../Contexts/ChatCacheContext";
-
+const REACT_APP_API_BASE = process.env.REACT_APP_API_BASE;
 /**
  * The Chatbox component is responsible for rendering the chat content and
  * input box of the chat application. It also handles the logic for sending
@@ -82,7 +82,7 @@ const Chatbox = () => {
     if (inputValue.length > 0) {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/conversations/createConvo`,
+          `${REACT_APP_API_BASE}/api/conversations/createConvo`,
           {
             method: "POST",
             headers: {

@@ -5,7 +5,7 @@ import unread from "../../images/unread.svg";
 import Convo from "./Convo";
 import { ConversationContext } from "../../Contexts/ConversationContext";
 import { ComposeContext } from "../../Contexts/ComposeContext";
-
+const REACT_APP_API_BASE = process.env.REACT_APP_API_BASE;
 /**
  * ConvoBox component.
  *
@@ -30,7 +30,7 @@ const ConvoBox = () => {
         convoContext.isConvosFullyLoaded.current = true;
         console.log("Getting conversations");
         const conversations = await fetch(
-          `http://localhost:5000/api/conversations/getConvos/` +
+          `${REACT_APP_API_BASE}/api/conversations/getConvos/` +
             sessionStorage.getItem("userId"),
           {
             headers: {

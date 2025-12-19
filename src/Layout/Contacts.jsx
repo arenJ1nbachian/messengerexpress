@@ -8,7 +8,7 @@ import { markConversationAsRead } from "../utils/markConversationAsRead";
 import { ActiveUsersContext } from "../Contexts/ActiveUsersContext";
 import { ConversationContext } from "../Contexts/ConversationContext";
 import { ComposeContext } from "../Contexts/ComposeContext";
-
+const REACT_APP_API_BASE = process.env.REACT_APP_API_BASE;
 /**
  * Component that displays a list of active contacts in the chat box.
  * @returns {ReactElement} The component.
@@ -36,7 +36,7 @@ const Contacts = () => {
       // Fetch the online users when the component mounts.
       const fetchUsersOnline = async () => {
         try {
-          const res = await fetch(`http://localhost:5000/api/users/getOnline`, {
+          const res = await fetch(`${REACT_APP_API_BASE}/api/users/getOnline`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
