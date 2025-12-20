@@ -71,6 +71,8 @@ const Chatbox = () => {
 
     if (inputValue.length > 0) {
       try {
+        stopTyping(convoContext.selectedConversationRef.current);
+        clearTimeout(typingTimeoutRef.current);
         const res = await fetch(
           `${REACT_APP_API_BASE}/api/conversations/createConvo`,
           {

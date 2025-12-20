@@ -54,3 +54,20 @@
 .userConvo {
   cursor: pointer;
 }
+
+.typing-text-header {
+  color: #2c6ce4;
+  font-style: italic;
+  font-weight: 500;
+  animation: pulseText 1.5s infinite;
+}
+
+@keyframes pulseText {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

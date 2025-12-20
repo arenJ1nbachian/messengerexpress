@@ -56,13 +56,6 @@ const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
           <div id="flName">{`${
             convoContext.displayedConversations.get(id).name
           } `}</div>
-          {userTypingContext.usersTyping.has(id) && (
-            <div className="typing-indicator">
-              <span className="dot">•</span>
-              <span className="dot">•</span>
-              <span className="dot">•</span>
-            </div>
-          )}
         </div>
         <div
           id="latest-message"
@@ -72,14 +65,20 @@ const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
               ? "unread"
               : ""
           }`}
-        >{`${convoContext.displayedConversations.get(id).who} ${
-          convoContext.displayedConversations.get(id).lastMessage.content
-            .length > 35 && !navContext.navExpanded
-            ? convoContext.displayedConversations
-                .get(id)
-                .lastMessage.content.slice(0, 50) + "..."
-            : convoContext.displayedConversations.get(id).lastMessage.content
-        }`}</div>
+        >
+          {userTypingContext.usersTyping.has(id) ? (
+            <span className="typing-text-header">is typing...</span>
+          ) : `${convoContext.displayedConversations.get(id).who}        
+        ` &&
+            convoContext.displayedConversations.get(id).lastMessage.content
+              .length > 35 ? (
+            `${convoContext.displayedConversations
+              .get(id)
+              .lastMessage.content.slice(0, 32)}...`
+          ) : (
+            convoContext.displayedConversations.get(id).lastMessage.content
+          )}
+        </div>
       </div>
       {!convoContext.displayedConversations.get(id).read &&
         convoContext.displayedConversations.get(id).who.length === 0 && (

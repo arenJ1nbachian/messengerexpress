@@ -239,11 +239,6 @@ const App = () => {
             })
           );
 
-          //    sessionStorage.setItem("requestCount", requestCount + 1);
-          /*   setRequestCount((prev) => {
-            return prev + 1;
-          });*/
-
           sessionStorage.setItem(
             "requests",
             JSON.stringify(Array.from(sortedRequests.entries()))
@@ -354,7 +349,7 @@ const App = () => {
               return typingMap;
             });
             typingTimeoutsRef.current.delete(typingInfo.convoId);
-          }, 2000);
+          }, 500);
 
           typingTimeoutsRef.current.set(typingInfo.convoId, timeout);
         }

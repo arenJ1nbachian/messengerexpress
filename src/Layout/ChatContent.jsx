@@ -6,6 +6,7 @@ import { ChatCacheContext } from "../Contexts/ChatCacheContext";
 import { ComposeContext } from "../Contexts/ComposeContext";
 import { ConversationContext } from "../Contexts/ConversationContext";
 import { RequestContext } from "../Contexts/RequestContext";
+import { UserTypingContext } from "../Contexts/UserTypingContext";
 
 const ChatContent = ({ request }) => {
   const userContext = useContext(UserContext);
@@ -13,6 +14,7 @@ const ChatContent = ({ request }) => {
   const composeContext = useContext(ComposeContext);
   const convoContext = useContext(ConversationContext);
   const requestContext = useContext(RequestContext);
+  const userTypingContext = useContext(UserTypingContext);
 
   return request ? (
     <div className="chat scrollBar">
@@ -41,6 +43,19 @@ const ChatContent = ({ request }) => {
     </div>
   ) : (
     <div className="chat scrollBar">
+      {userTypingContext.usersTyping.has(
+        convoContext.selectedConversationRef.current
+      ) && (
+        <div className="bubble-message-container">
+          <div className="bubble-message received typing-bubble">
+            <div className="typing-indicator">
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+            </div>
+          </div>
+        </div>
+      )}
       {chatCacheContext.chatCache.size > 0 &&
         !composeContext.compose &&
         chatCacheContext.chatCache
