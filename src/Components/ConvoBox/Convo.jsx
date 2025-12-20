@@ -68,15 +68,17 @@ const Convo = ({ id, picture, setConvoHovered, convoHovered, unread }) => {
         >
           {userTypingContext.usersTyping.has(id) ? (
             <span className="typing-text-header">is typing...</span>
-          ) : `${convoContext.displayedConversations.get(id).who}        
-        ` &&
-            convoContext.displayedConversations.get(id).lastMessage.content
-              .length > 35 ? (
-            `${convoContext.displayedConversations
-              .get(id)
-              .lastMessage.content.slice(0, 32)}...`
           ) : (
-            convoContext.displayedConversations.get(id).lastMessage.content
+            <span>
+              {convoContext.displayedConversations.get(id).who}{" "}
+              {convoContext.displayedConversations.get(id).lastMessage.content
+                .length > 35
+                ? `${convoContext.displayedConversations
+                    .get(id)
+                    .lastMessage.content.slice(0, 32)}...`
+                : convoContext.displayedConversations.get(id).lastMessage
+                    .content}{" "}
+            </span>
           )}
         </div>
       </div>

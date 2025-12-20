@@ -16,7 +16,8 @@ export const logOff = (
   isConvosFullyLoaded,
   setDisplayedConversations,
   selectedConversationRef,
-  socket
+  socket,
+  setUsersTyping
 ) => {
   socket.removeAllListeners();
   socket.close();
@@ -39,4 +40,5 @@ export const logOff = (
   isConvosFullyLoaded.current = false;
   setDisplayedConversations([]);
   selectedConversationRef.current = null;
+  setUsersTyping(new Set());
 };

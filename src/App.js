@@ -502,7 +502,8 @@ const App = () => {
       isConvosFullyLoaded,
       setDisplayedConversations,
       selectedConversationRef,
-      socket.current
+      socket.current,
+      setUsersTyping
     );
   }, []);
 
